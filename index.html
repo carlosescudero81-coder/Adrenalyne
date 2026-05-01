@@ -626,12 +626,12 @@ nav{background:var(--surface);border-top:1px solid var(--border);
       </div>
       <div class="settings-card">
         <button class="settings-btn p2color" onclick="openShareModal()">
-          <span class="icon">📲</span>
-          <span>Enviar mi checklist<span class="sub">Comparte tus cromos conseguidos con tu compañero</span></span>
+          <span class="icon">🔗</span>
+          <span>Enviar enlace mágico<span class="sub">WhatsApp · 1 clic para sincronizar ✨</span></span>
         </button>
         <button class="settings-btn" onclick="document.getElementById('importFile').click()">
           <span class="icon">📥</span>
-          <span>Importar checklist del compañero<span class="sub">Carga el JSON que te envió tu compañero</span></span>
+          <span>Importar JSON (alternativa)<span class="sub">Si el enlace falla, importa el archivo</span></span>
         </button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importCompanion(event)">
         <button class="settings-btn danger" onclick="clearCompanion()">
@@ -725,7 +725,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
         </button>
         <div class="settings-btn" style="cursor:default">
           <span class="icon">ℹ️</span>
-          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.0 · Datos guardados offline</span></span>
+          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.3 · Botón respuesta directa ✨</span></span>
         </div>
       </div>
     </div>
@@ -830,15 +830,15 @@ nav{background:var(--surface);border-top:1px solid var(--border);
     <h3>📲 Enviar mi checklist</h3>
     <div class="share-modal-body">
       <div class="share-info">
-        <strong>¿Cómo funciona?</strong>
-        Se descargará un archivo JSON con tus cromos. Envíaselo por WhatsApp. Tu compañero lo importa desde Ajustes → "Importar checklist del compañero" y sus cromos se <strong>suman</strong> a los tuyos sin borrar nada. ¡Siempre acumulativo!
+        <strong>✨ Enlace mágico — súper sencillo</strong><br>
+        Se generará un enlace especial y se enviará por WhatsApp. Tu compañero solo tiene que <strong>pulsar el enlace</strong> y la app se abre directamente y suma tus cromos. ¡Sin descargar archivos, sin importar nada!
       </div>
       <p style="font:600 14px var(--font);color:var(--text2)" id="shareStats"></p>
     </div>
     <br>
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-p2" onclick="doShare()">📥 Descargar y enviar</button>
+      <button class="btn btn-p2" onclick="doShare()">🔗 Enviar enlace mágico</button>
     </div>
   </div>
 </div>
@@ -863,6 +863,33 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 </div>
 
 <script>
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  🚀 INSTRUCCIÓN DE ACTUALIZACIÓN DE VERSIÓN                 ║
+// ╠══════════════════════════════════════════════════════════════════════════════╣
+// ║                                                                              ║
+// ║  CADA VEZ que se modifique este archivo y se suba a GitHub,                 ║
+// ║  HAY QUE incrementar el número de versión en esta línea:                    ║
+// ║                                                                              ║
+// ║      const APP_VERSION = '3.3';    ← CAMBIAR SIEMPRE AL MODIFICAR          ║
+// ║                                                                              ║
+// ║  Está justo debajo, en el bloque del Service Worker (busca APP_VERSION).    ║
+// ║                                                                              ║
+// ║  ¿Por qué? Cuando los amigos abran la app, el SW detecta el número nuevo    ║
+// ║  y muestra automáticamente el banner "¡Nueva versión disponible!".          ║
+// ║  Si NO se cambia el número, los amigos NO verán la actualización.           ║
+// ║                                                                              ║
+// ║  Ejemplo de incremento:                                                      ║
+// ║      3.1 → 3.2 → 3.3 → 4.0  (el número que quieras, solo que sea distinto) ║
+// ║                                                                              ║
+// ║  HISTORIAL DE VERSIONES:                                                     ║
+// ║  · 3.0 — Versión base con checklist, perfil y compañero                     ║
+// ║  · 3.1 — Enlace mágico WhatsApp + auto-actualización PWA                    ║
+// ║  · 3.2 — Sync automático: popup celebración directo, sin confirmación        ║
+// ║  · 3.3 — Botón 'Enviarle los míos' en el popup de celebración               ║
+// ║  · 3.x — (próximas versiones aquí)                                          ║
+// ║                                                                              ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
+
 // ─────────────────────────────────────────────────────────
 //  PWA
 // ─────────────────────────────────────────────────────────
@@ -881,7 +908,8 @@ nav{background:var(--surface);border-top:1px solid var(--border);
       name:"Adrenalyn XL 25/26",
       short_name:"Cromos 25/26",
       description:"Checklist de cromos Adrenalyn XL La Liga 2025-26",
-      start_url:"./",
+      start_url:"https://carlosescudero81-coder.github.io/Adrenalyne/",
+      scope:"https://carlosescudero81-coder.github.io/Adrenalyne/",
       display:"standalone",
       background_color:"#0f172a",
       theme_color:"#2563eb",
@@ -898,12 +926,14 @@ nav{background:var(--surface);border-top:1px solid var(--border);
     document.head.appendChild(l);
   }catch(e){}
 
-  // ── SERVICE WORKER ───────────────────────────────────────────────────────────
-  // Incrustamos el SW como Blob e intentamos registrarlo. Chrome Android acepta
-  // blob: URLs para SW siempre que el scope sea el mismo origen de la página.
+  // ── SERVICE WORKER con detección de actualizaciones ──────────────────────────
+  // APP_VERSION: incrementa este número cada vez que publiques una nueva versión.
+  // El SW detectará el cambio y mostrará el banner de actualización automáticamente.
+  const APP_VERSION = '3.3';
+
   if('serviceWorker' in navigator){
     const swCode=`
-const CACHE='cromos-v4';
+const CACHE='cromos-v${APP_VERSION}';
 const PAGE=self.location.href.replace(/\\/[^\\/]*$/,'/');
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll([PAGE]).catch(()=>{})));
@@ -912,19 +942,76 @@ self.addEventListener('install',e=>{
 self.addEventListener('activate',e=>{
   e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
   self.clients.claim();
+  // Notificar a todos los clientes que hay nueva versión
+  self.clients.matchAll({includeUncontrolled:true}).then(clients=>{
+    clients.forEach(c=>c.postMessage({type:'NEW_VERSION',version:'${APP_VERSION}'}));
+  });
 });
 self.addEventListener('fetch',e=>{
   if(e.request.mode==='navigate'){
-    e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match(PAGE))));
+    e.respondWith(fetch(e.request).then(r=>{
+      const clone=r.clone();
+      caches.open(CACHE).then(c=>c.put(e.request,clone));
+      return r;
+    }).catch(()=>caches.match(e.request).then(r=>r||caches.match(PAGE))));
   }
 });`;
     try{
       const b=new Blob([swCode],{type:'text/javascript'});
       const swUrl=URL.createObjectURL(b);
-      navigator.serviceWorker.register(swUrl,{scope:'./'}).catch(()=>{});
+      navigator.serviceWorker.register(swUrl,{scope:'./'})
+        .then(reg=>{
+          // Comprobar actualizaciones al abrir la app
+          reg.update();
+          // Escuchar mensajes del SW sobre nueva versión
+          navigator.serviceWorker.addEventListener('message',ev=>{
+            if(ev.data&&ev.data.type==='NEW_VERSION'){
+              showUpdateBanner(ev.data.version);
+            }
+          });
+        }).catch(()=>{});
     }catch(e){}
   }
 })();
+
+// ─────────────────────────────────────────────────────────
+//  BANNER DE ACTUALIZACIÓN
+// ─────────────────────────────────────────────────────────
+function showUpdateBanner(version){
+  // No mostrar si ya hay un banner
+  if(document.getElementById('updateBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'updateBanner';
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+      <span style="font-size:20px">🚀</span>
+      <div style="min-width:0">
+        <div style="font:800 13px var(--font);color:#fff">¡Nueva versión disponible! v${version}</div>
+        <div style="font:600 11px var(--font);color:rgba(255,255,255,.7)">Toca para actualizar ahora</div>
+      </div>
+    </div>
+    <button onclick="applyUpdate()" style="flex-shrink:0;background:#fff;color:#2563eb;border:none;border-radius:20px;padding:8px 16px;font:800 12px var(--font);cursor:pointer;white-space:nowrap">Actualizar</button>
+    <button onclick="this.parentElement.remove()" style="flex-shrink:0;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+  `;
+  banner.style.cssText = `position:fixed;bottom:calc(64px + env(safe-area-inset-bottom) + 8px);left:8px;right:8px;max-width:484px;margin:0 auto;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:10px;z-index:500;box-shadow:0 8px 32px rgba(37,99,235,.4);animation:slideUpBanner .4s cubic-bezier(.34,1.56,.64,1) forwards`;
+  // Añadir keyframe si no existe
+  if(!document.getElementById('bannerKF')){
+    const s=document.createElement('style');
+    s.id='bannerKF';
+    s.textContent='@keyframes slideUpBanner{from{transform:translateY(120px);opacity:0}to{transform:translateY(0);opacity:1}}';
+    document.head.appendChild(s);
+  }
+  document.body.appendChild(banner);
+}
+
+function applyUpdate(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration().then(reg=>{
+      if(reg&&reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
+    });
+  }
+  window.location.reload();
+}
 
 // ─────────────────────────────────────────────────────────
 //  ESCUDOS DE EQUIPOS (emojis y colores representativos)
@@ -1549,35 +1636,177 @@ function undo(){
 //  COMPARTIR
 // ─────────────────────────────────────────────────────────
 function openShareModal(){
-  document.getElementById('shareStats').textContent=
-    `Tienes ${myCards.size} cromos conseguidos de ${allCards.length} totales.`;
+  const link = buildMagicLink();
+  const linkLen = link ? link.length : 0;
+  const tooLong = linkLen > 3800;
+  document.getElementById('shareStats').textContent =
+    `Tienes ${myCards.size} cromos · ${tooLong ? '⚠️ Enlace largo, se enviará JSON' : `🔗 Enlace listo (${linkLen} caracteres)`}`;
   document.getElementById('shareModal').classList.add('open');
+}
+
+// ─────────────────────────────────────────────────────────
+//  SISTEMA DE ENLACE MÁGICO (sync por URL)
+// ─────────────────────────────────────────────────────────
+
+// Codifica los datos en base64 comprimido para la URL
+function encodeSyncData(payload){
+  try{
+    const json = JSON.stringify(payload);
+    // Compresión simple pero eficaz: convertir array de IDs numéricos a rangos
+    return btoa(unescape(encodeURIComponent(json)));
+  }catch(e){ return null; }
+}
+
+function decodeSyncData(encoded){
+  try{
+    const json = decodeURIComponent(escape(atob(encoded)));
+    return JSON.parse(json);
+  }catch(e){ return null; }
+}
+
+// Genera la URL mágica con los datos del jugador incrustados
+function buildMagicLink(){
+  const name = userProfile.name || 'Jugador';
+  const payload = {
+    v: 3,
+    t: 'sync',
+    from: name,
+    emoji: userProfile.emoji,
+    color: userProfile.color,
+    ids: [...myCards],
+    cc: customCards.map(c=>({id:c.id,label:c.label,block:c.block,group:c.group||''}))
+  };
+  const encoded = encodeSyncData(payload);
+  if(!encoded) return null;
+  const baseUrl = 'https://carlosescudero81-coder.github.io/Adrenalyne/';
+  return `${baseUrl}?sync=${encoded}`;
+}
+
+// Comprueba si hay datos de sync en la URL al arrancar la app
+function checkSyncFromURL(){
+  try{
+    const params = new URLSearchParams(window.location.search);
+    const syncParam = params.get('sync');
+    if(!syncParam) return;
+    // Limpiar la URL inmediatamente (sin recargar) para que no se procese de nuevo
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+    const data = decodeSyncData(syncParam);
+    if(!data || data.t !== 'sync' || !Array.isArray(data.ids)) return;
+    // Guardar para procesar después de que la app esté inicializada
+    window._pendingSyncFromURL = data;
+  }catch(e){}
+}
+
+// Procesa los datos de sync tras inicializar la app.
+// Cuando llega por enlace mágico (URL) se aplica AUTOMÁTICAMENTE sin confirmación
+// y se muestra directamente el popup de celebración. ¡Cero clics extra!
+function processSyncFromURL(){
+  const data = window._pendingSyncFromURL;
+  if(!data) return;
+  window._pendingSyncFromURL = null;
+
+  const fromName  = data.from  || 'Compañero';
+  const fromEmoji = data.emoji || '🎉';
+  const fromColor = data.color || '#f97316';
+
+  // Validar IDs recibidos
+  const validIds = new Set(allCards.map(c=>c.id));
+  const customCardsData = Array.isArray(data.cc) ? data.cc : [];
+  for(const cc of customCardsData) if(cc.id) validIds.add(cc.id);
+  const ids = (data.ids||[]).filter(id=>typeof id==='string' && validIds.has(id));
+
+  // ── Aplicar import directamente, sin modal ──────────────────
+  const newIds = ids.filter(id => !theirCards.has(id));
+  for(const id of ids) theirCards.add(id);
+
+  // Actualizar nombre del compañero si viene y no hay uno guardado
+  if(data.from){
+    const inp = document.getElementById('p2NameInput');
+    if(!inp.value){
+      inp.value = data.from;
+      updateP2Name(data.from);
+      dbSet(STORE_P2NAME, data.from);
+    }
+  }
+
+  // Fusionar cartas personalizadas del compañero
+  const newCustomCards = [];
+  const existingIds = new Set(customCards.map(c=>c.id));
+  for(const cc of customCardsData){
+    if(!existingIds.has(cc.id) && cc.id && cc.label && cc.block){
+      customCards.push(cc);
+      newCustomCards.push(cc);
+    }
+  }
+  if(newCustomCards.length > 0){
+    injectCustomCards();
+    mapExpanded.clear();
+    renderCustomCardsList();
+    renderBisCardsList();
+    syncBisFilterVisibility();
+  }
+
+  saveAll();
+  renderAll();
+  vibrate([30,20,30,20,60]);
+
+  // ── Mostrar popup de celebración directamente ───────────────
+  setTimeout(()=>{
+    showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards);
+  }, 500)
 }
 
 function doShare(){
   closeModals();
   const name = userProfile.name || 'Jugador';
+  const magicLink = buildMagicLink();
+
+  if(!magicLink){
+    showToast('⚠️ Error generando el enlace');
+    return;
+  }
+
+  // Comprobar si el enlace no es demasiado largo para WhatsApp (límite ~4000 chars)
+  if(magicLink.length > 3800){
+    // Fallback: descargar JSON si hay demasiados datos
+    _doShareFallbackJSON(name);
+    return;
+  }
+
+  const fecha = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long'});
+  const msg = `⚽ *${name} — Adrenalyn XL 25/26*\n\n✅ Llevo *${myCards.size} cromos* conseguidos.\n\n👇 *Pulsa este enlace para actualizar la colección conjunta:*\n${magicLink}\n\n_(Se abre la app directamente y suma mis cromos — ${fecha})_`;
+
+  // Intentar copiar al portapapeles también
+  try{ navigator.clipboard.writeText(magicLink); }catch(e){}
+
+  setTimeout(()=>{
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }, 200);
+  showToast('📲 Abriendo WhatsApp con el enlace mágico…');
+}
+
+function _doShareFallbackJSON(name){
+  // Fallback cuando hay demasiados datos para la URL
   const payload={
-    version:3,type:'companion-checklist',
+    version:3, type:'companion-checklist',
     from: name, emoji: userProfile.emoji, color: userProfile.color,
     date:new Date().toISOString(),
     collected:[...myCards],
     customCards: customCards
   };
-  const json=JSON.stringify(payload,null,2);
-  const blob=new Blob([json],{type:'application/json'});
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const dateStr=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'}).replaceAll('/','_');
-  const safeName = name.toLowerCase().replace(/\s+/g,'_');
-  const fileName=`cromos_${safeName}_${dateStr}.json`;
+  const fileName=`cromos_${name.toLowerCase().replace(/\s+/g,'_')}_${dateStr}.json`;
   const a=document.createElement('a');
-  a.href=url;a.download=fileName;a.click();
+  a.href=url; a.download=fileName; a.click();
   URL.revokeObjectURL(url);
   setTimeout(()=>{
-    const msg=`⚽ *Checklist de ${name} — Adrenalyn XL 25/26*\n\nTe mando mi checklist actualizado (${myCards.size} cromos conseguidos).\n\n📲 *Para importarlo:*\n1. Abre la app de cromos\n2. Ve a Ajustes → "Importar checklist del compañero"\n3. Selecciona el archivo *${fileName}*\n4. ¡Listo! 🎉\n\n_Enviado el ${new Date().toLocaleDateString('es-ES')}_`;
+    const msg=`⚽ *${name} — Adrenalyn XL 25/26*\n\n✅ Te mando mis *${myCards.size} cromos*.\n\n📲 *Para importar el archivo:*\nAjustes → "Importar checklist del compañero"\n\n_${new Date().toLocaleDateString('es-ES')}_`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   },800);
-  showToast('📲 Archivo descargado. Abriendo WhatsApp…');
+  showToast('📲 Archivo descargado (muchos datos)');
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1663,6 +1892,10 @@ function confirmImport(){
 //  POPUP CELEBRACIÓN
 // ─────────────────────────────────────────────────────────
 function showCelebrate(name, emoji, color, newIds, newCustom){
+  // Guardar quién envió para el botón de respuesta
+  document.getElementById('celebrateOverlay').dataset.replyName = name;
+  document.getElementById('celebrateReplyTxt').textContent = `Enviarle los míos a ${name}`;
+
   // Header
   const avatarEl = document.getElementById('celebrateAvatar');
   avatarEl.textContent = emoji;
@@ -1718,6 +1951,35 @@ function showCelebrate(name, emoji, color, newIds, newCustom){
 function closeCelebrate(){
   document.getElementById('celebrateOverlay').classList.remove('open');
   stopConfetti();
+}
+
+function celebrateReply(){
+  // Obtener el nombre del que nos envió (guardado en el dataset del overlay)
+  const replyTo = document.getElementById('celebrateOverlay').dataset.replyName || 'Compañero';
+  const myName  = userProfile.name || 'Jugador';
+  const magicLink = buildMagicLink();
+
+  closeCelebrate();
+
+  if(!magicLink || magicLink.length > 3800){
+    showToast('⚠️ No se pudo generar el enlace');
+    return;
+  }
+
+  const fecha = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long'});
+  const msg = `⚽ *${myName} — Adrenalyn XL 25/26*
+
+✅ Llevo *${myCards.size} cromos* conseguidos.
+
+👇 *Pulsa para actualizar tu lista con los míos:*
+${magicLink}
+
+_(${fecha})_`;
+
+  setTimeout(()=>{
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }, 200);
+  showToast(`📲 Enviando tus cromos a ${replyTo}…`);
 }
 
 let _confettiAnim = null;
@@ -2340,6 +2602,10 @@ async function installPWA(){
 // ─────────────────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────────────────
+
+// Capturar datos de sync de la URL ANTES de que la página se limpie
+checkSyncFromURL();
+
 async function init(){
   await initDB();
   await loadAll();
@@ -2355,6 +2621,8 @@ async function init(){
     renderCustomCardsList();
     renderBisCardsList();
     syncBisFilterVisibility();
+    // Procesar sync desde URL si lo hay
+    processSyncFromURL();
   }
 }
 init();
@@ -2372,7 +2640,11 @@ init();
     </div>
     <div class="celebrate-body" id="celebrateBody"></div>
     <div class="celebrate-footer">
-      <button class="celebrate-btn" onclick="closeCelebrate()">¡Genial! 🚀</button>
+      <button class="celebrate-btn" id="celebrateReplyBtn" onclick="celebrateReply()" style="background:linear-gradient(135deg,#16a34a,#15803d);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:18px">📲</span>
+        <span id="celebrateReplyTxt">Enviarle los míos</span>
+      </button>
+      <button class="celebrate-btn" onclick="closeCelebrate()" style="background:var(--bg3);color:var(--text);box-shadow:none">¡Genial! 🚀</button>
     </div>
   </div>
 </div>
