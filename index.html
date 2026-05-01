@@ -691,13 +691,17 @@ nav{background:var(--surface);border-top:1px solid var(--border);
     <div class="settings-section">
       <div class="settings-title">♊ Cartas BIS</div>
       <div class="settings-card">
-        <button class="settings-btn bis-btn" onclick="openAddBisModal()">
+        <div class="settings-btn" style="cursor:default">
           <span class="icon">♊</span>
-          <span>Añadir carta BIS<span class="sub">Introduce el número y se guarda como BIS</span></span>
+          <span>7bis – 355bis incluidas<span class="sub">349 cartas BIS integradas en la colección</span></span>
+        </div>
+        <button class="settings-btn bis-btn" onclick="openAddBisModal()">
+          <span class="icon">➕</span>
+          <span>Añadir BIS fuera de rango<span class="sub">Para BIS con número fuera del 7–355</span></span>
         </button>
       </div>
       <div class="custom-cards-list" id="bisCardsList">
-        <div class="custom-empty-hint">No hay cartas BIS aún</div>
+        <div class="custom-empty-hint">No hay cartas BIS extra aún</div>
       </div>
     </div>
 
@@ -725,7 +729,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
         </button>
         <div class="settings-btn" style="cursor:default">
           <span class="icon">ℹ️</span>
-          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.3 · Botón respuesta directa ✨</span></span>
+          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.4 · BIS integradas (7bis–355bis) ✨</span></span>
         </div>
       </div>
     </div>
@@ -862,6 +866,28 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   </div>
 </div>
 
+<!-- POPUP CELEBRACIÓN IMPORT -->
+<div class="celebrate-overlay" id="celebrateOverlay" onclick="closeCelebrate()">
+  <div class="celebrate-box" onclick="event.stopPropagation()">
+    <div class="celebrate-hero">
+      <canvas class="celebrate-confetti" id="celebrateCanvas"></canvas>
+      <div class="celebrate-avatar" id="celebrateAvatar">🎉</div>
+      <div class="celebrate-name" id="celebrateName">¡Amigo!</div>
+      <div class="celebrate-sub">ha aportado a la colección</div>
+      <div class="celebrate-big" id="celebrateBig">0</div>
+      <div class="celebrate-lbl">cartas nuevas ✨</div>
+    </div>
+    <div class="celebrate-body" id="celebrateBody"></div>
+    <div class="celebrate-footer">
+      <button class="celebrate-btn" id="celebrateReplyBtn" onclick="celebrateReply()" style="background:linear-gradient(135deg,#16a34a,#15803d);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:18px">📲</span>
+        <span id="celebrateReplyTxt">Enviarle los míos</span>
+      </button>
+      <button class="celebrate-btn" onclick="closeCelebrate()" style="background:var(--bg3);color:var(--text);box-shadow:none">¡Genial! 🚀</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ╔══════════════════════════════════════════════════════════════════════════════╗
 // ║                  🚀 INSTRUCCIÓN DE ACTUALIZACIÓN DE VERSIÓN                 ║
@@ -870,7 +896,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 // ║  CADA VEZ que se modifique este archivo y se suba a GitHub,                 ║
 // ║  HAY QUE incrementar el número de versión en esta línea:                    ║
 // ║                                                                              ║
-// ║      const APP_VERSION = '3.3';    ← CAMBIAR SIEMPRE AL MODIFICAR          ║
+// ║      const APP_VERSION = '3.4';    ← CAMBIAR SIEMPRE AL MODIFICAR          ║
 // ║                                                                              ║
 // ║  Está justo debajo, en el bloque del Service Worker (busca APP_VERSION).    ║
 // ║                                                                              ║
@@ -886,6 +912,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 // ║  · 3.1 — Enlace mágico WhatsApp + auto-actualización PWA                    ║
 // ║  · 3.2 — Sync automático: popup celebración directo, sin confirmación        ║
 // ║  · 3.3 — Botón 'Enviarle los míos' en el popup de celebración               ║
+// ║  · 3.4 — Cartas BIS 7bis-355bis integradas en colección + migración auto    ║
 // ║  · 3.x — (próximas versiones aquí)                                          ║
 // ║                                                                              ║
 // ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -929,7 +956,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   // ── SERVICE WORKER con detección de actualizaciones ──────────────────────────
   // APP_VERSION: incrementa este número cada vez que publiques una nueva versión.
   // El SW detectará el cambio y mostrará el banner de actualización automáticamente.
-  const APP_VERSION = '3.3';
+  const APP_VERSION = '3.4';
 
   if('serviceWorker' in navigator){
     const swCode=`
@@ -942,10 +969,12 @@ self.addEventListener('install',e=>{
 self.addEventListener('activate',e=>{
   e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
   self.clients.claim();
-  // Notificar a todos los clientes que hay nueva versión
   self.clients.matchAll({includeUncontrolled:true}).then(clients=>{
     clients.forEach(c=>c.postMessage({type:'NEW_VERSION',version:'${APP_VERSION}'}));
   });
+});
+self.addEventListener('message',e=>{
+  if(e.data&&e.data.type==='SKIP_WAITING') self.skipWaiting();
 });
 self.addEventListener('fetch',e=>{
   if(e.request.mode==='navigate'){
@@ -956,14 +985,15 @@ self.addEventListener('fetch',e=>{
     }).catch(()=>caches.match(e.request).then(r=>r||caches.match(PAGE))));
   }
 });`;
+    // Nota: el blob URL no se revoca (window._swBlobUrl guarda la referencia)
+    // para que Firefox y Safari puedan releer el script si el SW se reactiva tras recarga.
     try{
       const b=new Blob([swCode],{type:'text/javascript'});
       const swUrl=URL.createObjectURL(b);
+      window._swBlobUrl=swUrl;
       navigator.serviceWorker.register(swUrl,{scope:'./'})
         .then(reg=>{
-          // Comprobar actualizaciones al abrir la app
           reg.update();
-          // Escuchar mensajes del SW sobre nueva versión
           navigator.serviceWorker.addEventListener('message',ev=>{
             if(ev.data&&ev.data.type==='NEW_VERSION'){
               showUpdateBanner(ev.data.version);
@@ -1007,10 +1037,20 @@ function showUpdateBanner(version){
 function applyUpdate(){
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistration().then(reg=>{
-      if(reg&&reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
-    });
+      if(reg&&reg.waiting){
+        // Escuchamos el cambio de controlador antes de recargar,
+        // para que el nuevo SW esté activo cuando la página vuelva a cargar.
+        navigator.serviceWorker.addEventListener('controllerchange',()=>{
+          window.location.reload();
+        },{once:true});
+        reg.waiting.postMessage({type:'SKIP_WAITING'});
+      } else {
+        window.location.reload();
+      }
+    }).catch(()=>window.location.reload());
+  } else {
+    window.location.reload();
   }
-  window.location.reload();
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1039,7 +1079,7 @@ const TEAM_SHIELDS = {
   "Real Sociedad":      {id:92,   color:"#003DA5"},
   "Sevilla":            {id:559,  color:"#D4081A"},
   "Valencia":           {id:95,   color:"#FFA500"},
-  "Villareal":          {id:94,   color:"#F7D117"},
+  "Villarreal":         {id:94,   color:"#F7D117"},
   // Especiales — emoji
   "¡Vamos!":            {emoji:"🚀", color:"#9333ea"},
   "Guantes de Oro":     {emoji:"🧤", color:"#f59e0b"},
@@ -1071,9 +1111,9 @@ const TEAM_SHIELDS = {
 const bisCards = [];
 // BIS filter visibility — controlled dynamically based on customCards
 function syncBisFilterVisibility(){
-  const hasBis = customCards.some(c=>c.block==='BIS') || bisCards.length>0;
+  // BIS siempre visible — ahora son parte fija de la colección (7bis-355bis)
   const bisBtn = document.querySelector('.filter-btn[data-f="BIS"]');
-  if(bisBtn) bisBtn.style.display = hasBis ? '' : 'none';
+  if(bisBtn) bisBtn.style.display = '';
 }
 
 const COLLECTION = [
@@ -1090,15 +1130,14 @@ const COLLECTION = [
   {block:"Base",      group:"Girona",              from:163, to:180},
   {block:"Base",      group:"Levante",             from:181, to:198},
   {block:"Base",      group:"Real Madrid",         from:199, to:216},
-  {block:"Base",      group:"Mallorca",            from:217, to:224},
-  {block:"Base",      group:"Osasuna",             from:225, to:252},
+  {block:"Base",      group:"Mallorca",            from:217, to:234},
+  {block:"Base",      group:"Osasuna",             from:235, to:252},
   {block:"Base",      group:"Real Oviedo",         from:253, to:270},
   {block:"Base",      group:"Rayo Vallecano",      from:271, to:288},
-  // Nota: 289-298 no están definidos — salto hasta Real Sociedad en 299
-  {block:"Base",      group:"Real Sociedad",       from:299, to:306},
+  {block:"Base",      group:"Real Sociedad",       from:289, to:306},
   {block:"Base",      group:"Sevilla",             from:307, to:324},
   {block:"Base",      group:"Valencia",            from:325, to:342},
-  {block:"Base",      group:"Villareal",           from:343, to:360},
+  {block:"Base",      group:"Villarreal",           from:343, to:360},
   // ── ESPECIALES ──────────────────────────────────────────────────────────────
   {block:"Especiales",group:"¡Vamos!",             from:361, to:380},
   {block:"Especiales",group:"Guantes de Oro",      from:381, to:387},
@@ -1123,17 +1162,33 @@ const COLLECTION = [
   {block:"Plus",      group:"Master Mister",       from:518, to:519},
   {block:"Plus",      group:"Card Fantasica",      from:520, to:520},
   {block:"Plus",      group:"Nuevo Balon de oro",  from:521, to:522},
+  // ── BIS (cartas 7bis–355bis) ────────────────────────────────────────────────
+  {block:"BIS", group:"BIS", from:7, to:355},
 ];
+
+// IDs BIS válidos para migración (formato Xbis, X de 7 a 355)
+const BIS_VALID_NUMS = new Set();
+for(let i=7;i<=355;i++) BIS_VALID_NUMS.add(i+'bis');
 
 const allCards=[];
 for(const sec of COLLECTION){
-  for(let i=sec.from;i<=sec.to;i++){
-    const id=String(i).padStart(3,'0');
-    allCards.push({id,numRaw:i,label:id,block:sec.block,group:sec.group});
+  if(sec.block==='BIS'){
+    // Las BIS usan ID en formato "Xbis" (sin padding)
+    for(let i=sec.from;i<=sec.to;i++){
+      const id=i+'bis';
+      allCards.push({id,numRaw:i,label:id,block:'BIS',group:'BIS'});
+    }
+  } else {
+    for(let i=sec.from;i<=sec.to;i++){
+      const id=String(i).padStart(3,'0');
+      allCards.push({id,numRaw:i,label:id,block:sec.block,group:sec.group});
+    }
   }
 }
+// bisCards legacy — ya no se usa pero se mantiene por compatibilidad
 for(const bisId of bisCards){
-  allCards.push({id:bisId,numRaw:-1,label:bisId,block:'BIS',group:'BIS'});
+  if(!allCards.find(c=>c.id===bisId))
+    allCards.push({id:bisId,numRaw:-1,label:bisId,block:'BIS',group:'BIS'});
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1231,6 +1286,23 @@ async function loadAll(){
   if(custom){
     try{
       customCards = JSON.parse(custom);
+      // ── MIGRACIÓN BIS ───────────────────────────────────────────────────────
+      // Las cartas BIS que el usuario tenía en customCards (formato "Xbis")
+      // ahora forman parte de la colección fija. Las migramos a myCards
+      // automáticamente y las eliminamos de customCards para no duplicarlas.
+      const migratedBis = [];
+      customCards = customCards.filter(cc => {
+        if(cc.block === 'BIS' && BIS_VALID_NUMS.has(cc.id)){
+          myCards.add(cc.id);   // marcarla como conseguida
+          migratedBis.push(cc.id);
+          return false;         // eliminar de customCards
+        }
+        return true;
+      });
+      if(migratedBis.length > 0){
+        // Guardar la migración de forma asíncrona (no bloqueante)
+        Promise.resolve().then(()=>saveAll());
+      }
       // Inject into allCards (avoid duplicates on hot reload)
       injectCustomCards();
     }catch(e){ customCards = []; }
@@ -1284,6 +1356,11 @@ function finishWelcome(){
   document.getElementById('app').style.display = '';
   applyProfile();
   renderAll();
+  renderCustomCardsList();
+  renderBisCardsList();
+  syncBisFilterVisibility();
+  // Si el usuario llegó via enlace mágico siendo nuevo, procesarlo ahora que la app es visible
+  processSyncFromURL();
 }
 
 // ─────────────────────────────────────────────────────────
@@ -1407,8 +1484,8 @@ function shieldHtml(group, block){
     const borderColor = s.color + '40';
     const initials = group.replace(/^(FC|RC|RCD|UD|CA|CD|CF|Real|Athletic|Atlético|Atlético de|Deportivo)\s+/i,'')
                          .split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    const fallback = `this.parentNode.style.background='${s.color}20';this.parentNode.style.fontSize='10px';this.parentNode.style.fontWeight='900';this.parentNode.style.color='${s.color}';this.parentNode.innerHTML='${initials}'`;
-    return `<span class="team-shield" style="border-color:${borderColor};background:transparent">
+    const fallback = `var p=this.parentNode;p.style.background='${s.color}20';p.style.fontSize='10px';p.style.fontWeight='900';p.style.color='${s.color}';this.remove();p.textContent=p.dataset.initials`;
+    return `<span class="team-shield" style="border-color:${borderColor};background:transparent" data-initials="${escapeHTML(initials)}">
       <img src="${CREST_BASE}${s.id}.png" 
            onerror="${fallback}"
            width="22" height="22"
@@ -1460,6 +1537,7 @@ function renderGrid(containerId, cards){
 }
 
 function renderAll(){
+  _renderSeq++;
   const missing=allCards.filter(c=>!myCards.has(c.id)&&!theirCards.has(c.id));
   const done=allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id));
   renderGrid('missingGrid',missing);
@@ -1516,11 +1594,13 @@ function renderStats(){
     <div class="stat-card">
       <span class="stat-dot" style="background:var(--success)"></span>
       <div class="stat-info">
-        <div class="stat-name">Entre los dos</div>
-        <div class="stat-sub">${allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length} en total · ${allCards.filter(c=>myCards.has(c.id)&&theirCards.has(c.id)).length} coinciden</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${Math.round(allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length/total*100)}%;background:var(--success)"></div></div>
+        <div class="stat-name">Entre los dos</div>`;
+      let _union=0,_both=0;
+      for(const c of allCards){const m=myCards.has(c.id),t=theirCards.has(c.id);if(m||t)_union++;if(m&&t)_both++;}
+      html += `<div class="stat-sub">${_union} en total · ${_both} coinciden</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.round(_union/total*100)}%;background:var(--success)"></div></div>
       </div>
-      <div class="stat-right"><div class="stat-frac">${Math.round(allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length/total*100)}%</div><div class="stat-pct">entre ambos</div></div>
+      <div class="stat-right"><div class="stat-frac">${Math.round(_union/total*100)}%</div><div class="stat-pct">entre ambos</div></div>
     </div>`;
   }
   html+='</div>';
@@ -1556,6 +1636,7 @@ function renderStats(){
 //  TOGGLE
 // ─────────────────────────────────────────────────────────
 let _patchTimer = null;
+let _renderSeq  = 0; // incrementado en cada renderAll() para invalidar timers obsoletos
 function toggleCard(id, evt){
   if(evt){
     const el=evt.currentTarget||evt.target.closest('.card');
@@ -1611,7 +1692,9 @@ function patchCardDOM(id){
   // necesitamos re-render completo solo de esos paneles — pero diferido para
   // no cancelar el ripple que acaba de añadirse
   clearTimeout(_patchTimer);
+  const seqAtToggle = _renderSeq;
   _patchTimer = setTimeout(()=>{
+    if(_renderSeq !== seqAtToggle) return; // renderAll() ya actualizó el DOM, no pisar
     const missing=allCards.filter(c=>!myCards.has(c.id)&&!theirCards.has(c.id));
     const done=allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id));
     renderGrid('missingGrid',missing);
@@ -1648,20 +1731,29 @@ function openShareModal(){
 //  SISTEMA DE ENLACE MÁGICO (sync por URL)
 // ─────────────────────────────────────────────────────────
 
-// Codifica los datos en base64 comprimido para la URL
+// Codifica los datos en base64 para la URL.
+// Usa TextEncoder/TextDecoder (soporta emojis y no-ASCII en todos los browsers).
 function encodeSyncData(payload){
   try{
     const json = JSON.stringify(payload);
-    // Compresión simple pero eficaz: convertir array de IDs numéricos a rangos
-    return btoa(unescape(encodeURIComponent(json)));
+    const bytes = new TextEncoder().encode(json);
+    let binary = '';
+    for(const b of bytes) binary += String.fromCharCode(b);
+    return btoa(binary);
   }catch(e){ return null; }
 }
 
 function decodeSyncData(encoded){
   try{
-    const json = decodeURIComponent(escape(atob(encoded)));
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+    const json = new TextDecoder().decode(bytes);
     return JSON.parse(json);
-  }catch(e){ return null; }
+  }catch(e){
+    // Fallback para enlaces generados con la codificación antigua
+    try{ return JSON.parse(decodeURIComponent(escape(atob(encoded)))); }catch(e2){ return null; }
+  }
 }
 
 // Genera la URL mágica con los datos del jugador incrustados
@@ -1962,7 +2054,8 @@ function celebrateReply(){
   closeCelebrate();
 
   if(!magicLink || magicLink.length > 3800){
-    showToast('⚠️ No se pudo generar el enlace');
+    // Fallback: descargar JSON igual que hace doShare()
+    _doShareFallbackJSON(myName);
     return;
   }
 
@@ -2060,6 +2153,7 @@ function exportJSON(){
 function importBackup(evt){
   const file=evt.target.files[0];if(!file)return;
   evt.target.value='';
+  if(file.size>5_000_000){showToast('⚠️ Archivo demasiado grande (máx. 5 MB)');return;}
   const r=new FileReader();
   r.onload=e=>{
     try{
@@ -2079,6 +2173,8 @@ function importBackup(evt){
           injectCustomCards();
           mapExpanded.clear();
           renderCustomCardsList();
+          renderBisCardsList();
+          syncBisFilterVisibility();
         }
         saveAll();renderAll();
         showToast('📥 Copia restaurada: '+myCards.size+' cromos');
@@ -2322,7 +2418,14 @@ function confirmAddBis(){
   const id    = num + 'bis';
   const label = id;
 
-  // Duplicate check
+  // Si está en el rango 7-355, ya está en la colección fija — no añadir como custom
+  if(BIS_VALID_NUMS.has(id)){
+    showToast('♊ ' + label + ' ya está en la colección. ¡Márcala directamente!');
+    closeModals();
+    return;
+  }
+
+  // Duplicate check en cartas personalizadas
   if(customCards.find(cc => cc.id === id)){
     showToast('⚠️ La carta ' + label + ' ya existe');
     return;
@@ -2462,8 +2565,8 @@ function renderMap(){
       if(shield?.id){
         const _initials = group.replace(/^(FC|RC|RCD|UD|CA|CD|CF|Real|Athletic|Atletico|Deportivo)\s+/i,'')
           .split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-        const _fb = `this.parentNode.style.background='${shield.color}20';this.parentNode.style.fontSize='10px';this.parentNode.style.fontWeight='900';this.parentNode.style.color='${shield.color}';this.parentNode.innerHTML='${_initials}'`;
-        shieldHtmlStr=`<div class="map-team-shield" style="border-color:${shield.color}40;background:transparent">
+        const _fb = `var p=this.parentNode;p.style.background='${shield.color}20';p.style.fontSize='10px';p.style.fontWeight='900';p.style.color='${shield.color}';this.remove();p.textContent=p.dataset.initials`;
+        shieldHtmlStr=`<div class="map-team-shield" style="border-color:${shield.color}40;background:transparent" data-initials="${escapeHTML(_initials)}">
           <img src="${CREST_BASE}${shield.id}.png" onerror="${_fb}"
             width="22" height="22" style="width:22px;height:22px;object-fit:contain" alt="${escapeHTML(group)}" loading="lazy">
         </div>`;
@@ -2613,6 +2716,8 @@ async function init(){
   if(!userProfile.name){
     document.getElementById('welcomeScreen').style.display='flex';
     document.getElementById('app').style.display='none';
+    // Si hay sync pendiente de URL pero sin perfil aún, finishWelcome() lo procesará
+    // una vez el usuario complete la bienvenida (evita popup sobre pantalla de bienvenida).
   } else {
     document.getElementById('welcomeScreen').style.display='none';
     document.getElementById('app').style.display='';
@@ -2621,33 +2726,12 @@ async function init(){
     renderCustomCardsList();
     renderBisCardsList();
     syncBisFilterVisibility();
-    // Procesar sync desde URL si lo hay
+    // Procesar sync desde URL solo cuando la app ya está visible
     processSyncFromURL();
   }
 }
 init();
 </script>
-<!-- POPUP CELEBRACIÓN IMPORT -->
-<div class="celebrate-overlay" id="celebrateOverlay" onclick="closeCelebrate()">
-  <div class="celebrate-box" onclick="event.stopPropagation()">
-    <div class="celebrate-hero">
-      <canvas class="celebrate-confetti" id="celebrateCanvas"></canvas>
-      <div class="celebrate-avatar" id="celebrateAvatar">🎉</div>
-      <div class="celebrate-name" id="celebrateName">¡Amigo!</div>
-      <div class="celebrate-sub">ha aportado a la colección</div>
-      <div class="celebrate-big" id="celebrateBig">0</div>
-      <div class="celebrate-lbl">cartas nuevas ✨</div>
-    </div>
-    <div class="celebrate-body" id="celebrateBody"></div>
-    <div class="celebrate-footer">
-      <button class="celebrate-btn" id="celebrateReplyBtn" onclick="celebrateReply()" style="background:linear-gradient(135deg,#16a34a,#15803d);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px">
-        <span style="font-size:18px">📲</span>
-        <span id="celebrateReplyTxt">Enviarle los míos</span>
-      </button>
-      <button class="celebrate-btn" onclick="closeCelebrate()" style="background:var(--bg3);color:var(--text);box-shadow:none">¡Genial! 🚀</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
