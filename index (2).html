@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cromos 25/26">
+<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+<title>Checklist Adrenalyn XL 25/26</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://crests.football-data.org">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f0f4f8; --bg2:#fff; --bg3:#e2e8f0;
+  --surface:#fff; --border:#e2e8f0;
+  --text:#0f172a; --text2:#64748b;
+  --accent:#2563eb; --accent2:#1d4ed8;
+  --success:#16a34a; --danger:#dc2626; --warn:#d97706;
+  --base:#2563eb; --especiales:#9333ea; --elite:#f59e0b; --plus:#10b981; --bis:#ec4899;
+  --p1:#2563eb; --p2:#f97316;
+  --p1-emoji:🔵; --p2-emoji:🟠;
+  --radius:14px; --radius-sm:8px;
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+  --font:'Nunito',system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0f172a; --bg2:#1e293b; --bg3:#334155;
+  --surface:#1e293b; --border:#334155;
+  --text:#f1f5f9; --text2:#94a3b8;
+  --shadow:0 2px 8px rgba(0,0,0,.3);
+}}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);
+  -webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overflow:hidden;}
+
+/* ══════════════════════════════════════════
+   PANTALLA DE BIENVENIDA
+══════════════════════════════════════════ */
+#welcomeScreen{
+  position:fixed;inset:0;z-index:1000;
+  background:linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;gap:0;overflow-y:auto;
+}
+#welcomeScreen.hidden{display:none}
+.welcome-logo{font-size:64px;margin-bottom:8px;animation:bounceIn .6s ease;}
+@keyframes bounceIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+.welcome-title{font:900 26px var(--font);color:#fff;text-align:center;margin-bottom:4px}
+.welcome-sub{font:600 14px var(--font);color:rgba(255,255,255,.6);text-align:center;margin-bottom:32px}
+.welcome-card{background:rgba(255,255,255,.07);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;padding:24px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:20px;}
+.welcome-label{font:700 12px var(--font);text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.5);margin-bottom:6px}
+.welcome-name-input{width:100%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);
+  border-radius:12px;padding:14px 16px;font:700 18px var(--font);color:#fff;outline:none;text-align:center;
+  transition:border-color .2s;}
+.welcome-name-input::placeholder{color:rgba(255,255,255,.3)}
+.welcome-name-input:focus{border-color:rgba(255,255,255,.5)}
+
+.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.emoji-opt{width:100%;aspect-ratio:1;border-radius:12px;border:2px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);font-size:24px;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all .15s;}
+.emoji-opt:active{transform:scale(.9)}
+.emoji-opt.selected{border-color:#fff;background:rgba(255,255,255,.25);transform:scale(1.08)}
+
+.color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.color-opt{width:100%;aspect-ratio:1;border-radius:12px;border:3px solid transparent;
+  cursor:pointer;transition:all .15s;position:relative;}
+.color-opt:active{transform:scale(.9)}
+.color-opt.selected{border-color:#fff;transform:scale(1.08)}
+.color-opt.selected::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font:900 16px var(--font);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+
+.welcome-btn{width:100%;padding:16px;border-radius:14px;border:none;
+  font:800 16px var(--font);cursor:pointer;transition:all .2s;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;
+  box-shadow:0 4px 20px rgba(37,99,235,.5);}
+.welcome-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.welcome-btn:not(:disabled):active{transform:scale(.97)}
+
+/* ══════════════════════════════════════════
+   APP PRINCIPAL
+══════════════════════════════════════════ */
+#app{display:grid;grid-template-rows:auto 1fr auto;height:100dvh;max-width:500px;margin:0 auto;}
+
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:calc(var(--safe-top) + 8px) 16px 8px;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+.header-row{display:flex;align-items:center;gap:10px}
+.header-avatar{width:36px;height:36px;border-radius:50%;
+  background:var(--p1);display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;}
+.header-title{font-size:17px;font-weight:900;color:var(--text);line-height:1.2;flex:1}
+.header-title span{display:block;font-size:11px;font-weight:600;color:var(--text2)}
+.counters{display:flex;gap:6px;margin-top:8px;}
+.counter-badge{flex:1;background:var(--bg3);border-radius:var(--radius-sm);padding:4px 6px;text-align:center;}
+.counter-badge .num{font-size:16px;font-weight:900;color:var(--text);display:block}
+.counter-badge .lbl{font-size:9px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.counter-badge.done .num{color:var(--success)}
+.counter-badge.missing .num{color:var(--danger)}
+.counter-badge.pct .num{color:var(--p1)}
+
+/* SEARCH */
+.search-wrap{padding:8px 16px 4px;background:var(--surface);border-bottom:1px solid var(--border)}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);
+  border:1.5px solid var(--border);border-radius:40px;padding:8px 14px;}
+.search-box svg{flex-shrink:0;color:var(--text2)}
+#searchInput{flex:1;border:none;background:transparent;font:600 15px var(--font);color:var(--text);outline:none;}
+#searchInput::placeholder{color:var(--text2)}
+#clearSearch{display:none;background:none;border:none;color:var(--text2);cursor:pointer;padding:0;font-size:18px;}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:6px 16px 8px;
+  background:var(--surface);border-bottom:1px solid var(--border);scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filter-btn{flex-shrink:0;padding:5px 12px;border-radius:40px;border:1.5px solid var(--border);
+  background:var(--bg);font:700 12px var(--font);color:var(--text2);cursor:pointer;transition:all .2s;}
+.filter-btn.active{color:#fff;border-color:transparent}
+.filter-btn[data-f="all"].active{background:var(--accent)}
+.filter-btn[data-f="Base"].active{background:var(--base)}
+.filter-btn[data-f="Especiales"].active{background:var(--especiales)}
+.filter-btn[data-f="Élite"].active{background:var(--elite)}
+.filter-btn[data-f="Plus"].active{background:var(--plus)}
+.filter-btn[data-f="BIS"].active{background:var(--bis)}
+
+/* MAIN */
+main{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.tab-panel{display:none;padding:12px 12px calc(12px + var(--safe-bottom));min-height:100%}
+.tab-panel.active{display:block}
+
+/* LEYENDA */
+.legend-bar{display:flex;gap:10px;flex-wrap:wrap;padding:8px 12px 6px;
+  background:var(--surface);border-bottom:1px solid var(--border);}
+.legend-item{display:flex;align-items:center;gap:5px;font:700 10px var(--font);color:var(--text2);}
+.legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+
+/* CARDS */
+.block-section{margin-bottom:16px}
+.block-header{display:flex;align-items:center;gap:8px;padding:6px 4px 8px;
+  font:800 13px var(--font);text-transform:uppercase;letter-spacing:.8px;color:var(--text2);}
+.block-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.block-count{margin-left:auto;font:600 12px var(--font);color:var(--text2)}
+
+/* ESCUDO */
+.team-shield{width:28px;height:28px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  flex-shrink:0;border:1.5px solid var(--border);}
+
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+
+.card{background:var(--surface);border-radius:var(--radius);padding:10px 8px;text-align:center;
+  cursor:pointer;border:2px solid transparent;box-shadow:var(--shadow);
+  transition:transform .15s,background .2s,border-color .2s;
+  contain:layout style paint;position:relative;overflow:hidden;
+  min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  -webkit-tap-highlight-color:transparent;user-select:none;}
+.card:active{transform:scale(.94)}
+
+.card.mine{border-color:var(--p1);}
+.card.mine .card-num{color:var(--p1)}
+.card.theirs{border-color:var(--p2);}
+.card.theirs .card-num{color:var(--p2)}
+.card.both{background:rgba(22,163,74,.12);border-color:var(--success);}
+.card.both .card-num{color:var(--success)}
+
+/* Indicadores esquina */
+.card-dots{position:absolute;top:3px;right:3px;display:flex;gap:2px;}
+.cdot{width:7px;height:7px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8)}
+.cdot.p1{background:var(--p1)}
+.cdot.p2{background:var(--p2)}
+
+.card-num{font:900 15px var(--font);color:var(--text);line-height:1}
+.card-badge{display:inline-block;padding:1px 5px;border-radius:4px;
+  font:700 8px var(--font);color:#fff;margin-top:3px;}
+.card[data-block="Base"] .card-badge{background:var(--base)}
+.card[data-block="Especiales"] .card-badge{background:var(--especiales)}
+.card[data-block="Élite"] .card-badge{background:var(--elite);color:#000}
+.card[data-block="Plus"] .card-badge{background:var(--plus)}
+.card[data-block="BIS"] .card-badge{background:var(--bis)}
+
+@keyframes ripple{0%{transform:scale(0);opacity:.4}100%{transform:scale(3);opacity:0}}
+.ripple{position:absolute;border-radius:50%;width:50px;height:50px;margin:-25px 0 0 -25px;
+  background:rgba(255,255,255,.5);animation:ripple .5s linear;pointer-events:none;}
+@keyframes popIn{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.card.popin{animation:popIn .3s ease forwards;}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;gap:12px;color:var(--text2);}
+.empty .emoji{font-size:52px}
+.empty h3{font:800 18px var(--font);color:var(--text)}
+.empty p{font:400 14px var(--font)}
+
+/* STATS */
+.stats-section{margin-bottom:16px}
+.stats-title{font:800 16px var(--font);margin-bottom:10px;padding:0 4px}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:14px;
+  margin-bottom:8px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;}
+.stat-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.stat-info{flex:1}
+.stat-name{font:700 14px var(--font);color:var(--text)}
+.stat-sub{font:600 12px var(--font);color:var(--text2)}
+.stat-right{text-align:right}
+.stat-frac{font:900 16px var(--font);color:var(--text)}
+.stat-pct{font:700 12px var(--font);color:var(--text2)}
+.progress-bar{width:100%;height:6px;background:var(--bg3);border-radius:3px;margin-top:8px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* AJUSTES */
+.settings-section{margin-bottom:20px}
+.settings-title{font:800 13px var(--font);text-transform:uppercase;letter-spacing:.8px;
+  color:var(--text2);padding:0 4px 8px}
+.settings-card{background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.settings-btn{display:flex;align-items:center;gap:12px;padding:16px;border:none;
+  background:transparent;font:600 15px var(--font);color:var(--text);
+  cursor:pointer;width:100%;text-align:left;transition:background .15s;
+  border-bottom:1px solid var(--border);}
+.settings-btn:last-child{border-bottom:none}
+.settings-btn:active{background:var(--bg3)}
+.settings-btn .icon{font-size:20px;width:28px;text-align:center}
+.settings-btn .sub{display:block;font:400 12px var(--font);color:var(--text2);margin-top:1px}
+.settings-btn.danger{color:var(--danger)}
+.settings-btn.success{color:var(--success)}
+.settings-btn.primary{color:var(--accent)}
+.settings-btn.bis-btn{color:var(--bis)}
+.settings-btn.p2color{color:var(--p2)}
+
+/* Perfil en ajustes */
+.profile-card{background:var(--surface);border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;margin-bottom:8px;}
+.profile-row{display:flex;align-items:center;gap:12px;}
+.profile-avatar-big{width:56px;height:56px;border-radius:50%;background:var(--p1);
+  display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;
+  border:3px solid var(--border);}
+.profile-info{flex:1}
+.profile-name{font:900 18px var(--font);color:var(--text)}
+.profile-season{font:600 12px var(--font);color:var(--text2)}
+.profile-edit-row{display:flex;gap:8px;align-items:center;}
+.profile-edit-input{flex:1;background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;font:700 15px var(--font);
+  color:var(--text);outline:none;}
+.profile-edit-input:focus{border-color:var(--p1)}
+
+.mini-emoji-grid{display:flex;gap:6px;flex-wrap:wrap;}
+.mini-emoji-opt{width:36px;height:36px;border-radius:9px;border:2px solid var(--border);
+  background:var(--bg);font-size:18px;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all .15s;}
+.mini-emoji-opt.selected{border-color:var(--p1);background:var(--bg3);transform:scale(1.15)}
+
+.mini-color-grid{display:flex;gap:6px;flex-wrap:wrap;}
+.mini-color-opt{width:28px;height:28px;border-radius:50%;border:2px solid transparent;
+  cursor:pointer;transition:all .15s;}
+.mini-color-opt.selected{border-color:var(--text);transform:scale(1.2)}
+
+/* name-input compañero */
+.name-input-wrap{padding:12px 16px;background:var(--surface);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.name-input-wrap label{font:700 13px var(--font);color:var(--text2);white-space:nowrap}
+.name-input{flex:1;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:8px 12px;font:600 14px var(--font);color:var(--text);background:var(--bg);outline:none;}
+.name-input:focus{border-color:var(--accent)}
+
+/* BOTTOM NAV */
+nav{background:var(--surface);border-top:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding-bottom:calc(var(--safe-bottom) + 2px);backdrop-filter:blur(10px);}
+.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:8px 4px;border:none;background:none;cursor:pointer;
+  color:var(--text2);font:600 10px var(--font);min-height:54px;transition:color .2s;
+  -webkit-tap-highlight-color:transparent;position:relative;}
+.nav-btn svg{transition:transform .2s}
+.nav-btn.active{color:var(--p1)}
+.nav-btn.active svg{transform:scale(1.15)}
+
+/* TOAST */
+#toast{position:fixed;bottom:calc(64px + var(--safe-bottom) + 16px);
+  left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--text);color:var(--bg);padding:10px 20px;border-radius:40px;
+  font:600 14px var(--font);white-space:nowrap;
+  opacity:0;transition:all .3s ease;pointer-events:none;z-index:999;
+  max-width:85vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);
+  z-index:200;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;
+  padding:24px 24px calc(24px + var(--safe-bottom));width:100%;max-width:500px;
+  transform:translateY(100%);transition:transform .3s ease;}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal h3{font:900 18px var(--font);margin-bottom:8px}
+.modal p{font:400 14px var(--font);color:var(--text2);margin-bottom:20px}
+.modal-btns{display:flex;gap:10px}
+.btn{flex:1;padding:14px;border-radius:var(--radius);border:none;
+  font:700 15px var(--font);cursor:pointer;transition:all .15s;}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-ghost{background:var(--bg3);color:var(--text)}
+.btn-p2{background:var(--p2);color:#fff}
+
+/* MODAL COMPARTIR */
+.share-modal-body{display:flex;flex-direction:column;gap:12px}
+.share-info{background:var(--bg3);border-radius:var(--radius-sm);padding:12px;
+  font:600 13px var(--font);color:var(--text2);line-height:1.5}
+.share-info strong{color:var(--text);display:block;margin-bottom:4px}
+
+/* MODAL IMPORTAR */
+.import-preview{background:var(--bg3);border-radius:var(--radius-sm);padding:12px;
+  font:600 13px var(--font);color:var(--text);margin-bottom:12px}
+.import-preview .count{font:900 28px var(--font);color:var(--p2);display:block;margin-bottom:4px}
+.import-preview .sub{font:400 12px var(--font);color:var(--text2)}
+
+/* POPUP CELEBRACIÓN IMPORT */
+.celebrate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;
+  opacity:0;pointer-events:none;transition:opacity .3s;}
+.celebrate-overlay.open{opacity:1;pointer-events:all}
+.celebrate-box{background:var(--surface);border-radius:24px;width:100%;max-width:420px;
+  overflow:hidden;transform:scale(.85);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+.celebrate-overlay.open .celebrate-box{transform:scale(1)}
+.celebrate-hero{background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%);
+  padding:28px 20px 20px;text-align:center;position:relative;overflow:hidden;}
+.celebrate-confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.celebrate-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:32px;margin:0 auto 10px;border:3px solid rgba(255,255,255,.3);}
+.celebrate-name{font:900 22px var(--font);color:#fff;margin-bottom:4px}
+.celebrate-sub{font:600 13px var(--font);color:rgba(255,255,255,.6)}
+.celebrate-big{font:900 56px var(--font);color:#fff;line-height:1;margin:8px 0 4px}
+.celebrate-lbl{font:700 13px var(--font);color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.8px}
+.celebrate-body{padding:16px 20px 0;max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.celebrate-group{margin-bottom:12px}
+.celebrate-group-name{font:800 11px var(--font);text-transform:uppercase;letter-spacing:.7px;
+  color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.celebrate-chips{display:flex;flex-wrap:wrap;gap:5px}
+.celebrate-chip{background:var(--bg3);border-radius:6px;padding:3px 8px;
+  font:700 13px var(--font);color:var(--text);border:1.5px solid var(--border)}
+.celebrate-chip.bis{border-color:var(--bis);color:var(--bis)}
+.celebrate-footer{padding:16px 20px calc(16px + var(--safe-bottom));}
+.celebrate-btn{width:100%;padding:15px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;
+  font:800 16px var(--font);cursor:pointer;transition:transform .15s;
+  box-shadow:0 4px 20px rgba(37,99,235,.4);}
+.celebrate-btn:active{transform:scale(.97)}
+
+/* MAP VIEW */
+.map-header{padding:12px 12px 4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.map-title{font:900 15px var(--font);color:var(--text)}
+.map-legend{display:flex;gap:10px;flex-wrap:wrap}
+.map-legend-item{display:flex;align-items:center;gap:5px;font:600 10px var(--font);color:var(--text2)}
+.map-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+.map-blocks{padding:0 12px calc(12px + var(--safe-bottom))}
+.map-block-title{font:800 11px var(--font);text-transform:uppercase;letter-spacing:.8px;
+  color:var(--text2);padding:12px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px}
+
+.map-team-card{background:var(--surface);border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);margin-bottom:8px;cursor:pointer;transition:transform .15s;
+  -webkit-tap-highlight-color:transparent;position:relative;}
+.map-team-card:active{transform:scale(.98)}
+
+.map-team-inner{display:flex;align-items:center;gap:10px;padding:10px 12px 6px}
+.map-team-shield{width:32px;height:32px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  flex-shrink:0;border:1.5px solid var(--border);}
+.map-team-info{flex:1;min-width:0}
+.map-team-name{font:800 13px var(--font);color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map-team-sub{font:600 10px var(--font);color:var(--text2);margin-top:1px}
+.map-team-pct{font:900 18px var(--font);flex-shrink:0;line-height:1}
+
+.map-bar-wrap{height:8px;background:var(--bg3);margin:0;position:relative}
+.map-bar-mine{height:100%;position:absolute;left:0;top:0;border-radius:0;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.map-bar-both{height:100%;position:absolute;top:0;border-radius:0;transition:all .6s cubic-bezier(.4,0,.2,1)}
+.map-bar-theirs{height:100%;position:absolute;top:0;border-radius:0;transition:all .6s cubic-bezier(.4,0,.2,1);}
+
+/* mini dots per card in expanded view */
+.map-team-dots{display:flex;flex-wrap:wrap;gap:3px;padding:6px 12px 10px;}
+.map-mini-card{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;
+  justify-content:center;font:700 8px var(--font);background:var(--bg3);
+  color:var(--text2);border:1.5px solid transparent;transition:all .15s;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+.map-mini-card.mine{background:rgba(37,99,235,.15);border-color:var(--p1);color:var(--p1)}
+.map-mini-card.theirs{background:rgba(249,115,22,.15);border-color:var(--p2);color:var(--p2)}
+.map-mini-card.both{background:rgba(22,163,74,.15);border-color:var(--success);color:var(--success)}
+.map-mini-card:active{transform:scale(.9)}
+
+/* CUSTOM CARDS EDITOR */
+.custom-cards-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.custom-card-row{display:flex;align-items:center;gap:10px;background:var(--surface);
+  border-radius:var(--radius-sm);padding:10px 12px;box-shadow:var(--shadow);border:1.5px solid var(--border);}
+.custom-card-info{flex:1;min-width:0}
+.custom-card-label{font:700 14px var(--font);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.custom-card-meta{font:600 11px var(--font);color:var(--text2);margin-top:1px}
+.custom-card-del{width:30px;height:30px;border-radius:8px;border:none;background:rgba(220,38,38,.12);
+  color:var(--danger);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.custom-card-del:active{transform:scale(.9)}
+.custom-empty-hint{font:400 13px var(--font);color:var(--text2);text-align:center;padding:16px 0}
+
+/* MODAL CUSTOM CARD */
+.modal-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.modal-field label{font:700 12px var(--font);text-transform:uppercase;letter-spacing:.6px;color:var(--text2)}
+.modal-input{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:11px 13px;font:600 15px var(--font);color:var(--text);outline:none;width:100%;}
+.modal-input:focus{border-color:var(--p1)}
+.modal-select{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:11px 13px;font:600 15px var(--font);color:var(--text);outline:none;width:100%;
+  appearance:none;-webkit-appearance:none;cursor:pointer;}
+.modal-select:focus{border-color:var(--p1)}
+
+@media print{
+  @page{size:A5 landscape;margin:10mm 12mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body,html{background:#fff!important;color:#000!important;height:auto!important;overflow:visible!important}
+  #app,header,nav,.search-wrap,.filters,#toast,.modal-overlay,.legend-bar,
+  #welcomeScreen,main{display:none!important}
+  .print-only{display:block!important}
+  .print-page{font-family:Arial,sans-serif;color:#000;background:#fff}
+  .print-header{display:flex;align-items:flex-start;justify-content:space-between;
+    border-bottom:2.5px solid #1d4ed8;padding-bottom:6px;margin-bottom:10px}
+  .print-header-left h1{font-size:15px;font-weight:900;margin:0 0 2px;color:#1d4ed8}
+  .print-header-left p{font-size:9px;color:#555;margin:1px 0}
+  .print-header-right{text-align:right;font-size:9px;color:#555;white-space:nowrap}
+  .print-header-right strong{font-size:13px;color:#dc2626;display:block}
+  .print-columns{column-count:3;column-gap:8mm;column-fill:auto}
+  .print-block{break-inside:avoid;margin-bottom:8px}
+  .print-block-title{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+    color:#fff;background:#1d4ed8;padding:2px 5px;border-radius:2px;margin-bottom:4px;display:flex;justify-content:space-between}
+  .print-block-title.block-especiales{background:#9333ea}
+  .print-block-title.block-elite{background:#d97706;color:#000}
+  .print-block-title.block-plus{background:#16a34a}
+  .print-block-title.block-bis{background:#ec4899}
+  .print-cards{display:flex;flex-wrap:wrap;gap:2px}
+  .print-card{border:1px solid #ddd;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:700;color:#111;background:#f8f8f8}
+  .print-footer{margin-top:8px;border-top:1px solid #ddd;padding-top:4px;font-size:8px;color:#999;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ -->
+<!--   PANTALLA DE BIENVENIDA                    -->
+<!-- ══════════════════════════════════════════ -->
+<div id="welcomeScreen">
+  <div class="welcome-logo">⚽</div>
+  <div class="welcome-title">Adrenalyn XL 25/26</div>
+  <div class="welcome-sub">¡Personaliza tu checklist!</div>
+
+  <div class="welcome-card">
+    <!-- Nombre -->
+    <div>
+      <div class="welcome-label">¿Cómo te llamas?</div>
+      <input class="welcome-name-input" id="welcomeName" type="text"
+        placeholder="Tu nombre" maxlength="20" autocomplete="off">
+    </div>
+
+    <!-- Emoji -->
+    <div>
+      <div class="welcome-label">Elige tu emoji</div>
+      <div class="emoji-grid" id="welcomeEmojiGrid">
+        <button class="emoji-opt selected" data-emoji="⚽">⚽</button>
+        <button class="emoji-opt" data-emoji="🦁">🦁</button>
+        <button class="emoji-opt" data-emoji="🐯">🐯</button>
+        <button class="emoji-opt" data-emoji="🦊">🦊</button>
+        <button class="emoji-opt" data-emoji="🐺">🐺</button>
+        <button class="emoji-opt" data-emoji="🦅">🦅</button>
+        <button class="emoji-opt" data-emoji="🌟">🌟</button>
+        <button class="emoji-opt" data-emoji="🔥">🔥</button>
+        <button class="emoji-opt" data-emoji="💎">💎</button>
+        <button class="emoji-opt" data-emoji="🏆">🏆</button>
+      </div>
+    </div>
+
+    <!-- Color -->
+    <div>
+      <div class="welcome-label">Elige tu color</div>
+      <div class="color-grid" id="welcomeColorGrid">
+        <button class="color-opt selected" data-color="#2563eb" style="background:#2563eb" aria-label="Azul" aria-pressed="true"></button>
+        <button class="color-opt" data-color="#dc2626" style="background:#dc2626" aria-label="Rojo" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#16a34a" style="background:#16a34a" aria-label="Verde" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#9333ea" style="background:#9333ea" aria-label="Morado" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#f97316" style="background:#f97316" aria-label="Naranja" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#0ea5e9" style="background:#0ea5e9" aria-label="Celeste" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#ec4899" style="background:#ec4899" aria-label="Rosa" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#eab308" style="background:#eab308" aria-label="Amarillo" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#14b8a6" style="background:#14b8a6" aria-label="Verde azulado" aria-pressed="false"></button>
+        <button class="color-opt" data-color="#f43f5e" style="background:#f43f5e" aria-label="Rosa oscuro" aria-pressed="false"></button>
+      </div>
+    </div>
+
+    <button class="welcome-btn" id="welcomeBtn" disabled onclick="finishWelcome()">
+      ¡Empezar! 🚀
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--   APP PRINCIPAL                             -->
+<!-- ══════════════════════════════════════════ -->
+<div id="app" style="display:none">
+
+<!-- HEADER -->
+<header>
+  <div class="header-row">
+    <div class="header-avatar" id="headerAvatar">⚽</div>
+    <div class="header-title">
+      <span id="headerName">Checklist</span>
+      <span>Adrenalyn XL · La Liga 2025-26</span>
+    </div>
+  </div>
+  <div class="counters">
+    <div class="counter-badge"><span class="num" id="cTotal">0</span><span class="lbl">Total</span></div>
+    <div class="counter-badge done"><span class="num" id="cDone">0</span><span class="lbl">Tenemos</span></div>
+    <div class="counter-badge missing"><span class="num" id="cMissing">0</span><span class="lbl">Faltan</span></div>
+    <div class="counter-badge pct"><span class="num" id="cPct">0%</span><span class="lbl">Completado</span></div>
+  </div>
+</header>
+
+<!-- SEARCH & FILTERS -->
+<div id="searchArea">
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="searchInput" type="search" placeholder="Buscar por número, equipo…" inputmode="search" autocomplete="off">
+      <button id="clearSearch">✕</button>
+    </div>
+  </div>
+  <div class="filters" id="filterBar">
+    <button class="filter-btn active" data-f="all">Todos</button>
+    <button class="filter-btn" data-f="Base">Base</button>
+    <button class="filter-btn" data-f="Especiales">Especiales</button>
+    <button class="filter-btn" data-f="Élite">Élite</button>
+    <button class="filter-btn" data-f="Plus">Plus</button>
+    <button class="filter-btn" data-f="BIS">BIS</button>
+  </div>
+  <div class="legend-bar" id="legendBar">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--p1)"></div><span id="p1NameLegend">Yo</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--p2)"></div><span id="p2NameLegend">Compañero</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div><span>Ambos</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--bg3);border:1.5px solid var(--border)"></div><span>Falta</span></div>
+  </div>
+</div>
+
+<!-- PANELS -->
+<main id="mainArea">
+  <div class="tab-panel active" id="panel-missing">
+    <div id="print-content" style="display:none"></div>
+    <div id="missingGrid"></div>
+  </div>
+  <div class="tab-panel" id="panel-done">
+    <div id="doneGrid"></div>
+  </div>
+  <div class="tab-panel" id="panel-stats">
+    <div id="statsContent"></div>
+  </div>
+  <div class="tab-panel" id="panel-map">
+    <div id="mapContent"></div>
+  </div>
+  <div class="tab-panel" id="panel-settings">
+
+    <!-- MI PERFIL -->
+    <div class="settings-section">
+      <div class="settings-title">👤 Mi perfil</div>
+      <div class="profile-card">
+        <div class="profile-row">
+          <div class="profile-avatar-big" id="settingsAvatar">⚽</div>
+          <div class="profile-info">
+            <div class="profile-name" id="settingsName">—</div>
+            <div class="profile-season">Adrenalyn XL · La Liga 2025-26</div>
+          </div>
+        </div>
+        <div>
+          <div class="welcome-label" style="margin-bottom:8px;color:var(--text2)">Cambiar nombre</div>
+          <div class="profile-edit-row">
+            <input class="profile-edit-input" id="p1NameInput" type="text" placeholder="Tu nombre" maxlength="20">
+            <button class="btn btn-primary" style="flex:0;padding:10px 16px;font-size:13px" onclick="saveProfileName()">Guardar</button>
+          </div>
+        </div>
+        <div>
+          <div class="welcome-label" style="margin-bottom:8px;color:var(--text2)">Cambiar emoji</div>
+          <div class="mini-emoji-grid" id="settingsEmojiGrid">
+            <button class="mini-emoji-opt" data-emoji="⚽">⚽</button>
+            <button class="mini-emoji-opt" data-emoji="🦁">🦁</button>
+            <button class="mini-emoji-opt" data-emoji="🐯">🐯</button>
+            <button class="mini-emoji-opt" data-emoji="🦊">🦊</button>
+            <button class="mini-emoji-opt" data-emoji="🐺">🐺</button>
+            <button class="mini-emoji-opt" data-emoji="🦅">🦅</button>
+            <button class="mini-emoji-opt" data-emoji="🌟">🌟</button>
+            <button class="mini-emoji-opt" data-emoji="🔥">🔥</button>
+            <button class="mini-emoji-opt" data-emoji="💎">💎</button>
+            <button class="mini-emoji-opt" data-emoji="🏆">🏆</button>
+          </div>
+        </div>
+        <div>
+          <div class="welcome-label" style="margin-bottom:8px;color:var(--text2)">Cambiar color</div>
+          <div class="mini-color-grid" id="settingsColorGrid">
+            <button class="mini-color-opt" data-color="#2563eb" style="background:#2563eb" aria-label="Azul" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#dc2626" style="background:#dc2626" aria-label="Rojo" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#16a34a" style="background:#16a34a" aria-label="Verde" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#9333ea" style="background:#9333ea" aria-label="Morado" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#f97316" style="background:#f97316" aria-label="Naranja" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#0ea5e9" style="background:#0ea5e9" aria-label="Celeste" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#ec4899" style="background:#ec4899" aria-label="Rosa" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#eab308" style="background:#eab308" aria-label="Amarillo" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#14b8a6" style="background:#14b8a6" aria-label="Verde azulado" aria-pressed="false"></button>
+            <button class="mini-color-opt" data-color="#f43f5e" style="background:#f43f5e" aria-label="Rosa oscuro" aria-pressed="false"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPAÑERO -->
+    <div class="settings-section">
+      <div class="settings-title">👥 Mi compañero</div>
+      <div class="name-input-wrap">
+        <label>Nombre:</label>
+        <input class="name-input" id="p2NameInput" type="text" placeholder="Nombre del compañero" maxlength="20">
+      </div>
+      <div class="settings-card">
+        <button class="settings-btn p2color" onclick="openShareModal()">
+          <span class="icon">📲</span>
+          <span>Enviar mi checklist<span class="sub">Comparte tus cromos conseguidos con tu compañero</span></span>
+        </button>
+        <button class="settings-btn" onclick="document.getElementById('importFile').click()">
+          <span class="icon">📥</span>
+          <span>Importar checklist del compañero<span class="sub">Carga el JSON que te envió tu compañero</span></span>
+        </button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importCompanion(event)">
+        <button class="settings-btn danger" onclick="clearCompanion()">
+          <span class="icon">🗑️</span>
+          <span>Borrar datos del compañero<span class="sub">Elimina el checklist importado</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="settings-section">
+      <div class="settings-title">⚙️ Acciones</div>
+      <div class="settings-card">
+        <button class="settings-btn" onclick="undo()">
+          <span class="icon">↩️</span>
+          <span>Deshacer último cambio<span class="sub">Revierte la última acción realizada</span></span>
+        </button>
+        <button class="settings-btn danger" onclick="showResetModal()">
+          <span class="icon">🗑️</span>
+          <span>Reiniciar mi progreso<span class="sub">Borra todos mis cromos marcados</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- BACKUP -->
+    <div class="settings-section">
+      <div class="settings-title">💾 Copia de seguridad</div>
+      <div class="settings-card">
+        <button class="settings-btn primary" onclick="exportJSON()">
+          <span class="icon">📤</span>
+          <span>Exportar progreso en JSON<span class="sub">Guarda tu progreso en un archivo</span></span>
+        </button>
+        <button class="settings-btn" onclick="document.getElementById('backupFile').click()">
+          <span class="icon">📥</span>
+          <span>Restaurar desde copia de seguridad<span class="sub">Carga un progreso guardado anteriormente</span></span>
+        </button>
+        <input type="file" id="backupFile" accept=".json" style="display:none" onchange="importBackup(event)">
+      </div>
+    </div>
+
+    <!-- PDF -->
+    <div class="settings-section">
+      <div class="settings-title">📄 PDF y compartir</div>
+      <div class="settings-card">
+        <button class="settings-btn success" onclick="exportPDF()">
+          <span class="icon">📄</span>
+          <span>Exportar faltantes en PDF<span class="sub">Genera una lista para guardar como PDF</span></span>
+        </button>
+        <button class="settings-btn" onclick="shareText()">
+          <span class="icon">📋</span>
+          <span>Copiar lista de faltantes<span class="sub">Copia el texto para enviar por WhatsApp</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CARTAS BIS -->
+    <div class="settings-section">
+      <div class="settings-title">♊ Cartas BIS</div>
+      <div class="settings-card">
+        <button class="settings-btn bis-btn" onclick="openAddBisModal()">
+          <span class="icon">♊</span>
+          <span>Añadir carta BIS<span class="sub">Introduce el número y se guarda como BIS</span></span>
+        </button>
+      </div>
+      <div class="custom-cards-list" id="bisCardsList">
+        <div class="custom-empty-hint">No hay cartas BIS aún</div>
+      </div>
+    </div>
+
+    <!-- CARTAS PERSONALIZADAS -->
+    <div class="settings-section">
+      <div class="settings-title">✏️ Otras cartas personalizadas</div>
+      <div class="settings-card">
+        <button class="settings-btn primary" onclick="openAddCustomModal()">
+          <span class="icon">➕</span>
+          <span>Añadir carta personalizada<span class="sub">Añade cartas que no están en la lista</span></span>
+        </button>
+      </div>
+      <div class="custom-cards-list" id="customCardsList">
+        <div class="custom-empty-hint">No hay cartas personalizadas aún</div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div class="settings-section">
+      <div class="settings-title">📱 App</div>
+      <div class="settings-card">
+        <button class="settings-btn" id="installBtn" style="display:none" onclick="installPWA()">
+          <span class="icon">📲</span>
+          <span>Instalar app<span class="sub">Añadir a pantalla de inicio</span></span>
+        </button>
+        <div class="settings-btn" style="cursor:default">
+          <span class="icon">ℹ️</span>
+          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.0 · Datos guardados offline</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- panel-settings -->
+</main>
+
+<!-- BOTTOM NAV -->
+<nav>
+  <button class="nav-btn active" data-tab="missing">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Faltan
+  </button>
+  <button class="nav-btn" data-tab="done">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+    Tenemos
+  </button>
+  <button class="nav-btn" data-tab="stats">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Stats
+  </button>
+  <button class="nav-btn" data-tab="map">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    Mapa
+  </button>
+  <button class="nav-btn" data-tab="settings">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Ajustes
+  </button>
+</nav>
+</div><!-- #app -->
+
+<!-- MODAL AÑADIR CARTA BIS -->
+<div class="modal-overlay" id="addBisModal">
+  <div class="modal">
+    <h3>♊ Añadir carta BIS</h3>
+    <p style="font:400 13px var(--font);color:var(--text2);margin-bottom:16px">Introduce el número del cromo. Se guardará como <strong>340bis</strong>, <strong>412bis</strong>, etc.</p>
+    <div class="modal-field">
+      <label>Número de la carta</label>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input class="modal-input" id="bisCardNum" type="number" placeholder="Ej: 340" min="1" max="9999"
+               inputmode="numeric" pattern="[0-9]*" style="flex:1;font-size:20px;font-weight:900;text-align:center"
+               autocomplete="off">
+        <span style="font:900 18px var(--font);color:var(--bis)">bis</span>
+      </div>
+      <div id="bisPreview" style="text-align:center;margin-top:8px;font:700 13px var(--font);color:var(--bis);min-height:20px"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+      <button class="btn" style="background:var(--bis);color:#fff" onclick="confirmAddBis()">♊ Añadir BIS</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AÑADIR CARTA PERSONALIZADA -->
+<div class="modal-overlay" id="addCustomModal">
+  <div class="modal">
+    <h3>✏️ Añadir carta personalizada</h3>
+    <div class="modal-field">
+      <label>Nombre o número de la carta</label>
+      <input class="modal-input" id="customCardLabel" type="text" placeholder="Ej: Lewandowski LE, 572, CR7 BIS…" maxlength="40" autocomplete="off">
+    </div>
+    <div class="modal-field">
+      <label>Tipo (bloque)</label>
+      <select class="modal-select" id="customCardBlock">
+        <option value="Base">Base</option>
+        <option value="Especiales">Especiales</option>
+        <option value="Élite">Élite</option>
+        <option value="Plus">Plus</option>
+        <option value="BIS">BIS</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Grupo / Equipo (opcional)</label>
+      <input class="modal-input" id="customCardGroup" type="text" placeholder="Ej: Real Madrid, Super Cracks…" maxlength="40" autocomplete="off">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmAddCustom()">➕ Añadir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL RESET -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h3>🗑️ Reiniciar mi progreso</h3>
+    <p>¿Seguro? Se borrarán todos mis cromos marcados. Los datos del compañero no se verán afectados.</p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-danger" onclick="resetProgress()">Reiniciar todo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPARTIR -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <h3>📲 Enviar mi checklist</h3>
+    <div class="share-modal-body">
+      <div class="share-info">
+        <strong>¿Cómo funciona?</strong>
+        Se descargará un archivo JSON con tus cromos. Envíaselo por WhatsApp. Tu compañero lo importa desde Ajustes → "Importar checklist del compañero" y sus cromos se <strong>suman</strong> a los tuyos sin borrar nada. ¡Siempre acumulativo!
+      </div>
+      <p style="font:600 14px var(--font);color:var(--text2)" id="shareStats"></p>
+    </div>
+    <br>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-p2" onclick="doShare()">📥 Descargar y enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORTAR COMPAÑERO -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h3>📥 Checklist del compañero</h3>
+    <div class="import-preview" id="importPreview">
+      <span class="count" id="importCount">0</span>
+      <span class="sub" id="importSub">cromos nuevos</span>
+    </div>
+    <p style="font:400 13px var(--font);color:var(--text2);margin-bottom:16px" id="importInfo"></p>
+    <div class="share-info" style="margin-bottom:16px;font:600 12px var(--font);color:var(--text2);background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;line-height:1.5">
+      ✅ <strong style="color:var(--success)">Modo fusión:</strong> Se suman los cromos nuevos sin borrar los anteriores.
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+      <button class="btn btn-p2" onclick="confirmImport()">➕ Sumar al checklist</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────
+//  PWA
+// ─────────────────────────────────────────────────────────
+// ─── PWA: manifest via data URI (mismo origen, instalable) ───────────────────
+(function(){
+  // Icono SVG en base64 — sin emojis para compatibilidad btoa
+  const iconSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="#2563eb"/><circle cx="256" cy="256" r="180" fill="#fff"/><circle cx="256" cy="256" r="180" fill="none" stroke="#1d4ed8" stroke-width="12"/><polygon points="256,120 290,210 386,210 310,268 338,358 256,300 174,358 202,268 126,210 222,210" fill="#1d4ed8"/></svg>';
+  const iconB64='data:image/svg+xml;base64,'+btoa(iconSvg);
+
+  // ── MANIFEST ────────────────────────────────────────────────────────────────
+  // Chrome Android REQUIERE que el manifest sea del mismo origen que la página.
+  // Creamos un Blob con tipo correcto y lo enlazamos como blob: URL.
+  // Esto funciona tanto en servidor HTTP como al abrir el .html directamente.
+  try{
+    const manifest={
+      name:"Adrenalyn XL 25/26",
+      short_name:"Cromos 25/26",
+      description:"Checklist de cromos Adrenalyn XL La Liga 2025-26",
+      start_url:"./",
+      display:"standalone",
+      background_color:"#0f172a",
+      theme_color:"#2563eb",
+      orientation:"portrait",
+      icons:[
+        {src:iconB64,sizes:"512x512",type:"image/svg+xml",purpose:"any"},
+        {src:iconB64,sizes:"192x192",type:"image/svg+xml",purpose:"maskable"}
+      ]
+    };
+    const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+    const blobUrl=URL.createObjectURL(blob);
+    const l=document.createElement('link');
+    l.rel='manifest';l.href=blobUrl;
+    document.head.appendChild(l);
+  }catch(e){}
+
+  // ── SERVICE WORKER ───────────────────────────────────────────────────────────
+  // Incrustamos el SW como Blob e intentamos registrarlo. Chrome Android acepta
+  // blob: URLs para SW siempre que el scope sea el mismo origen de la página.
+  if('serviceWorker' in navigator){
+    const swCode=`
+const CACHE='cromos-v4';
+const PAGE=self.location.href.replace(/\\/[^\\/]*$/,'/');
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll([PAGE]).catch(()=>{})));
+  self.skipWaiting();
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch',e=>{
+  if(e.request.mode==='navigate'){
+    e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match(PAGE))));
+  }
+});`;
+    try{
+      const b=new Blob([swCode],{type:'text/javascript'});
+      const swUrl=URL.createObjectURL(b);
+      navigator.serviceWorker.register(swUrl,{scope:'./'}).catch(()=>{});
+    }catch(e){}
+  }
+})();
+
+// ─────────────────────────────────────────────────────────
+//  ESCUDOS DE EQUIPOS (emojis y colores representativos)
+// ─────────────────────────────────────────────────────────
+// Escudos reales via football-data.org (gratuito, sin clave para imágenes)
+const CREST_BASE = 'https://crests.football-data.org/';
+const TEAM_SHIELDS = {
+  // Equipos Base — escudos reales
+  "Deportivo Alavés":   {id:263,  color:"#003DA5"},
+  "Athletic Club":      {id:77,   color:"#EE2523"},
+  "Atlético de Madrid": {id:78,   color:"#CB3524"},
+  "FC Barcelona":       {id:81,   color:"#004D98"},
+  "Real Betis":         {id:90,   color:"#00954C"},
+  "Real Celta":         {id:558,  color:"#77B3D4"},
+  "Elche":              {id:745,  color:"#007140"},
+  "Español":            {id:80,   color:"#004898"},
+  "Getafe":             {id:82,   color:"#1F5DA0"},
+  "Girona":             {id:298,  color:"#CC0000"},
+  "Levante":            {id:88,   color:"#C1001F"},
+  "Real Madrid":        {id:86,   color:"#FEBE10"},
+  "Mallorca":           {id:89,   color:"#CE0F0F"},
+  "Osasuna":            {id:79,   color:"#D3232A"},
+  "Real Oviedo":        {id:1062, color:"#003DA5"},
+  "Rayo Vallecano":     {id:87,   color:"#CC0000"},
+  "Real Sociedad":      {id:92,   color:"#003DA5"},
+  "Sevilla":            {id:559,  color:"#D4081A"},
+  "Valencia":           {id:95,   color:"#FFA500"},
+  "Villareal":          {id:94,   color:"#F7D117"},
+  // Especiales — emoji
+  "¡Vamos!":            {emoji:"🚀", color:"#9333ea"},
+  "Guantes de Oro":     {emoji:"🧤", color:"#f59e0b"},
+  "Kryptonita":         {emoji:"☢️", color:"#10b981"},
+  "Diamante":           {emoji:"💎", color:"#0ea5e9"},
+  "Influencers":        {emoji:"📱", color:"#ec4899"},
+  "Protas":             {emoji:"🎯", color:"#9333ea"},
+  "Super Cracks":       {emoji:"🌟", color:"#f59e0b"},
+  "Balon de oro":       {emoji:"🏅", color:"#f59e0b"},
+  "Excelent":           {emoji:"🥇", color:"#f59e0b"},
+  "Card Atomica":       {emoji:"⚛️", color:"#f59e0b"},
+  "Card Invencible":    {emoji:"🔮", color:"#9333ea"},
+  "Campeon Card":       {emoji:"🏆", color:"#f59e0b"},
+  "Entrenadores":       {emoji:"🧑‍💼",color:"#10b981"},
+  "Guantes de oro New": {emoji:"🧤", color:"#f59e0b"},
+  "Nuevas Kryptonitas": {emoji:"☢️", color:"#10b981"},
+  "Diamantes New":      {emoji:"💎", color:"#0ea5e9"},
+  "Protas New":         {emoji:"🎯", color:"#9333ea"},
+  "Super Cracks New":   {emoji:"🌟", color:"#f59e0b"},
+  "Master Mister":      {emoji:"👑", color:"#f59e0b"},
+  "Card Fantasica":     {emoji:"✨", color:"#ec4899"},
+  "Nuevo Balon de oro": {emoji:"🏅", color:"#f59e0b"},
+  "BIS":                {emoji:"♊",  color:"#ec4899"},
+};
+
+// ─────────────────────────────────────────────────────────
+//  DATOS COLECCIÓN 25/26  — clasificación correcta
+// ─────────────────────────────────────────────────────────
+const bisCards = [];
+// BIS filter visibility — controlled dynamically based on customCards
+function syncBisFilterVisibility(){
+  const hasBis = customCards.some(c=>c.block==='BIS') || bisCards.length>0;
+  const bisBtn = document.querySelector('.filter-btn[data-f="BIS"]');
+  if(bisBtn) bisBtn.style.display = hasBis ? '' : 'none';
+}
+
+const COLLECTION = [
+  // ── EQUIPOS BASE (cartas 1–306 + gap 289-298) ──────────────────────────────
+  {block:"Base",      group:"Deportivo Alavés",   from:1,   to:18},
+  {block:"Base",      group:"Athletic Club",       from:19,  to:36},
+  {block:"Base",      group:"Atlético de Madrid",  from:37,  to:54},
+  {block:"Base",      group:"FC Barcelona",        from:55,  to:72},
+  {block:"Base",      group:"Real Betis",          from:73,  to:90},
+  {block:"Base",      group:"Real Celta",          from:91,  to:108},
+  {block:"Base",      group:"Elche",               from:109, to:126},
+  {block:"Base",      group:"Español",             from:127, to:144},
+  {block:"Base",      group:"Getafe",              from:145, to:162},
+  {block:"Base",      group:"Girona",              from:163, to:180},
+  {block:"Base",      group:"Levante",             from:181, to:198},
+  {block:"Base",      group:"Real Madrid",         from:199, to:216},
+  {block:"Base",      group:"Mallorca",            from:217, to:224},
+  {block:"Base",      group:"Osasuna",             from:225, to:252},
+  {block:"Base",      group:"Real Oviedo",         from:253, to:270},
+  {block:"Base",      group:"Rayo Vallecano",      from:271, to:288},
+  // Nota: 289-298 no están definidos — salto hasta Real Sociedad en 299
+  {block:"Base",      group:"Real Sociedad",       from:299, to:306},
+  {block:"Base",      group:"Sevilla",             from:307, to:324},
+  {block:"Base",      group:"Valencia",            from:325, to:342},
+  {block:"Base",      group:"Villareal",           from:343, to:360},
+  // ── ESPECIALES ──────────────────────────────────────────────────────────────
+  {block:"Especiales",group:"¡Vamos!",             from:361, to:380},
+  {block:"Especiales",group:"Guantes de Oro",      from:381, to:387},
+  {block:"Especiales",group:"Kryptonita",          from:388, to:396},
+  {block:"Especiales",group:"Diamante",            from:397, to:414},
+  {block:"Especiales",group:"Influencers",         from:415, to:423},
+  {block:"Especiales",group:"Protas",              from:424, to:441},
+  // ── ÉLITE ───────────────────────────────────────────────────────────────────
+  {block:"Élite",     group:"Super Cracks",        from:442, to:468},
+  {block:"Élite",     group:"Balon de oro",        from:469, to:474},
+  {block:"Élite",     group:"Excelent",            from:475, to:475},
+  {block:"Élite",     group:"Card Atomica",        from:476, to:476},
+  {block:"Élite",     group:"Card Invencible",     from:477, to:477},
+  {block:"Élite",     group:"Campeon Card",        from:478, to:478},
+  // ── PLUS ────────────────────────────────────────────────────────────────────
+  {block:"Plus",      group:"Entrenadores",        from:479, to:498},
+  {block:"Plus",      group:"Guantes de oro New",  from:499, to:500},
+  {block:"Plus",      group:"Nuevas Kryptonitas",  from:501, to:503},
+  {block:"Plus",      group:"Diamantes New",       from:504, to:508},
+  {block:"Plus",      group:"Protas New",          from:509, to:513},
+  {block:"Plus",      group:"Super Cracks New",    from:514, to:517},
+  {block:"Plus",      group:"Master Mister",       from:518, to:519},
+  {block:"Plus",      group:"Card Fantasica",      from:520, to:520},
+  {block:"Plus",      group:"Nuevo Balon de oro",  from:521, to:522},
+];
+
+const allCards=[];
+for(const sec of COLLECTION){
+  for(let i=sec.from;i<=sec.to;i++){
+    const id=String(i).padStart(3,'0');
+    allCards.push({id,numRaw:i,label:id,block:sec.block,group:sec.group});
+  }
+}
+for(const bisId of bisCards){
+  allCards.push({id:bisId,numRaw:-1,label:bisId,block:'BIS',group:'BIS'});
+}
+
+// ─────────────────────────────────────────────────────────
+//  PERFIL DEL USUARIO
+// ─────────────────────────────────────────────────────────
+
+// Sanitiza strings antes de interpolarlos en innerHTML — debe estar al inicio
+function escapeHTML(str){
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+let userProfile = {
+  name: '',
+  emoji: '⚽',
+  color: '#2563eb'
+};
+
+const STORE_PROFILE  = 'checklist_v3_profile';
+const STORE_KEY      = 'checklist_v3_mine';
+const STORE_THEIR    = 'checklist_v3_theirs';
+const STORE_P2NAME   = 'checklist_v3_p2name';
+const STORE_CUSTOM   = 'checklist_v3_custom';
+const DB_NAME        = 'ChecklistV3';
+const DB_STORE       = 'data';
+
+let myCards      = new Set();
+let theirCards   = new Set();
+let customCards  = []; // [{id, label, block, group}]
+let historyStack = [];
+let activeTab    = 'missing';
+let activeFilter = 'all';
+let searchQuery  = '';
+let db           = null;
+let pendingImport = null;
+
+// ─────────────────────────────────────────────────────────
+//  PERSISTENCIA
+// ─────────────────────────────────────────────────────────
+function initDB(){
+  return new Promise(resolve=>{
+    if(!window.indexedDB){resolve(false);return;}
+    const req=indexedDB.open(DB_NAME,3);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains(DB_STORE))
+        d.createObjectStore(DB_STORE,{keyPath:'key'});
+    };
+    req.onsuccess=e=>{db=e.target.result;resolve(true);};
+    req.onerror=()=>resolve(false);
+  });
+}
+
+async function dbSet(key,value){
+  if(db){
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(DB_STORE,'readwrite');
+      tx.objectStore(DB_STORE).put({key,value});
+      tx.oncomplete=resolve;
+      tx.onerror=reject;
+    }).catch(()=>{});
+  }
+  try{localStorage.setItem(key,value);}catch(e){}
+}
+
+async function dbGet(key){
+  if(db){return new Promise(resolve=>{
+    const tx=db.transaction(DB_STORE,'readonly');
+    const req=tx.objectStore(DB_STORE).get(key);
+    req.onsuccess=()=>resolve(req.result?.value||null);
+    req.onerror=()=>resolve(null);
+  });}
+  try{return localStorage.getItem(key);}catch(e){return null;}
+}
+
+async function saveAll(){
+  await dbSet(STORE_KEY,    JSON.stringify([...myCards]));
+  await dbSet(STORE_THEIR,  JSON.stringify([...theirCards]));
+  await dbSet(STORE_CUSTOM, JSON.stringify(customCards));
+}
+
+async function saveProfile(){
+  await dbSet(STORE_PROFILE, JSON.stringify(userProfile));
+}
+
+async function loadAll(){
+  const prof = await dbGet(STORE_PROFILE);
+  if(prof){
+    try{ userProfile = JSON.parse(prof); }catch(e){}
+  }
+  const mine   = await dbGet(STORE_KEY);
+  const their  = await dbGet(STORE_THEIR);
+  const custom = await dbGet(STORE_CUSTOM);
+  if(mine)   myCards    = new Set(JSON.parse(mine));
+  if(their)  theirCards = new Set(JSON.parse(their));
+  if(custom){
+    try{
+      customCards = JSON.parse(custom);
+      // Inject into allCards (avoid duplicates on hot reload)
+      injectCustomCards();
+    }catch(e){ customCards = []; }
+  }
+  const p2name = await dbGet(STORE_P2NAME);
+  if(p2name){
+    document.getElementById('p2NameInput').value = p2name;
+    updateP2Name(p2name);
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+//  PANTALLA DE BIENVENIDA
+// ─────────────────────────────────────────────────────────
+let welcomeSelectedEmoji = '⚽';
+let welcomeSelectedColor = '#2563eb';
+
+document.getElementById('welcomeEmojiGrid').addEventListener('click', e=>{
+  const btn = e.target.closest('.emoji-opt');
+  if(!btn) return;
+  document.querySelectorAll('#welcomeEmojiGrid .emoji-opt').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  welcomeSelectedEmoji = btn.dataset.emoji;
+});
+
+document.getElementById('welcomeColorGrid').addEventListener('click', e=>{
+  const opt = e.target.closest('.color-opt');
+  if(!opt) return;
+  document.querySelectorAll('#welcomeColorGrid .color-opt').forEach(o=>{o.classList.remove('selected');o.setAttribute('aria-pressed','false');});
+  opt.classList.add('selected');
+  opt.setAttribute('aria-pressed','true');
+  welcomeSelectedColor = opt.dataset.color;
+});
+
+document.getElementById('welcomeName').addEventListener('input', function(){
+  const btn = document.getElementById('welcomeBtn');
+  btn.disabled = this.value.trim().length < 2;
+});
+
+// También activar con Enter en el campo nombre
+document.getElementById('welcomeName').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && this.value.trim().length >= 2) finishWelcome();
+});
+
+function finishWelcome(){
+  const name = document.getElementById('welcomeName').value.trim();
+  if(name.length < 2) return;
+  userProfile = {name, emoji: welcomeSelectedEmoji, color: welcomeSelectedColor};
+  saveProfile();
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('app').style.display = '';
+  applyProfile();
+  renderAll();
+}
+
+// ─────────────────────────────────────────────────────────
+//  APLICAR PERFIL — definida más abajo junto a settingsColorGrid
+// ─────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────
+//  AJUSTES — edición de perfil
+// ─────────────────────────────────────────────────────────
+function saveProfileName(){
+  const val = document.getElementById('p1NameInput').value.trim();
+  if(!val) return;
+  userProfile.name = val;
+  saveProfile();
+  applyProfile();
+  showToast('✅ Nombre actualizado');
+}
+
+document.getElementById('settingsEmojiGrid').addEventListener('click', e=>{
+  const btn = e.target.closest('.mini-emoji-opt');
+  if(!btn) return;
+  userProfile.emoji = btn.dataset.emoji;
+  saveProfile();
+  applyProfile();
+  showToast(btn.dataset.emoji + ' Emoji cambiado');
+});
+
+document.getElementById('settingsColorGrid').addEventListener('click', e=>{
+  const opt = e.target.closest('.mini-color-opt');
+  if(!opt) return;
+  userProfile.color = opt.dataset.color;
+  saveProfile();
+  applyProfile();
+  renderAll();
+  showToast('🎨 Color cambiado');
+});
+
+function applyProfile(){
+  const {name, emoji, color} = userProfile;
+  document.documentElement.style.setProperty('--p1', color);
+  document.getElementById('headerAvatar').textContent = emoji;
+  document.getElementById('headerAvatar').style.background = color;
+  document.getElementById('headerName').textContent = name;
+  document.getElementById('p1NameLegend').textContent = name;
+  document.getElementById('settingsAvatar').textContent = emoji;
+  document.getElementById('settingsAvatar').style.background = color;
+  document.getElementById('settingsName').textContent = name;
+  document.getElementById('p1NameInput').value = name;
+  document.querySelectorAll('#settingsEmojiGrid .mini-emoji-opt').forEach(b=>{
+    b.classList.toggle('selected', b.dataset.emoji === emoji);
+  });
+  document.querySelectorAll('#settingsColorGrid .mini-color-opt').forEach(o=>{
+    const active = o.dataset.color === color;
+    o.classList.toggle('selected', active);
+    o.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+//  COMPAÑERO
+// ─────────────────────────────────────────────────────────
+function updateP2Name(name){
+  document.getElementById('p2NameLegend').textContent = name||'Compañero';
+}
+
+document.getElementById('p2NameInput').addEventListener('input', function(){
+  updateP2Name(this.value);
+  dbSet(STORE_P2NAME, this.value);
+});
+
+// ─────────────────────────────────────────────────────────
+//  FILTRADO
+// ─────────────────────────────────────────────────────────
+function filterCards(cards){
+  return cards.filter(c=>{
+    if(activeFilter!=='all' && c.block!==activeFilter) return false;
+    if(searchQuery){
+      const q=searchQuery.toLowerCase();
+      if(!c.id.includes(q)&&!c.group.toLowerCase().includes(q)&&!c.block.toLowerCase().includes(q)&&!(c.label||'').toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────────────────────
+function groupBy(cards){
+  const map=new Map();
+  for(const c of cards){
+    const key=c.block+'|'+c.group;
+    if(!map.has(key)) map.set(key,{block:c.block,group:c.group,cards:[]});
+    map.get(key).cards.push(c);
+  }
+  return [...map.values()];
+}
+
+function blockColor(b){
+  return {Base:'var(--base)',Especiales:'var(--especiales)',Élite:'var(--elite)',Plus:'var(--plus)',BIS:'var(--bis)'}[b]||'var(--accent)';
+}
+
+function cardState(id){
+  const m=myCards.has(id), t=theirCards.has(id);
+  if(m&&t) return 'both';
+  if(m)    return 'mine';
+  if(t)    return 'theirs';
+  return '';
+}
+
+function getShield(group){
+  const s = TEAM_SHIELDS[group];
+  if(!s) return null;
+  return s;
+}
+
+function shieldHtml(group, block){
+  const s = TEAM_SHIELDS[group];
+  if(!s) return `<span class="block-dot" style="background:${blockColor(block)}"></span>`;
+  if(s.id){
+    // Escudo real con imagen; si no carga, iniciales del equipo con color del club
+    const borderColor = s.color + '40';
+    const initials = group.replace(/^(FC|RC|RCD|UD|CA|CD|CF|Real|Athletic|Atlético|Atlético de|Deportivo)\s+/i,'')
+                         .split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const fallback = `this.parentNode.style.background='${s.color}20';this.parentNode.style.fontSize='10px';this.parentNode.style.fontWeight='900';this.parentNode.style.color='${s.color}';this.parentNode.innerHTML='${initials}'`;
+    return `<span class="team-shield" style="border-color:${borderColor};background:transparent">
+      <img src="${CREST_BASE}${s.id}.png" 
+           onerror="${fallback}"
+           width="22" height="22"
+           style="width:22px;height:22px;object-fit:contain" 
+           alt="${escapeHTML(group)}" loading="lazy">
+    </span>`;
+  }
+  // Emoji para cartas especiales
+  return `<span class="team-shield" style="border-color:${s.color}40;background:${s.color}15;font-size:15px">${s.emoji}</span>`;
+}
+
+function renderGrid(containerId, cards){
+  const el=document.getElementById(containerId);
+  const filtered=filterCards(cards);
+  if(!filtered.length){
+    const allEmpty=cards.length===0;
+    el.innerHTML=`<div class="empty">
+      <span class="emoji">${allEmpty?'🎉':'🔍'}</span>
+      <h3>${allEmpty?'¡Colección completa!':'Sin resultados'}</h3>
+      <p>${allEmpty?'¡Enhorabuena, tienes todos los cromos!':'Prueba con otro término de búsqueda.'}</p>
+    </div>`;
+    return;
+  }
+  const groups=groupBy(filtered);
+  let html='';
+  for(const g of groups){
+    html+=`<div class="block-section">
+      <div class="block-header">
+        ${shieldHtml(g.group, g.block)}
+        <span>${escapeHTML(g.group)}</span>
+        <span class="block-count">${g.cards.length}</span>
+      </div>
+      <div class="cards-grid">`;
+    for(const c of g.cards){
+      const state=cardState(c.id);
+      let dots='<div class="card-dots">';
+      if(myCards.has(c.id))    dots+='<div class="cdot p1"></div>';
+      if(theirCards.has(c.id)) dots+='<div class="cdot p2"></div>';
+      dots+='</div>';
+      html+=`<div class="card ${state}" data-id="${c.id}" data-block="${c.block}" onclick="toggleCard('${c.id}',event)">
+        ${dots}
+        <span class="card-num">${c.label}</span>
+        <span class="card-badge">${c.block}</span>
+      </div>`;
+    }
+    html+=`</div></div>`;
+  }
+  el.innerHTML=html;
+}
+
+function renderAll(){
+  const missing=allCards.filter(c=>!myCards.has(c.id)&&!theirCards.has(c.id));
+  const done=allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id));
+  renderGrid('missingGrid',missing);
+  renderGrid('doneGrid',done);
+  updateCounters();
+  if(activeTab==='stats') renderStats();
+  if(activeTab==='map') renderMap();
+}
+
+function updateCounters(){
+  const total=allCards.length;
+  // "Tenemos" = lo que tiene cualquiera de los dos
+  const done=allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
+  // "Faltan" = lo que no tiene ninguno
+  const missing=total-done;
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('cTotal').textContent=total;
+  document.getElementById('cDone').textContent=done;
+  document.getElementById('cMissing').textContent=missing;
+  document.getElementById('cPct').textContent=pct+'%';
+}
+
+function renderStats(){
+  const el=document.getElementById('statsContent');
+  const blocks=['Base','Especiales','Élite','Plus','BIS'];
+  const total=allCards.length;
+  const myDone=myCards.size;
+  const theirDone=theirCards.size;
+  const p2name=document.getElementById('p2NameInput').value||'Compañero';
+  const myName=userProfile.name||'Yo';
+
+  let html=`<div class="stats-section">
+    <div class="stats-title">Progreso global</div>
+    <div class="stat-card">
+      <span class="stat-dot" style="background:var(--p1)"></span>
+      <div class="stat-info">
+        <div class="stat-name">${escapeHTML(myName)} ${escapeHTML(userProfile.emoji)}</div>
+        <div class="stat-sub">${myDone} de ${total} conseguidos</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.round(myDone/total*100)}%;background:var(--p1)"></div></div>
+      </div>
+      <div class="stat-right"><div class="stat-frac">${Math.round(myDone/total*100)}%</div><div class="stat-pct">completado</div></div>
+    </div>`;
+
+  if(theirDone>0){
+    html+=`<div class="stat-card">
+      <span class="stat-dot" style="background:var(--p2)"></span>
+      <div class="stat-info">
+        <div class="stat-name">${escapeHTML(p2name)}</div>
+        <div class="stat-sub">${theirDone} de ${total} conseguidos</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.round(theirDone/total*100)}%;background:var(--p2)"></div></div>
+      </div>
+      <div class="stat-right"><div class="stat-frac">${Math.round(theirDone/total*100)}%</div><div class="stat-pct">completado</div></div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-dot" style="background:var(--success)"></span>
+      <div class="stat-info">
+        <div class="stat-name">Entre los dos</div>
+        <div class="stat-sub">${allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length} en total · ${allCards.filter(c=>myCards.has(c.id)&&theirCards.has(c.id)).length} coinciden</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.round(allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length/total*100)}%;background:var(--success)"></div></div>
+      </div>
+      <div class="stat-right"><div class="stat-frac">${Math.round(allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length/total*100)}%</div><div class="stat-pct">entre ambos</div></div>
+    </div>`;
+  }
+  html+='</div>';
+
+  html+=`<div class="stats-section"><div class="stats-title">Por bloque</div>`;
+  for(const b of blocks){
+    const cards=allCards.filter(c=>c.block===b);
+    if(!cards.length) continue;
+    // Unión: lo que tiene al menos uno de los dos (consistente con el resto de la app)
+    const unionCards=cards.filter(c=>myCards.has(c.id)||theirCards.has(c.id));
+    const myBlockCount=cards.filter(c=>myCards.has(c.id)).length;
+    const d=unionCards.length;
+    const t=cards.length;
+    const pct=Math.round(d/t*100);
+    const subLabel = theirCards.size>0
+      ? `${d} de ${t} conseguidos · ${myBlockCount} míos`
+      : `${d} de ${t} conseguidos`;
+    html+=`<div class="stat-card">
+      <span class="stat-dot" style="background:${blockColor(b)}"></span>
+      <div class="stat-info">
+        <div class="stat-name">${b}</div>
+        <div class="stat-sub">${subLabel}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${blockColor(b)}"></div></div>
+      </div>
+      <div class="stat-right"><div class="stat-frac">${pct}%</div><div class="stat-pct">${t-d} faltan</div></div>
+    </div>`;
+  }
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// ─────────────────────────────────────────────────────────
+//  TOGGLE
+// ─────────────────────────────────────────────────────────
+let _patchTimer = null;
+function toggleCard(id, evt){
+  if(evt){
+    const el=evt.currentTarget||evt.target.closest('.card');
+    const r=document.createElement('span');
+    r.className='ripple';
+    const rect=el.getBoundingClientRect();
+    r.style.left=(evt.clientX-rect.left)+'px';
+    r.style.top=(evt.clientY-rect.top)+'px';
+    el.appendChild(r);
+    setTimeout(()=>r.remove(),600);
+  }
+  const wasMine=myCards.has(id);
+  historyStack.push({id,was:wasMine});
+  if(historyStack.length>50) historyStack.shift();
+  if(wasMine) myCards.delete(id);
+  else myCards.add(id);
+  saveAll();
+
+  // Actualización quirúrgica: solo re-renderiza las tarjetas afectadas y contadores
+  // sin destruir todo el DOM (evita parpadeo, pérdida de foco y cancelación del ripple)
+  patchCardDOM(id);
+  updateCounters();
+  if(activeTab==='stats') renderStats();
+  if(activeTab==='map') renderMap();
+
+  showToast(wasMine?`❌ ${id} desmarcado`:`✅ ${id} conseguido`);
+  vibrate(wasMine?[50]:[40,20,40]);
+}
+
+// Recalcula el estado visual de todas las instancias de una tarjeta en el DOM
+function patchCardDOM(id){
+  const state=cardState(id);
+  // Patch normal card grid
+  document.querySelectorAll(`.card[data-id="${id}"]`).forEach(el=>{
+    el.classList.remove('mine','theirs','both');
+    if(state) el.classList.add(state);
+    let dots=el.querySelector('.card-dots');
+    if(!dots){dots=document.createElement('div');dots.className='card-dots';el.prepend(dots);}
+    dots.innerHTML='';
+    if(myCards.has(id)){const d=document.createElement('div');d.className='cdot p1';dots.appendChild(d);}
+    if(theirCards.has(id)){const d=document.createElement('div');d.className='cdot p2';dots.appendChild(d);}
+    el.classList.remove('popin');
+    void el.offsetWidth;
+    el.classList.add('popin');
+  });
+  // Patch map mini-cards
+  document.querySelectorAll(`.map-mini-card[data-id="${id}"]`).forEach(el=>{
+    el.classList.remove('mine','theirs','both');
+    if(state) el.classList.add(state);
+  });
+
+  // Si la tarjeta cambia de panel (aparece/desaparece en Faltan o Tengo),
+  // necesitamos re-render completo solo de esos paneles — pero diferido para
+  // no cancelar el ripple que acaba de añadirse
+  clearTimeout(_patchTimer);
+  _patchTimer = setTimeout(()=>{
+    const missing=allCards.filter(c=>!myCards.has(c.id)&&!theirCards.has(c.id));
+    const done=allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id));
+    renderGrid('missingGrid',missing);
+    renderGrid('doneGrid',done);
+    if(activeTab==='map') renderMap();
+  },620);
+}
+
+function undo(){
+  if(!historyStack.length){showToast('Nada que deshacer');return;}
+  const last=historyStack.pop();
+  // Bug 14: guard against orphan IDs (e.g. custom card marked then deleted)
+  const stillExists = allCards.some(c=>c.id===last.id);
+  if(!stillExists){showToast(`↩️ Carta ya no existe: ${last.id}`);saveAll();renderAll();return;}
+  if(last.was) myCards.add(last.id);
+  else myCards.delete(last.id);
+  saveAll();renderAll();
+  showToast(`↩️ Deshecho: ${last.id}`);
+}
+
+// ─────────────────────────────────────────────────────────
+//  COMPARTIR
+// ─────────────────────────────────────────────────────────
+function openShareModal(){
+  document.getElementById('shareStats').textContent=
+    `Tienes ${myCards.size} cromos conseguidos de ${allCards.length} totales.`;
+  document.getElementById('shareModal').classList.add('open');
+}
+
+function doShare(){
+  closeModals();
+  const name = userProfile.name || 'Jugador';
+  const payload={
+    version:3,type:'companion-checklist',
+    from: name, emoji: userProfile.emoji, color: userProfile.color,
+    date:new Date().toISOString(),
+    collected:[...myCards],
+    customCards: customCards
+  };
+  const json=JSON.stringify(payload,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const dateStr=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'}).replaceAll('/','_');
+  const safeName = name.toLowerCase().replace(/\s+/g,'_');
+  const fileName=`cromos_${safeName}_${dateStr}.json`;
+  const a=document.createElement('a');
+  a.href=url;a.download=fileName;a.click();
+  URL.revokeObjectURL(url);
+  setTimeout(()=>{
+    const msg=`⚽ *Checklist de ${name} — Adrenalyn XL 25/26*\n\nTe mando mi checklist actualizado (${myCards.size} cromos conseguidos).\n\n📲 *Para importarlo:*\n1. Abre la app de cromos\n2. Ve a Ajustes → "Importar checklist del compañero"\n3. Selecciona el archivo *${fileName}*\n4. ¡Listo! 🎉\n\n_Enviado el ${new Date().toLocaleDateString('es-ES')}_`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  },800);
+  showToast('📲 Archivo descargado. Abriendo WhatsApp…');
+}
+
+// ─────────────────────────────────────────────────────────
+//  IMPORTAR COMPAÑERO
+// ─────────────────────────────────────────────────────────
+function importCompanion(evt){
+  const file=evt.target.files[0];if(!file)return;
+  evt.target.value='';
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      let ids=[];
+      if(data.type==='companion-checklist'&&Array.isArray(data.collected)) ids=data.collected;
+      else if(Array.isArray(data.collected)) ids=data.collected;
+      else throw new Error('Formato no válido');
+      const validIds=new Set(allCards.map(c=>c.id));
+      // También permitir IDs de cartas personalizadas del compañero
+      if(Array.isArray(data.customCards)){
+        for(const cc of data.customCards) if(cc.id) validIds.add(cc.id);
+      }
+      // Filtrar IDs recibidos — descartar los que no existen en esta colección
+      ids=ids.filter(id=>validIds.has(id));
+      pendingImport={ids, customCards: data.customCards||[], fromName: data.from||'', fromEmoji: data.emoji||'🎉', fromColor: data.color||'#f97316'};
+      const fromName=data.from||document.getElementById('p2NameInput').value||'Compañero';
+      const nuevos=ids.filter(id=>!theirCards.has(id)).length;
+      const yaTenia=ids.filter(id=>theirCards.has(id)).length;
+      const newCustomCount = (data.customCards||[]).filter(cc=>!customCards.find(c=>c.id===cc.id)).length;
+      document.getElementById('importCount').textContent=nuevos;
+      document.getElementById('importSub').textContent=`cromos NUEVOS de ${fromName}`;
+      document.getElementById('importInfo').textContent=
+        `${yaTenia > 0 ? `${yaTenia} ya los teníais registrados · ` : ''}Se sumarán ${nuevos} nuevos sin borrar nada.${newCustomCount>0?' También '+newCustomCount+' carta(s) personalizada(s) nueva(s).':''}`;
+      // Actualizar nombre automáticamente si viene en el JSON
+      if(data.from && !document.getElementById('p2NameInput').value){
+        document.getElementById('p2NameInput').value=data.from;
+        updateP2Name(data.from);
+        dbSet(STORE_P2NAME,data.from);
+      }
+      document.getElementById('importModal').classList.add('open');
+    }catch(err){showToast('⚠️ Archivo no válido o corrupto');}
+  };
+  r.readAsText(file);
+}
+
+function confirmImport(){
+  if(!pendingImport) return;
+
+  // Capture exactly which IDs are truly new (not already in theirCards)
+  const newIds = pendingImport.ids.filter(id => !theirCards.has(id));
+  for(const id of pendingImport.ids) theirCards.add(id);
+
+  // Merge companion's custom cards
+  const newCustomCards = [];
+  if(pendingImport.customCards && Array.isArray(pendingImport.customCards)){
+    const existingIds = new Set(customCards.map(c=>c.id));
+    for(const cc of pendingImport.customCards){
+      if(!existingIds.has(cc.id) && cc.id && cc.label && cc.block){
+        customCards.push(cc);
+        newCustomCards.push(cc);
+      }
+    }
+    if(newCustomCards.length > 0){
+      injectCustomCards();
+      mapExpanded.clear();
+      renderCustomCardsList();
+      renderBisCardsList();
+      syncBisFilterVisibility();
+    }
+  }
+
+  const fromName = pendingImport.fromName || document.getElementById('p2NameInput').value || 'Compañero';
+  const fromEmoji = pendingImport.fromEmoji || '🎉';
+  const fromColor = pendingImport.fromColor || '#f97316';
+  pendingImport=null;
+  saveAll();renderAll();closeModals();
+  vibrate([30,20,30,20,60]);
+
+  // Show celebration popup
+  showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards);
+}
+
+// ─────────────────────────────────────────────────────────
+//  POPUP CELEBRACIÓN
+// ─────────────────────────────────────────────────────────
+function showCelebrate(name, emoji, color, newIds, newCustom){
+  // Header
+  const avatarEl = document.getElementById('celebrateAvatar');
+  avatarEl.textContent = emoji;
+  avatarEl.style.background = color + '30';
+  avatarEl.style.borderColor = color + '60';
+  document.getElementById('celebrateName').textContent = name;
+  document.getElementById('celebrateBig').textContent = newIds.length + newCustom.length;
+
+  // Body — group new cards by group
+  const body = document.getElementById('celebrateBody');
+  if(!newIds.length && !newCustom.length){
+    body.innerHTML = '<p style="text-align:center;padding:12px 0;color:var(--text2);font:600 14px var(--font)">Ya teníais todos sus cromos registrados 👌</p>';
+  } else {
+    // Map id → card object for lookup
+    const cardMap = new Map(allCards.map(c=>[c.id, c]));
+    const groups = new Map();
+    for(const id of newIds){
+      const card = cardMap.get(id);
+      if(!card) continue;
+      const key = card.group;
+      if(!groups.has(key)) groups.set(key, {group:card.group, block:card.block, cards:[]});
+      groups.get(key).cards.push(card);
+    }
+    // Add new custom cards as their own group if any
+    for(const cc of newCustom){
+      const key = cc.group || cc.block;
+      if(!groups.has(key)) groups.set(key, {group:key, block:cc.block, cards:[]});
+      groups.get(key).cards.push({id:cc.id, label:cc.label, block:cc.block, group:key});
+    }
+    let html = '';
+    for(const [, g] of groups){
+      const dotColor = blockColor(g.block);
+      html += `<div class="celebrate-group">
+        <div class="celebrate-group-name">
+          <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block"></span>
+          ${escapeHTML(g.group)} <span style="color:var(--text2);font-weight:600">(${g.cards.length})</span>
+        </div>
+        <div class="celebrate-chips">
+          ${g.cards.map(c=>`<span class="celebrate-chip${c.block==='BIS'?' bis':''}">${escapeHTML(c.label)}</span>`).join('')}
+        </div>
+      </div>`;
+    }
+    body.innerHTML = html;
+  }
+
+  // Show overlay
+  document.getElementById('celebrateOverlay').classList.add('open');
+
+  // Confetti animation
+  launchConfetti(color);
+}
+
+function closeCelebrate(){
+  document.getElementById('celebrateOverlay').classList.remove('open');
+  stopConfetti();
+}
+
+let _confettiAnim = null;
+let _confettiCtx = null;
+let _confettiParticles = [];
+
+function launchConfetti(accentColor){
+  const canvas = document.getElementById('celebrateCanvas');
+  const box = canvas.parentElement;
+  canvas.width = box.offsetWidth || 400;
+  canvas.height = box.offsetHeight || 200;
+  _confettiCtx = canvas.getContext('2d');
+  const colors = [accentColor,'#f59e0b','#10b981','#ec4899','#3b82f6','#fff'];
+  _confettiParticles = Array.from({length:60}, ()=>({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height - canvas.height,
+    r: Math.random()*5+3,
+    d: Math.random()*60+20,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    tilt: Math.random()*10-10,
+    tiltSpeed: Math.random()*.1+.05,
+    speed: Math.random()*2+1,
+    opacity: Math.random()*.6+.4,
+    angle: 0
+  }));
+  let frame = 0;
+  function draw(){
+    _confettiCtx.clearRect(0,0,canvas.width,canvas.height);
+    for(const p of _confettiParticles){
+      _confettiCtx.save();
+      _confettiCtx.globalAlpha = p.opacity;
+      _confettiCtx.fillStyle = p.color;
+      _confettiCtx.beginPath();
+      _confettiCtx.ellipse(p.x, p.y, p.r, p.r*0.4, p.angle, 0, Math.PI*2);
+      _confettiCtx.fill();
+      _confettiCtx.restore();
+      p.y += p.speed;
+      p.x += Math.sin(frame/p.d)*1.5;
+      p.angle += p.tiltSpeed;
+      p.tilt = Math.sin(frame/p.d)*12;
+      if(p.y > canvas.height){ p.y=-10; p.x=Math.random()*canvas.width; }
+    }
+    frame++;
+    _confettiAnim = requestAnimationFrame(draw);
+  }
+  stopConfetti();
+  draw();
+}
+
+function stopConfetti(){
+  if(_confettiAnim){ cancelAnimationFrame(_confettiAnim); _confettiAnim=null; }
+  if(_confettiCtx) _confettiCtx.clearRect(0,0,
+    document.getElementById('celebrateCanvas').width,
+    document.getElementById('celebrateCanvas').height);
+}
+
+function clearCompanion(){
+  theirCards=new Set();saveAll();renderAll();
+  showToast('🗑️ Datos del compañero eliminados');
+}
+
+// ─────────────────────────────────────────────────────────
+//  BACKUP
+// ─────────────────────────────────────────────────────────
+function exportJSON(){
+  const name=userProfile.name||'jugador';
+  const data={version:3,type:'backup',name:userProfile.name,
+    date:new Date().toISOString(),collected:[...myCards],
+    theirCards:[...theirCards],customCards:customCards};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`backup_${name.toLowerCase().replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();URL.revokeObjectURL(url);
+  showToast('📤 Copia de seguridad exportada');
+}
+
+function importBackup(evt){
+  const file=evt.target.files[0];if(!file)return;
+  evt.target.value='';
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.collected&&Array.isArray(data.collected)){
+        // El número de carta es el identificador real — NO filtramos por colección actual.
+        // Un backup puede venir de una versión con clasificación distinta de equipos,
+        // pero el número sigue siendo el mismo cromo. Se conservan todos.
+        myCards=new Set(data.collected.filter(id=>typeof id==='string'&&id.length>0));
+        historyStack=[];
+        // Restaurar theirCards igual — sin filtrar por colección
+        if(data.theirCards&&Array.isArray(data.theirCards))
+          theirCards=new Set(data.theirCards.filter(id=>typeof id==='string'&&id.length>0));
+        // Bug 13: restore customCards from backup
+        if(data.customCards&&Array.isArray(data.customCards)){
+          customCards=data.customCards;
+          injectCustomCards();
+          mapExpanded.clear();
+          renderCustomCardsList();
+        }
+        saveAll();renderAll();
+        showToast('📥 Copia restaurada: '+myCards.size+' cromos');
+      }else throw new Error();
+    }catch(err){showToast('⚠️ Archivo no válido');}
+  };
+  r.readAsText(file);
+}
+
+// ─────────────────────────────────────────────────────────
+//  PDF
+// ─────────────────────────────────────────────────────────
+function exportPDF(){
+  // Use joint missing: cards neither player has
+  const missing = allCards.filter(c => !myCards.has(c.id) && !theirCards.has(c.id));
+  if(!missing.length){ showToast('🎉 ¡No falta ningún cromo!'); return; }
+
+  const date = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+  const name = userProfile.name || 'Checklist';
+  const p2name = document.getElementById('p2NameInput').value || '';
+  const titulo = p2name ? `${name} & ${p2name}` : name;
+  const total = allCards.length;
+  const tenemos = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
+  const pct = Math.round(tenemos/total*100);
+
+  // Group by block+group
+  const blockColorMap = {Base:'#1d4ed8',Especiales:'#9333ea','Élite':'#d97706',Plus:'#16a34a',BIS:'#ec4899'};
+  const blockTextMap  = {Base:'#fff',Especiales:'#fff','Élite':'#000',Plus:'#fff',BIS:'#fff'};
+  const groups = new Map();
+  for(const c of missing){
+    const key = c.block+'|'+c.group;
+    if(!groups.has(key)) groups.set(key,{block:c.block,group:c.group,cards:[]});
+    groups.get(key).cards.push(c);
+  }
+
+  let blocksHtml = '';
+  for(const [,g] of groups){
+    const bg = blockColorMap[g.block]||'#333';
+    const fg = blockTextMap[g.block]||'#fff';
+    blocksHtml += `<div class="pb">
+      <div class="pbt" style="background:${bg};color:${fg}">
+        <span>${g.group}</span>
+        <span>${g.cards.length}</span>
+      </div>
+      <div class="pbc">${g.cards.map(c=>`<span class="pc">${c.label}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  const html = `<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8">
+<title>Cromos que faltan — ${titulo}</title>
+<style>
+  @page{size:A5 landscape;margin:9mm 11mm}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#000;font-size:9px}
+  .page{width:100%}
+  .hdr{display:flex;align-items:flex-end;justify-content:space-between;
+    border-bottom:2.5px solid #1d4ed8;padding-bottom:5px;margin-bottom:8px}
+  .hdr-l h1{font-size:14px;font-weight:900;color:#1d4ed8;margin-bottom:2px}
+  .hdr-l p{font-size:8px;color:#666;margin-top:1px}
+  .hdr-r{text-align:right;font-size:8px;color:#666}
+  .hdr-r .big{font-size:20px;font-weight:900;color:#dc2626;display:block;line-height:1}
+  .hdr-r .lbl{font-size:8px;color:#888}
+  .cols{column-count:3;column-gap:7mm}
+  .pb{break-inside:avoid;margin-bottom:7px}
+  .pbt{font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;
+    padding:2px 5px;border-radius:2px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+  .pbc{display:flex;flex-wrap:wrap;gap:2px}
+  .pc{border:1px solid #ddd;border-radius:2px;padding:1px 3px;font-size:7.5px;font-weight:700;background:#f7f7f7;color:#222}
+  .ftr{margin-top:10px;border-top:1px solid #eee;padding-top:4px;font-size:7px;color:#aaa;text-align:center}
+</style>
+</head><body>
+<div class="page">
+  <div class="hdr">
+    <div class="hdr-l">
+      <h1>⚽ Adrenalyn XL 25/26 — Faltan</h1>
+      <p>${titulo} · ${date}</p>
+      <p>Tenemos ${tenemos}/${total} (${pct}%) · Faltan <strong style="color:#dc2626">${missing.length}</strong> cromos</p>
+    </div>
+    <div class="hdr-r">
+      <span class="big">${missing.length}</span>
+      <span class="lbl">faltan</span>
+    </div>
+  </div>
+  <div class="cols">${blocksHtml}</div>
+  <div class="ftr">Generado el ${date} · Adrenalyn XL La Liga 2025-26</div>
+</div>
+<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),1000)}<\/script>
+</body></html>`;
+
+  const w = window.open('','_blank','width=900,height=600');
+  if(!w){ showToast('⚠️ Permite las ventanas emergentes para imprimir'); return; }
+  w.document.write(html);
+  w.document.close();
+}
+
+function shareText(){
+  const missing=allCards.filter(c=>!myCards.has(c.id)&&!theirCards.has(c.id));
+  if(!missing.length){showToast('¡No te falta ningún cromo! 🎉');return;}
+  const groups=new Map();
+  for(const c of missing){
+    const key=c.block+'|'+c.group;
+    if(!groups.has(key)) groups.set(key,{block:c.block,group:c.group,cards:[]});
+    groups.get(key).cards.push(c);
+  }
+  let text=`⚽ ${userProfile.name||'Checklist'} — Me faltan (${missing.length}):\n\n`;
+  for(const [,g] of groups){
+    text+=`📌 ${g.group} (${g.block}):\n${g.cards.map(c=>c.label).join(', ')}\n\n`;
+  }
+  const unionDone = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
+  text+=`Completado: ${Math.round(unionDone/allCards.length*100)}% (${unionDone}/${allCards.length})`;
+  if(navigator.share){navigator.share({title:'Cromos que me faltan',text}).catch(()=>{});return;}
+  navigator.clipboard.writeText(text).then(()=>showToast('📋 Lista copiada')).catch(()=>showToast('⚠️ No se pudo copiar'));
+}
+
+// ─────────────────────────────────────────────────────────
+//  CARTAS PERSONALIZADAS
+// ─────────────────────────────────────────────────────────
+function injectCustomCards(){
+  // Remove any previously injected custom cards from allCards
+  // Remove old custom cards
+  for(let i = allCards.length-1; i>=0; i--){
+    if(allCards[i].custom) allCards.splice(i,1);
+  }
+  // Add current custom cards
+  for(const cc of customCards){
+    allCards.push({
+      id: cc.id,
+      numRaw: -1,
+      label: cc.label,
+      block: cc.block,
+      group: cc.group || cc.block,
+      custom: true
+    });
+  }
+}
+
+function renderCustomCardsList(){
+  const el = document.getElementById('customCardsList');
+  if(!customCards.length){
+    el.innerHTML = '<div class="custom-empty-hint">No hay cartas personalizadas aún</div>';
+    return;
+  }
+  el.innerHTML = customCards.map(cc=>`
+    <div class="custom-card-row">
+      <div class="custom-card-info">
+        <div class="custom-card-label">${escapeHTML(cc.label)}</div>
+        <div class="custom-card-meta">${escapeHTML(cc.block)}${cc.group && cc.group!==cc.block ? ' · '+escapeHTML(cc.group) : ''}</div>
+      </div>
+      <button class="custom-card-del" data-id="${escapeHTML(cc.id)}" title="Eliminar">✕</button>
+    </div>
+  `).join('');
+
+  // Event delegation for delete buttons
+  el.querySelectorAll('.custom-card-del').forEach(btn=>{
+    btn.addEventListener('click',()=>deleteCustomCard(btn.dataset.id));
+  });
+}
+
+function openAddCustomModal(){
+  document.getElementById('customCardLabel').value = '';
+  document.getElementById('customCardBlock').value = 'Base';
+  document.getElementById('customCardGroup').value = '';
+  document.getElementById('addCustomModal').classList.add('open');
+  setTimeout(()=>document.getElementById('customCardLabel').focus(), 300);
+}
+
+function confirmAddCustom(){
+  const label = document.getElementById('customCardLabel').value.trim();
+  const block = document.getElementById('customCardBlock').value;
+  const group = document.getElementById('customCardGroup').value.trim() || block;
+
+  if(!label){ showToast('⚠️ Escribe el nombre o número de la carta'); return; }
+
+  // Generate a unique ID that won't collide with numeric card IDs
+  const id = 'custom_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+
+  // Check for duplicate label within same group
+  const duplicate = customCards.find(cc=>cc.label.toLowerCase()===label.toLowerCase() && cc.group===group);
+  if(duplicate){ showToast('⚠️ Ya existe una carta con ese nombre en ese grupo'); return; }
+
+  customCards.push({id, label, block, group});
+  injectCustomCards();
+  mapExpanded.clear();   // Bug 10: reset expanded state; new groups shouldn't inherit stale expansion
+  saveAll();
+  renderCustomCardsList();
+  renderBisCardsList();
+  syncBisFilterVisibility();
+  renderAll();
+  closeModals();
+  showToast(`✅ "${label}" añadida a ${block}`);
+  vibrate([40,20,40]);
+}
+
+function deleteCustomCard(id){
+  const cc = customCards.find(c=>c.id===id);
+  if(!cc) return;
+  customCards = customCards.filter(c=>c.id!==id);
+  // Also remove from myCards and theirCards if it was marked
+  myCards.delete(id);
+  theirCards.delete(id);
+  injectCustomCards();
+  mapExpanded.clear();   // Bug 10: reset expanded state; deleted group must not linger
+  saveAll();
+  renderCustomCardsList();
+  renderAll();
+  showToast(`🗑️ "${cc.label}" eliminada`);
+}
+
+// ─────────────────────────────────────────────────────────
+//  CARTAS BIS
+// ─────────────────────────────────────────────────────────
+function openAddBisModal(){
+  document.getElementById('bisCardNum').value = '';
+  document.getElementById('bisPreview').textContent = '';
+  document.getElementById('addBisModal').classList.add('open');
+  setTimeout(()=>document.getElementById('bisCardNum').focus(), 300);
+}
+
+document.getElementById('bisCardNum').addEventListener('input', function(){
+  const n = this.value.trim();
+  const preview = document.getElementById('bisPreview');
+  if(n && !isNaN(n) && parseInt(n) > 0){
+    preview.textContent = '→ Se guardará como: ' + parseInt(n) + 'bis';
+  } else {
+    preview.textContent = '';
+  }
+});
+
+document.getElementById('bisCardNum').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') confirmAddBis();
+});
+
+function confirmAddBis(){
+  const raw = document.getElementById('bisCardNum').value.trim();
+  const num = parseInt(raw);
+  if(!raw || isNaN(num) || num < 1 || num > 9999){
+    showToast('⚠️ Introduce un número válido');
+    return;
+  }
+  const id    = num + 'bis';
+  const label = id;
+
+  // Duplicate check
+  if(customCards.find(cc => cc.id === id)){
+    showToast('⚠️ La carta ' + label + ' ya existe');
+    return;
+  }
+
+  customCards.push({id, label, block:'BIS', group:'BIS'});
+  injectCustomCards();
+  syncBisFilterVisibility();
+  mapExpanded.clear();
+  saveAll();
+  renderBisCardsList();
+  renderAll();
+  closeModals();
+  showToast('♊ ' + label + ' añadida');
+  vibrate([40,20,40]);
+}
+
+function renderBisCardsList(){
+  const el = document.getElementById('bisCardsList');
+  if(!el) return;
+  const bisOnly = customCards.filter(cc => cc.block === 'BIS');
+  if(!bisOnly.length){
+    el.innerHTML = '<div class="custom-empty-hint">No hay cartas BIS aún</div>';
+    return;
+  }
+  // Sort numerically
+  const sorted = [...bisOnly].sort((a,b)=>{
+    const na = parseInt(a.id); const nb = parseInt(b.id);
+    return na - nb;
+  });
+  el.innerHTML = sorted.map(cc=>`
+    <div class="custom-card-row">
+      <div class="custom-card-info">
+        <div class="custom-card-label" style="color:var(--bis)">♊ ${escapeHTML(cc.label)}</div>
+        <div class="custom-card-meta">BIS</div>
+      </div>
+      <button class="custom-card-del" data-id="${escapeHTML(cc.id)}" title="Eliminar">✕</button>
+    </div>
+  `).join('');
+  el.querySelectorAll('.custom-card-del').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      deleteCustomCard(btn.dataset.id);
+      syncBisFilterVisibility();
+      renderBisCardsList();
+    });
+  });
+}
+
+// Enter key in modal label input
+document.getElementById('customCardLabel').addEventListener('keydown', e=>{
+  if(e.key==='Enter') confirmAddCustom();
+});
+
+// ─────────────────────────────────────────────────────────
+//  RESET
+// ─────────────────────────────────────────────────────────
+function showResetModal(){document.getElementById('resetModal').classList.add('open');}
+function closeModals(){document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));}
+function resetProgress(){
+  myCards.clear();historyStack=[];saveAll();renderAll();closeModals();
+  showToast('🗑️ Progreso reiniciado');
+}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m) closeModals();});
+});
+
+// ─────────────────────────────────────────────────────────
+//  MAPA DE COLECCIÓN
+// ─────────────────────────────────────────────────────────
+let mapExpanded = new Set();
+
+function renderMap(){
+  const el = document.getElementById('mapContent');
+  const myName = userProfile.name || 'Yo';
+  const p2name = document.getElementById('p2NameInput').value || 'Compañero';
+  const hasCompanion = theirCards.size > 0;
+
+  // Agrupar por bloque → grupo (usando allCards para incluir cartas personalizadas)
+  const blockOrder = ['Base','Especiales','Élite','Plus','BIS'];
+  const blockGroups = new Map();
+  for(const b of blockOrder) blockGroups.set(b, []);
+  const seenGroups = new Set();
+  // Primera pasada: orden de COLLECTION para cartas estándar
+  for(const sec of COLLECTION){
+    const key = sec.block + '|' + sec.group;
+    if(seenGroups.has(key)) continue;
+    const cards = allCards.filter(c=>c.group===sec.group && c.block===sec.block);
+    if(!cards.length) continue;
+    seenGroups.add(key);
+    if(!blockGroups.has(sec.block)) blockGroups.set(sec.block,[]);
+    blockGroups.get(sec.block).push({group:sec.group, block:sec.block, cards});
+  }
+  // Segunda pasada: añadir grupos de cartas personalizadas no cubiertos
+  for(const c of allCards){
+    if(!c.custom) continue;
+    const key = c.block + '|' + c.group;
+    if(seenGroups.has(key)) continue;
+    seenGroups.add(key);
+    const cards = allCards.filter(x=>x.group===c.group && x.block===c.block);
+    if(!blockGroups.has(c.block)) blockGroups.set(c.block,[]);
+    blockGroups.get(c.block).push({group:c.group, block:c.block, cards});
+  }
+
+  let html = `<div class="map-header">
+    <div class="map-title">🗺️ Mapa de colección</div>
+    <div class="map-legend">
+      <div class="map-legend-item"><div class="map-legend-dot" style="background:var(--p1)"></div>${escapeHTML(myName)}</div>
+      ${hasCompanion?`<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--p2)"></div>${escapeHTML(p2name)}</div>
+      <div class="map-legend-item"><div class="map-legend-dot" style="background:var(--success)"></div>Ambos</div>`:''}
+    </div>
+  </div><div class="map-blocks">`;
+
+  for(const [block, groups] of blockGroups){
+    if(!groups.length) continue;
+    html += `<div class="map-block-title">${block}</div>`;
+
+    for(const {group, block:blk, cards} of groups){
+      const total = cards.length;
+      const bothCount = cards.filter(c=>myCards.has(c.id)&&theirCards.has(c.id)).length;
+      // Union: lo que tiene al menos uno de los dos
+      const unionCount = cards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
+      const onlyMineCount = cards.filter(c=>myCards.has(c.id)&&!theirCards.has(c.id)).length;
+      const onlyTheirCount = cards.filter(c=>!myCards.has(c.id)&&theirCards.has(c.id)).length;
+      const onlyMinePct = Math.round(onlyMineCount/total*100);
+      const bothPct = Math.round(bothCount/total*100);
+      const onlyTheirPct = Math.round(onlyTheirCount/total*100);
+      const pct = Math.round(unionCount/total*100);
+      const color = blockColor(blk);
+      const isExpanded = mapExpanded.has(group);
+
+      // Color del número: verde si completo, p1 si parcial
+      const pctColor = pct===100 ? 'var(--success)' : pct>60 ? 'var(--p1)' : pct>30 ? 'var(--warn)' : 'var(--danger)';
+
+      // Shield
+      const shield = TEAM_SHIELDS[group];
+      let shieldHtmlStr;
+      if(shield?.id){
+        const _initials = group.replace(/^(FC|RC|RCD|UD|CA|CD|CF|Real|Athletic|Atletico|Deportivo)\s+/i,'')
+          .split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+        const _fb = `this.parentNode.style.background='${shield.color}20';this.parentNode.style.fontSize='10px';this.parentNode.style.fontWeight='900';this.parentNode.style.color='${shield.color}';this.parentNode.innerHTML='${_initials}'`;
+        shieldHtmlStr=`<div class="map-team-shield" style="border-color:${shield.color}40;background:transparent">
+          <img src="${CREST_BASE}${shield.id}.png" onerror="${_fb}"
+            width="22" height="22" style="width:22px;height:22px;object-fit:contain" alt="${escapeHTML(group)}" loading="lazy">
+        </div>`;
+      } else if(shield?.emoji){
+        shieldHtmlStr=`<div class="map-team-shield" style="border-color:${shield.color}40;background:${shield.color}15;font-size:15px">${shield.emoji}</div>`;
+      } else {
+        shieldHtmlStr=`<div class="map-team-shield"><span style="font-size:12px">⚽</span></div>`;
+      }
+
+      let subLine = `${unionCount}/${total} conseguidos`;
+      if(hasCompanion && bothCount>0) subLine += ` · ${bothCount} coinciden`;
+
+      html += `<div class="map-team-card" data-group="${escapeHTML(group)}">
+        <div class="map-team-inner">
+          ${shieldHtmlStr}
+          <div class="map-team-info">
+            <div class="map-team-name">${escapeHTML(group)}</div>
+            <div class="map-team-sub">${subLine}</div>
+          </div>
+          <div class="map-team-pct" style="color:${pctColor}">${pct}%</div>
+        </div>
+        <div class="map-bar-wrap">
+          <div class="map-bar-mine" style="width:${onlyMinePct}%;background:var(--p1)"></div>
+          <div class="map-bar-both" style="left:${onlyMinePct}%;width:${bothPct}%;background:var(--success)"></div>
+          ${hasCompanion?`<div class="map-bar-theirs" style="left:${onlyMinePct+bothPct}%;width:${onlyTheirPct}%;background:var(--p2)"></div>`:''}
+        </div>`;
+
+      if(isExpanded){
+        html += `<div class="map-team-dots">`;
+        for(const c of cards){
+          const st = cardState(c.id);
+          html += `<div class="map-mini-card ${st}" data-id="${c.id}">${c.label}</div>`;
+        }
+        html += `</div>`;
+      }
+      html += `</div>`;
+    }
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function toggleMapExpand(group){
+  if(mapExpanded.has(group)) mapExpanded.delete(group);
+  else mapExpanded.add(group);
+  renderMap();
+}
+
+// Event delegation for map interactions (avoids fragile inline onclick with special chars)
+document.getElementById('mapContent').addEventListener('click', function(e){
+  // Mini-card tap → toggle card
+  const miniCard = e.target.closest('.map-mini-card');
+  if(miniCard){
+    e.stopPropagation();
+    const id = miniCard.dataset.id;
+    if(id) toggleCard(id, e);
+    return;
+  }
+  // Team card tap → expand/collapse
+  const teamCard = e.target.closest('.map-team-card');
+  if(teamCard){
+    const group = teamCard.dataset.group;
+    if(group) toggleMapExpand(group);
+  }
+});
+
+// ─────────────────────────────────────────────────────────
+//  TABS
+// ─────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tab=btn.dataset.tab;
+    activeTab=tab;
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+tab).classList.add('active');
+    const showSearch=['missing','done'].includes(tab);
+    document.getElementById('searchArea').style.display=showSearch?'':'none';
+    if(tab==='stats') renderStats();
+    if(tab==='map') renderMap();
+    if(tab==='settings'){ renderCustomCardsList(); renderBisCardsList(); }
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+//  SEARCH & FILTER
+// ─────────────────────────────────────────────────────────
+const searchInput=document.getElementById('searchInput');
+const clearSearch=document.getElementById('clearSearch');
+searchInput.addEventListener('input',()=>{
+  searchQuery=searchInput.value.trim();
+  clearSearch.style.display=searchQuery?'block':'none';
+  renderAll();
+});
+clearSearch.addEventListener('click',()=>{
+  searchInput.value='';searchQuery='';clearSearch.style.display='none';renderAll();
+});
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    activeFilter=btn.dataset.f;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');renderAll();
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function vibrate(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+
+// ─────────────────────────────────────────────────────────
+//  PWA INSTALL
+// ─────────────────────────────────────────────────────────
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBtn').style.display='flex';
+});
+async function installPWA(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('installBtn').style.display='none';
+}
+
+// ─────────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────────
+async function init(){
+  await initDB();
+  await loadAll();
+
+  if(!userProfile.name){
+    document.getElementById('welcomeScreen').style.display='flex';
+    document.getElementById('app').style.display='none';
+  } else {
+    document.getElementById('welcomeScreen').style.display='none';
+    document.getElementById('app').style.display='';
+    applyProfile();
+    renderAll();
+    renderCustomCardsList();
+    renderBisCardsList();
+    syncBisFilterVisibility();
+  }
+}
+init();
+</script>
+<!-- POPUP CELEBRACIÓN IMPORT -->
+<div class="celebrate-overlay" id="celebrateOverlay" onclick="closeCelebrate()">
+  <div class="celebrate-box" onclick="event.stopPropagation()">
+    <div class="celebrate-hero">
+      <canvas class="celebrate-confetti" id="celebrateCanvas"></canvas>
+      <div class="celebrate-avatar" id="celebrateAvatar">🎉</div>
+      <div class="celebrate-name" id="celebrateName">¡Amigo!</div>
+      <div class="celebrate-sub">ha aportado a la colección</div>
+      <div class="celebrate-big" id="celebrateBig">0</div>
+      <div class="celebrate-lbl">cartas nuevas ✨</div>
+    </div>
+    <div class="celebrate-body" id="celebrateBody"></div>
+    <div class="celebrate-footer">
+      <button class="celebrate-btn" onclick="closeCelebrate()">¡Genial! 🚀</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
