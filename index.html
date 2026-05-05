@@ -442,6 +442,41 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   .print-card{border:1px solid #ddd;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:700;color:#111;background:#f8f8f8}
   .print-footer{margin-top:8px;border-top:1px solid #ddd;padding-top:4px;font-size:8px;color:#999;text-align:center}
 }
+
+/* ══════════════════════════════════════════
+   HISTORIAL
+══════════════════════════════════════════ */
+.hist-day{background:var(--surface);border-radius:var(--radius);
+  margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;}
+.hist-day-header{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;}
+.hist-day-header:active{background:var(--bg3)}
+.hist-day-date{font:800 15px var(--font);color:var(--text);flex:1}
+.hist-day-count{font:700 13px var(--font);color:var(--p1);
+  background:var(--bg3);border-radius:20px;padding:3px 10px;}
+.hist-day-arrow{font-size:12px;color:var(--text2);transition:transform .2s;}
+.hist-day.open .hist-day-arrow{transform:rotate(90deg)}
+.hist-cards{display:none;padding:0 12px 12px;
+  display:none;flex-wrap:wrap;gap:6px;}
+.hist-day.open .hist-cards{display:flex}
+.hist-chip{padding:5px 10px;border-radius:8px;font:700 13px var(--font);
+  color:#fff;cursor:default;}
+.hist-chip.Base{background:var(--base)}
+.hist-chip.Especiales{background:var(--especiales)}
+.hist-chip.Élite{background:var(--elite);color:#000}
+.hist-chip.Plus{background:var(--plus)}
+.hist-chip.BIS{background:var(--bis)}
+.hist-empty{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 20px;text-align:center;gap:12px;color:var(--text2);}
+.hist-empty .emoji{font-size:52px}
+.hist-empty h3{font:800 18px var(--font);color:var(--text)}
+.hist-summary{background:var(--surface);border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:16px;box-shadow:var(--shadow);
+  display:flex;gap:16px;align-items:center;}
+.hist-summary-num{font:900 32px var(--font);color:var(--p1);line-height:1}
+.hist-summary-label{font:600 12px var(--font);color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px}
+.hist-summary-days{font:700 13px var(--font);color:var(--text)}
 </style>
 </head>
 <body>
@@ -563,6 +598,9 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   </div>
   <div class="tab-panel" id="panel-map">
     <div id="mapContent"></div>
+  </div>
+  <div class="tab-panel" id="panel-history">
+    <div id="historyContent"></div>
   </div>
   <div class="tab-panel" id="panel-settings">
 
@@ -729,7 +767,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
         </button>
         <div class="settings-btn" style="cursor:default">
           <span class="icon">ℹ️</span>
-          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.4 · BIS integradas (7bis–355bis) ✨</span></span>
+          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.7 · PDF descargable ✨</span></span>
         </div>
       </div>
     </div>
@@ -738,25 +776,29 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 </main>
 
 <!-- BOTTOM NAV -->
-<nav>
+<nav style="grid-template-columns:repeat(6,1fr)">
   <button class="nav-btn active" data-tab="missing">
-    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     Faltan
   </button>
   <button class="nav-btn" data-tab="done">
-    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
     Tenemos
   </button>
   <button class="nav-btn" data-tab="stats">
-    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Stats
   </button>
+  <button class="nav-btn" data-tab="history">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Historial
+  </button>
   <button class="nav-btn" data-tab="map">
-    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
     Mapa
   </button>
   <button class="nav-btn" data-tab="settings">
-    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     Ajustes
   </button>
 </nav>
@@ -896,7 +938,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 // ║  CADA VEZ que se modifique este archivo y se suba a GitHub,                 ║
 // ║  HAY QUE incrementar el número de versión en esta línea:                    ║
 // ║                                                                              ║
-// ║      const APP_VERSION = '3.5';
+// ║      const APP_VERSION = '3.7';
 // ║                                                                              ║
 // ║  Está justo debajo, en el bloque del Service Worker (busca APP_VERSION).    ║
 // ║                                                                              ║
@@ -1211,6 +1253,7 @@ const STORE_KEY      = 'checklist_v3_mine';
 const STORE_THEIR    = 'checklist_v3_theirs';
 const STORE_P2NAME   = 'checklist_v3_p2name';
 const STORE_CUSTOM   = 'checklist_v3_custom';
+const STORE_DATES    = 'checklist_v3_dates';
 const DB_NAME        = 'ChecklistV3';
 const DB_STORE       = 'data';
 
@@ -1223,6 +1266,7 @@ let activeFilter = 'all';
 let searchQuery  = '';
 let db           = null;
 let pendingImport = null;
+let cardDates    = {}; // {id: isoString}
 
 // ─────────────────────────────────────────────────────────
 //  PERSISTENCIA
@@ -1267,6 +1311,7 @@ async function saveAll(){
   await dbSet(STORE_KEY,    JSON.stringify([...myCards]));
   await dbSet(STORE_THEIR,  JSON.stringify([...theirCards]));
   await dbSet(STORE_CUSTOM, JSON.stringify(customCards));
+  await dbSet(STORE_DATES,  JSON.stringify(cardDates));
 }
 
 async function saveProfile(){
@@ -1307,6 +1352,9 @@ async function loadAll(){
       injectCustomCards();
     }catch(e){ customCards = []; }
   }
+  const dates = await dbGet(STORE_DATES);
+  if(dates){ try{ cardDates = JSON.parse(dates); }catch(e){ cardDates = {}; } }
+
   const p2name = await dbGet(STORE_P2NAME);
   if(p2name){
     document.getElementById('p2NameInput').value = p2name;
@@ -1651,8 +1699,13 @@ function toggleCard(id, evt){
   const wasMine=myCards.has(id);
   historyStack.push({id,was:wasMine});
   if(historyStack.length>50) historyStack.shift();
-  if(wasMine) myCards.delete(id);
-  else myCards.add(id);
+  if(wasMine){
+    myCards.delete(id);
+    delete cardDates[id];
+  } else {
+    myCards.add(id);
+    if(!cardDates[id]) cardDates[id] = new Date().toISOString();
+  }
   saveAll();
 
   // Actualización quirúrgica: solo re-renderiza las tarjetas afectadas y contadores
@@ -2217,87 +2270,202 @@ function importBackup(evt){
 //  PDF
 // ─────────────────────────────────────────────────────────
 function exportPDF(){
-  // Use joint missing: cards neither player has
   const missing = allCards.filter(c => !myCards.has(c.id) && !theirCards.has(c.id));
   if(!missing.length){ showToast('🎉 ¡No falta ningún cromo!'); return; }
 
-  const date = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
-  const name = userProfile.name || 'Checklist';
-  const p2name = document.getElementById('p2NameInput').value || '';
-  const titulo = p2name ? `${name} & ${p2name}` : name;
-  const total = allCards.length;
-  const tenemos = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
-  const pct = Math.round(tenemos/total*100);
+  showToast('📄 Generando PDF…');
 
-  // Group by block+group
-  const blockColorMap = {Base:'#1d4ed8',Especiales:'#9333ea','Élite':'#d97706',Plus:'#16a34a',BIS:'#ec4899'};
-  const blockTextMap  = {Base:'#fff',Especiales:'#fff','Élite':'#000',Plus:'#fff',BIS:'#fff'};
-  const groups = new Map();
-  for(const c of missing){
-    const key = c.block+'|'+c.group;
-    if(!groups.has(key)) groups.set(key,{block:c.block,group:c.group,cards:[]});
-    groups.get(key).cards.push(c);
+  // Cargar jsPDF desde CDN si no está ya cargado
+  function _doGenPDF(){
+    const { jsPDF } = window.jspdf;
+
+    // A5 horizontal: 210 × 148 mm
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a5' });
+    const W = 210, H = 148;
+    const ML = 10, MR = 10, MT = 10, MB = 10;
+    const CW = W - ML - MR; // content width = 190
+
+    const name   = userProfile.name || 'Checklist';
+    const p2name = document.getElementById('p2NameInput').value || '';
+    const titulo = p2name ? `${name} & ${p2name}` : name;
+    const date   = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+    const total  = allCards.length;
+    const tenemos = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
+    const pct    = Math.round(tenemos/total*100);
+
+    // ── Colores por bloque ────────────────────────────────────
+    const BCOL = {Base:[29,77,216],Especiales:[147,51,234],'Élite':[217,119,6],Plus:[22,163,74],BIS:[236,72,153]};
+    const BTXT = {Base:[255,255,255],Especiales:[255,255,255],'Élite':[0,0,0],Plus:[255,255,255],BIS:[255,255,255]};
+
+    // ── Agrupar por bloque → grupo ────────────────────────────
+    const groups = new Map();
+    for(const c of missing){
+      const key = c.block+'||'+c.group;
+      if(!groups.has(key)) groups.set(key,{block:c.block,group:c.group,cards:[]});
+      groups.get(key).cards.push(c);
+    }
+
+    // ── CABECERA ──────────────────────────────────────────────
+    let y = MT;
+
+    // Línea azul superior
+    doc.setDrawColor(29,77,216);
+    doc.setLineWidth(0.8);
+    doc.line(ML, y, W-MR, y);
+    y += 4;
+
+    // Título
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(13);
+    doc.setTextColor(29,77,216);
+    doc.text('Adrenalyn XL 25/26  —  Cromos que faltan', ML, y);
+
+    // Número grande de faltan (derecha)
+    doc.setFontSize(22);
+    doc.setTextColor(220,38,38);
+    doc.text(String(missing.length), W-MR, y, {align:'right'});
+
+    y += 4;
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100,100,100);
+    doc.text(`${titulo}  ·  ${date}  ·  Tenemos ${tenemos}/${total} (${pct}%)  ·  Faltan ${missing.length} cromos`, ML, y);
+
+    y += 2;
+    doc.setDrawColor(29,77,216);
+    doc.setLineWidth(0.4);
+    doc.line(ML, y, W-MR, y);
+    y += 4;
+
+    // ── CUADRÍCULA DE NÚMEROS ──────────────────────────────────
+    // Layout: 3 columnas con separación
+    const COLS = 3;
+    const colW = (CW - 4) / COLS; // 4mm de gap total entre cols
+    const colX = [ML, ML + colW + 2, ML + (colW+2)*2];
+
+    // Parámetros de chip
+    const CHIP_H  = 4.8;  // altura de cada chip
+    const CHIP_GAP = 1.0; // gap vertical entre chips
+    const CHIP_W_BASE = 7.5; // ancho base para números cortos
+    const CHIP_PW = 1.5;  // padding horizontal chip
+
+    // Header de grupo
+    const GRP_H = 5.2;
+    const GRP_MB = 1.2; // margen bajo header
+    const BLK_MB = 3.0; // margen entre bloques
+
+    // Distribuir grupos en 3 columnas (fill columns top→bottom)
+    // Calcular altura de cada grupo
+    function groupHeight(g){
+      // chips por fila: estimamos ancho de cada chip
+      const chipW = Math.max(CHIP_W_BASE, doc.getStringUnitWidth(g.cards[0]?.label||'000') * 8 / doc.internal.scaleFactor + CHIP_PW*2);
+      const chipsPerRow = Math.max(1, Math.floor((colW) / (chipW + 1)));
+      const rows = Math.ceil(g.cards.length / chipsPerRow);
+      return GRP_H + GRP_MB + rows * (CHIP_H + CHIP_GAP) + BLK_MB;
+    }
+
+    const availH = H - y - MB - 6; // 6 = footer
+    const grpList = [...groups.values()];
+
+    // Greedy fill: asignar grupos a columnas
+    const colGroups = [[],[],[]];
+    const colHeights = [0,0,0];
+    for(const g of grpList){
+      const gh = groupHeight(g);
+      // Pon en la columna con menos altura acumulada
+      let best = 0;
+      for(let i=1;i<COLS;i++) if(colHeights[i] < colHeights[best]) best=i;
+      colGroups[best].push(g);
+      colHeights[best] += gh;
+    }
+
+    // Renderizar columnas
+    for(let col=0; col<COLS; col++){
+      let cy = y;
+      const cx = colX[col];
+      for(const g of colGroups[col]){
+        if(cy + groupHeight(g) > H - MB - 6) break; // no cabe
+
+        // Header del grupo
+        const bcol = BCOL[g.block] || [80,80,80];
+        const btxt = BTXT[g.block] || [255,255,255];
+        doc.setFillColor(...bcol);
+        doc.roundedRect(cx, cy, colW, GRP_H, 1, 1, 'F');
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(6.8);
+        doc.setTextColor(...btxt);
+        // nombre del grupo (truncado si hace falta)
+        const maxGrpW = colW - 10;
+        let grpLabel = g.group;
+        while(doc.getStringUnitWidth(grpLabel) * 6.8 / doc.internal.scaleFactor > maxGrpW && grpLabel.length > 3)
+          grpLabel = grpLabel.slice(0,-1);
+        if(grpLabel !== g.group) grpLabel += '…';
+        doc.text(grpLabel, cx + 1.5, cy + 3.5);
+        // cuenta derecha
+        doc.text(String(g.cards.length), cx + colW - 1.5, cy + 3.5, {align:'right'});
+
+        cy += GRP_H + GRP_MB;
+
+        // Chips de números
+        // Calcular ancho óptimo de chip según los labels del grupo
+        const maxLabelW = Math.max(...g.cards.map(c=>
+          doc.getStringUnitWidth(c.label) * 7.5 / doc.internal.scaleFactor
+        ));
+        const chipW = Math.min(colW / 3 - 0.5, Math.max(CHIP_W_BASE, maxLabelW + CHIP_PW*2));
+        const chipsPerRow = Math.max(1, Math.floor((colW + 0.5) / (chipW + 0.8)));
+
+        let cx2 = cx;
+        let row  = 0;
+        for(let i=0; i<g.cards.length; i++){
+          const c = g.cards[i];
+          if(i > 0 && i % chipsPerRow === 0){
+            cx2 = cx;
+            row++;
+            cy += CHIP_H + CHIP_GAP;
+            if(cy + CHIP_H > H - MB - 6) break;
+          }
+          // Fondo chip
+          doc.setFillColor(245,247,250);
+          doc.setDrawColor(210,214,220);
+          doc.setLineWidth(0.2);
+          doc.roundedRect(cx2, cy, chipW, CHIP_H, 0.8, 0.8, 'FD');
+          // Número
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(7.5);
+          doc.setTextColor(30,30,30);
+          doc.text(c.label, cx2 + chipW/2, cy + CHIP_H*0.67, {align:'center'});
+          cx2 += chipW + 0.8;
+        }
+        cy += CHIP_H + BLK_MB;
+      }
+    }
+
+    // ── PIE ───────────────────────────────────────────────────
+    doc.setDrawColor(200,200,200);
+    doc.setLineWidth(0.3);
+    doc.line(ML, H-MB-4, W-MR, H-MB-4);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(160,160,160);
+    doc.text(`Generado el ${date}  ·  Adrenalyn XL La Liga 2025-26`, W/2, H-MB-1.5, {align:'center'});
+
+    // ── DESCARGAR ─────────────────────────────────────────────
+    const dateStr = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'}).replaceAll('/','_');
+    const safeName = (name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+    doc.save(`cromos_faltan_${safeName}_${dateStr}.pdf`);
+    showToast('✅ PDF descargado');
   }
 
-  let blocksHtml = '';
-  for(const [,g] of groups){
-    const bg = blockColorMap[g.block]||'#333';
-    const fg = blockTextMap[g.block]||'#fff';
-    blocksHtml += `<div class="pb">
-      <div class="pbt" style="background:${bg};color:${fg}">
-        <span>${g.group}</span>
-        <span>${g.cards.length}</span>
-      </div>
-      <div class="pbc">${g.cards.map(c=>`<span class="pc">${c.label}</span>`).join('')}</div>
-    </div>`;
+  // Cargar jsPDF si no está disponible
+  if(window.jspdf){
+    _doGenPDF();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload = _doGenPDF;
+    s.onerror = ()=>showToast('⚠️ Sin conexión para cargar jsPDF');
+    document.head.appendChild(s);
   }
-
-  const html = `<!DOCTYPE html><html lang="es"><head>
-<meta charset="UTF-8">
-<title>Cromos que faltan — ${titulo}</title>
-<style>
-  @page{size:A5 landscape;margin:9mm 11mm}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#000;font-size:9px}
-  .page{width:100%}
-  .hdr{display:flex;align-items:flex-end;justify-content:space-between;
-    border-bottom:2.5px solid #1d4ed8;padding-bottom:5px;margin-bottom:8px}
-  .hdr-l h1{font-size:14px;font-weight:900;color:#1d4ed8;margin-bottom:2px}
-  .hdr-l p{font-size:8px;color:#666;margin-top:1px}
-  .hdr-r{text-align:right;font-size:8px;color:#666}
-  .hdr-r .big{font-size:20px;font-weight:900;color:#dc2626;display:block;line-height:1}
-  .hdr-r .lbl{font-size:8px;color:#888}
-  .cols{column-count:3;column-gap:7mm}
-  .pb{break-inside:avoid;margin-bottom:7px}
-  .pbt{font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;
-    padding:2px 5px;border-radius:2px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
-  .pbc{display:flex;flex-wrap:wrap;gap:2px}
-  .pc{border:1px solid #ddd;border-radius:2px;padding:1px 3px;font-size:7.5px;font-weight:700;background:#f7f7f7;color:#222}
-  .ftr{margin-top:10px;border-top:1px solid #eee;padding-top:4px;font-size:7px;color:#aaa;text-align:center}
-</style>
-</head><body>
-<div class="page">
-  <div class="hdr">
-    <div class="hdr-l">
-      <h1>⚽ Adrenalyn XL 25/26 — Faltan</h1>
-      <p>${titulo} · ${date}</p>
-      <p>Tenemos ${tenemos}/${total} (${pct}%) · Faltan <strong style="color:#dc2626">${missing.length}</strong> cromos</p>
-    </div>
-    <div class="hdr-r">
-      <span class="big">${missing.length}</span>
-      <span class="lbl">faltan</span>
-    </div>
-  </div>
-  <div class="cols">${blocksHtml}</div>
-  <div class="ftr">Generado el ${date} · Adrenalyn XL La Liga 2025-26</div>
-</div>
-<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),1000)}<\/script>
-</body></html>`;
-
-  const w = window.open('','_blank','width=900,height=600');
-  if(!w){ showToast('⚠️ Permite las ventanas emergentes para imprimir'); return; }
-  w.document.write(html);
-  w.document.close();
 }
 
 function shareText(){
@@ -2663,6 +2831,112 @@ document.getElementById('mapContent').addEventListener('click', function(e){
   }
 });
 
+
+// ─────────────────────────────────────────────────────────
+//  HISTORIAL
+// ─────────────────────────────────────────────────────────
+const histExpanded = new Set();
+
+function renderHistory(){
+  const el = document.getElementById('historyContent');
+  if(!el) return;
+
+  // Build card lookup
+  const cardMap = new Map(allCards.map(c=>[c.id,c]));
+
+  // Group by local date string (YYYY-MM-DD)
+  const byDay = {}; // {'2025-05-03': [{id, card, iso}]}
+  for(const [id, iso] of Object.entries(cardDates)){
+    if(!myCards.has(id)) continue; // only currently marked cards
+    const d = new Date(iso);
+    const key = d.toLocaleDateString('sv-SE'); // YYYY-MM-DD, locale-safe
+    if(!byDay[key]) byDay[key] = [];
+    byDay[key].push({id, card: cardMap.get(id), iso, ts: d.getTime()});
+  }
+
+  const days = Object.keys(byDay).sort((a,b)=>b.localeCompare(a)); // newest first
+
+  if(!days.length){
+    el.innerHTML = `<div class="hist-empty">
+      <div class="emoji">📅</div>
+      <h3>Sin historial aún</h3>
+      <p>Cuando marques cromos aparecerán aquí ordenados por día</p>
+    </div>`;
+    return;
+  }
+
+  // Summary bar
+  const totalDays = days.length;
+  const totalCards = Object.values(byDay).reduce((s,a)=>s+a.length,0);
+  // Streak: consecutive days with at least 1 card
+  let streak = 0;
+  const today = new Date().toLocaleDateString('sv-SE');
+  let cursor = new Date();
+  for(let i=0; i<365; i++){
+    const key = cursor.toLocaleDateString('sv-SE');
+    if(byDay[key]){ streak++; cursor.setDate(cursor.getDate()-1); }
+    else if(i===0){ cursor.setDate(cursor.getDate()-1); } // allow today to be empty
+    else break;
+  }
+
+  let html = `<div class="hist-summary">
+    <div>
+      <div class="hist-summary-num">${totalCards}</div>
+      <div class="hist-summary-label">cromos registrados</div>
+    </div>
+    <div style="width:1px;background:var(--border);align-self:stretch"></div>
+    <div>
+      <div class="hist-summary-days">${totalDays} ${totalDays===1?'día':'días'}</div>
+      <div class="hist-summary-label">con actividad</div>
+    </div>
+    ${streak>1?`<div style="width:1px;background:var(--border);align-self:stretch"></div>
+    <div>
+      <div class="hist-summary-days">🔥 ${streak}</div>
+      <div class="hist-summary-label">días seguidos</div>
+    </div>`:''}
+  </div>`;
+
+  for(const day of days){
+    const entries = byDay[day].sort((a,b)=>b.ts-a.ts);
+    const open = histExpanded.has(day);
+    const dateLabel = new Date(day+'T12:00:00').toLocaleDateString('es-ES',
+      {weekday:'long', day:'numeric', month:'long'});
+    const isToday = day === today;
+    const isYesterday = day === new Date(Date.now()-86400000).toLocaleDateString('sv-SE');
+    const prefix = isToday ? '🟢 Hoy · ' : isYesterday ? '🕐 Ayer · ' : '';
+
+    html += `<div class="hist-day${open?' open':''}" data-day="${escapeHTML(day)}">
+      <div class="hist-day-header">
+        <div class="hist-day-date">${prefix}${escapeHTML(dateLabel.charAt(0).toUpperCase()+dateLabel.slice(1))}</div>
+        <div class="hist-day-count">${entries.length} ${entries.length===1?'cromo':'cromos'}</div>
+        <span class="hist-day-arrow">▶</span>
+      </div>
+      <div class="hist-cards">
+        ${entries.map(e=>{
+          const c = e.card;
+          const block = c ? c.block : 'Base';
+          const label = c ? c.label : e.id;
+          const group = c ? c.group : '';
+          const time = new Date(e.iso).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+          return `<div class="hist-chip ${escapeHTML(block)}" title="${escapeHTML(group)} · ${time}">${escapeHTML(label)}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+
+  // Event delegation for expand/collapse
+  el.querySelectorAll('.hist-day-header').forEach(hdr=>{
+    hdr.addEventListener('click', ()=>{
+      const day = hdr.closest('.hist-day').dataset.day;
+      if(histExpanded.has(day)) histExpanded.delete(day);
+      else histExpanded.add(day);
+      renderHistory();
+    });
+  });
+}
+
 // ─────────────────────────────────────────────────────────
 //  TABS
 // ─────────────────────────────────────────────────────────
@@ -2678,6 +2952,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     document.getElementById('searchArea').style.display=showSearch?'':'none';
     if(tab==='stats') renderStats();
     if(tab==='map') renderMap();
+    if(tab==='history') renderHistory();
     if(tab==='settings'){ renderCustomCardsList(); renderBisCardsList(); }
   });
 });
