@@ -40,6 +40,23 @@ html,body{height:100%}
 body{font-family:var(--font);background:var(--bg);color:var(--text);
   -webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overflow:hidden;}
 
+/* Animations */
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes shine { 
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
 /* ══════════════════════════════════════════
    PANTALLA DE BIENVENIDA
 ══════════════════════════════════════════ */
@@ -416,6 +433,134 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   appearance:none;-webkit-appearance:none;cursor:pointer;}
 .modal-select:focus{border-color:var(--p1)}
 
+
+/* ─────────────────────────────────────────────────────────
+   CARDS & MINIATURES
+   ───────────────────────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 6px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  aspect-ratio: 2/2.8;
+  border-bottom: 3px solid #cbd5e1;
+}
+.card:active { transform: scale(0.94); }
+.card.has-mine { border-bottom-color: var(--p1); background: #fff; }
+.card.has-theirs { border-bottom-color: var(--p2); background: #fff; }
+.card.has-both { border-bottom-color: var(--success); background: #fff; }
+
+.card-thumb {
+  width: 100%;
+  flex: 1;
+  border-radius: 8px;
+  background: #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.card.has-mine .card-thumb { background: #eff6ff; }
+.card.has-theirs .card-thumb { background: #fffbeb; }
+.card.has-both .card-thumb { background: #f0fdf4; }
+
+.thumb-silhouette {
+  font-size: 1.8rem;
+  opacity: 0.12;
+  margin-bottom: 4px;
+  filter: grayscale(1);
+}
+.thumb-num {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.5px;
+}
+.thumb-strip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+/* Efectos de Rareza */
+.card[data-block="Diamante"] .card-thumb, .card[data-block="Diamantes New"] .card-thumb {
+  background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 100%);
+  box-shadow: inset 0 0 10px rgba(14,165,233,0.3);
+}
+.card[data-block="Super Cracks"] .card-thumb, .card[data-block="Super Cracks New"] .card-thumb {
+  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+  box-shadow: inset 0 0 10px rgba(180,83,9,0.2);
+}
+.card[data-block="Balon de oro"] .card-thumb, .card[data-block="Nuevo Balon de oro"] .card-thumb {
+  background: radial-gradient(circle at center, #fde68a 0%, #b45309 100%);
+  animation: card-glow 3s infinite alternate;
+}
+@keyframes card-glow {
+  from { filter: brightness(1) contrast(1); }
+  to { filter: brightness(1.2) contrast(1.1); box-shadow: 0 0 15px rgba(217,119,6,0.4); }
+}
+
+.card-badge {
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-top: 5px;
+  color: var(--text-muted);
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card Detail Modal */
+.detail-card {
+  width: 260px;
+  height: 380px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+.detail-main {
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid #e2e8f0;
+}
+.detail-sil { font-size: 100px; opacity: 0.08; }
+.detail-num { font-size: 60px; font-weight: 900; line-height: 1; margin-top: -20px; }
+.detail-info { margin-top: 15px; text-align: center; }
+.detail-team { font-size: 18px; font-weight: 800; color: var(--text-main); }
+.detail-cat { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
 @media print{
   @page{size:A5 landscape;margin:10mm 12mm}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -442,41 +587,6 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   .print-card{border:1px solid #ddd;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:700;color:#111;background:#f8f8f8}
   .print-footer{margin-top:8px;border-top:1px solid #ddd;padding-top:4px;font-size:8px;color:#999;text-align:center}
 }
-
-/* ══════════════════════════════════════════
-   HISTORIAL
-══════════════════════════════════════════ */
-.hist-day{background:var(--surface);border-radius:var(--radius);
-  margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;}
-.hist-day-header{display:flex;align-items:center;gap:10px;padding:14px 16px;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;}
-.hist-day-header:active{background:var(--bg3)}
-.hist-day-date{font:800 15px var(--font);color:var(--text);flex:1}
-.hist-day-count{font:700 13px var(--font);color:var(--p1);
-  background:var(--bg3);border-radius:20px;padding:3px 10px;}
-.hist-day-arrow{font-size:12px;color:var(--text2);transition:transform .2s;}
-.hist-day.open .hist-day-arrow{transform:rotate(90deg)}
-.hist-cards{display:none;padding:0 12px 12px;
-  display:none;flex-wrap:wrap;gap:6px;}
-.hist-day.open .hist-cards{display:flex}
-.hist-chip{padding:5px 10px;border-radius:8px;font:700 13px var(--font);
-  color:#fff;cursor:default;}
-.hist-chip.Base{background:var(--base)}
-.hist-chip.Especiales{background:var(--especiales)}
-.hist-chip.Élite{background:var(--elite);color:#000}
-.hist-chip.Plus{background:var(--plus)}
-.hist-chip.BIS{background:var(--bis)}
-.hist-empty{display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:60px 20px;text-align:center;gap:12px;color:var(--text2);}
-.hist-empty .emoji{font-size:52px}
-.hist-empty h3{font:800 18px var(--font);color:var(--text)}
-.hist-summary{background:var(--surface);border-radius:var(--radius);
-  padding:14px 16px;margin-bottom:16px;box-shadow:var(--shadow);
-  display:flex;gap:16px;align-items:center;}
-.hist-summary-num{font:900 32px var(--font);color:var(--p1);line-height:1}
-.hist-summary-label{font:600 12px var(--font);color:var(--text2);
-  text-transform:uppercase;letter-spacing:.5px}
-.hist-summary-days{font:700 13px var(--font);color:var(--text)}
 </style>
 </head>
 <body>
@@ -598,9 +708,6 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   </div>
   <div class="tab-panel" id="panel-map">
     <div id="mapContent"></div>
-  </div>
-  <div class="tab-panel" id="panel-history">
-    <div id="historyContent"></div>
   </div>
   <div class="tab-panel" id="panel-settings">
 
@@ -767,7 +874,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
         </button>
         <div class="settings-btn" style="cursor:default">
           <span class="icon">ℹ️</span>
-          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.7 · PDF descargable ✨</span></span>
+          <span>Adrenalyn XL 25/26<span class="sub">Versión 3.4 · BIS integradas (7bis–355bis) ✨</span></span>
         </div>
       </div>
     </div>
@@ -776,29 +883,25 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 </main>
 
 <!-- BOTTOM NAV -->
-<nav style="grid-template-columns:repeat(6,1fr)">
+<nav>
   <button class="nav-btn active" data-tab="missing">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     Faltan
   </button>
   <button class="nav-btn" data-tab="done">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
     Tenemos
   </button>
   <button class="nav-btn" data-tab="stats">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Stats
   </button>
-  <button class="nav-btn" data-tab="history">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    Historial
-  </button>
   <button class="nav-btn" data-tab="map">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
     Mapa
   </button>
   <button class="nav-btn" data-tab="settings">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     Ajustes
   </button>
 </nav>
@@ -908,29 +1011,49 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   </div>
 </div>
 
-<!-- POPUP CELEBRACIÓN IMPORT -->
-<div class="celebrate-overlay" id="celebrateOverlay" onclick="closeCelebrate()">
-  <div class="celebrate-box" onclick="event.stopPropagation()">
-    <div class="celebrate-hero">
-      <canvas class="celebrate-confetti" id="celebrateCanvas"></canvas>
-      <div class="celebrate-avatar" id="celebrateAvatar">🎉</div>
-      <div class="celebrate-name" id="celebrateName">¡Amigo!</div>
-      <div class="celebrate-sub">ha aportado a la colección</div>
-      <div class="celebrate-big" id="celebrateBig">0</div>
-      <div class="celebrate-lbl">cartas nuevas ✨</div>
-    </div>
-    <div class="celebrate-body" id="celebrateBody"></div>
-    <div class="celebrate-footer">
-      <button class="celebrate-btn" id="celebrateReplyBtn" onclick="celebrateReply()" style="background:linear-gradient(135deg,#16a34a,#15803d);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px">
-        <span style="font-size:18px">📲</span>
-        <span id="celebrateReplyTxt">Enviarle los míos</span>
-      </button>
-      <button class="celebrate-btn" onclick="closeCelebrate()" style="background:var(--bg3);color:var(--text);box-shadow:none">¡Genial! 🚀</button>
+<!-- Overlay de Sincronización Inmediato -->
+<div id="syncOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.95); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:white; backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px);">
+  <div class="spinner" style="width:60px; height:60px; border-width:5px; border-top-color:var(--accent); margin-bottom:24px;"></div>
+  <h2 style="font-size:1.6rem; font-weight:900; margin:0; text-align:center; letter-spacing:-0.5px;">Detectando Enlace Mágico</h2>
+  <p style="margin-top:12px; color:#94a3b8; font-size:1rem; text-align:center; animation:pulse 2s infinite;">Sincronizando colección en tiempo real...</p>
+</div>
+
+<!-- Overlay de Celebración (Modernizado) -->
+<div id="celebrateOverlay" class="modal-overlay" style="display:none; z-index:9000; background:rgba(15, 23, 42, 0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);">
+  <div class="celebrate-card" style="background:var(--bg2); border-radius:32px; padding:48px 24px; width:92%; max-width:420px; text-align:center; position:relative; box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1); overflow:hidden;">
+    <canvas id="celebrateCanvas" style="position:absolute; inset:0; pointer-events:none; z-index:1;"></canvas>
+    <div style="position:relative; z-index:2;">
+      <div id="celebrateEmoji" style="font-size:84px; margin-bottom:24px; filter:drop-shadow(0 12px 20px rgba(0,0,0,0.15));">🎉</div>
+      <h2 id="celebrateTitle" style="font-size:2.2rem; font-weight:900; margin-bottom:12px; color:var(--text); letter-spacing:-1px;">¡Éxito Total!</h2>
+      <p id="celebrateMsg" style="color:var(--text2); line-height:1.6; margin-bottom:32px; font-size:1.1rem; padding:0 15px;">¡Tu colección se ha actualizado con los datos de tu compañero!</p>
+      <button class="btn btn-primary" onclick="closeCelebrate()" style="width:100%; height:64px; font-size:1.3rem; font-weight:900; border-radius:20px; background:linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow:0 12px 24px -6px rgba(37,99,235,0.4); border:none; color:white; cursor:pointer;">¡ENTENDIDO!</button>
     </div>
   </div>
 </div>
 
 <script>
+/* Variables de diseño - Paleta más vibrante y moderna */
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.5);
+  --secondary: #f59e0b;
+  --accent: #ec4899;
+  --success: #10b981;
+  --bg: #f1f5f9;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
 // ╔══════════════════════════════════════════════════════════════════════════════╗
 // ║                  🚀 INSTRUCCIÓN DE ACTUALIZACIÓN DE VERSIÓN                 ║
 // ╠══════════════════════════════════════════════════════════════════════════════╣
@@ -938,47 +1061,25 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 // ║  CADA VEZ que se modifique este archivo y se suba a GitHub,                 ║
 // ║  HAY QUE incrementar el número de versión en esta línea:                    ║
 // ║                                                                              ║
-// ║      const APP_VERSION = '3.7';
-// ║                                                                              ║
-// ║  Está justo debajo, en el bloque del Service Worker (busca APP_VERSION).    ║
-// ║                                                                              ║
-// ║  ¿Por qué? Cuando los amigos abran la app, el SW detecta el número nuevo    ║
-// ║  y muestra automáticamente el banner "¡Nueva versión disponible!".          ║
-// ║  Si NO se cambia el número, los amigos NO verán la actualización.           ║
-// ║                                                                              ║
-// ║  Ejemplo de incremento:                                                      ║
-// ║      3.1 → 3.2 → 3.3 → 4.0  (el número que quieras, solo que sea distinto) ║
-// ║                                                                              ║
-// ║  HISTORIAL DE VERSIONES:                                                     ║
-// ║  · 3.0 — Versión base con checklist, perfil y compañero                     ║
-// ║  · 3.1 — Enlace mágico WhatsApp + auto-actualización PWA                    ║
-// ║  · 3.2 — Sync automático: popup celebración directo, sin confirmación        ║
-// ║  · 3.3 — Botón 'Enviarle los míos' en el popup de celebración               ║
-// ║  · 3.4 — Cartas BIS 7bis-355bis integradas en colección + migración auto    ║
-// ║  · 3.x — (próximas versiones aquí)                                          ║
+// ║      const APP_VERSION = '3.5';    ← CAMBIAR SIEMPRE AL MODIFICAR          ║
 // ║                                                                              ║
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
 // ─────────────────────────────────────────────────────────
-//  PWA
+//  PWA (Manifest & Service Worker)
 // ─────────────────────────────────────────────────────────
-// ─── PWA: manifest via data URI (mismo origen, instalable) ───────────────────
 (function(){
-  // Icono SVG en base64 — sin emojis para compatibilidad btoa
+  // Icono SVG en base64
   const iconSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="#2563eb"/><circle cx="256" cy="256" r="180" fill="#fff"/><circle cx="256" cy="256" r="180" fill="none" stroke="#1d4ed8" stroke-width="12"/><polygon points="256,120 290,210 386,210 310,268 338,358 256,300 174,358 202,268 126,210 222,210" fill="#1d4ed8"/></svg>';
   const iconB64='data:image/svg+xml;base64,'+btoa(iconSvg);
 
-  // ── MANIFEST ────────────────────────────────────────────────────────────────
-  // Chrome Android REQUIERE que el manifest sea del mismo origen que la página.
-  // Creamos un Blob con tipo correcto y lo enlazamos como blob: URL.
-  // Esto funciona tanto en servidor HTTP como al abrir el .html directamente.
   try{
     const manifest={
       name:"Adrenalyn XL 25/26",
       short_name:"Cromos 25/26",
       description:"Checklist de cromos Adrenalyn XL La Liga 2025-26",
-      start_url:"https://carlosescudero81-coder.github.io/Adrenalyne/",
-      scope:"https://carlosescudero81-coder.github.io/Adrenalyne/",
+      start_url:"./",
+      scope:"./",
       display:"standalone",
       background_color:"#0f172a",
       theme_color:"#2563eb",
@@ -995,38 +1096,60 @@ nav{background:var(--surface);border-top:1px solid var(--border);
     document.head.appendChild(l);
   }catch(e){}
 
-  // ── SERVICE WORKER con detección de actualizaciones ──────────────────────────
-  // APP_VERSION: incrementa este número cada vez que publiques una nueva versión.
-  // El SW detectará el cambio y mostrará el banner de actualización automáticamente.
-  const APP_VERSION = '3.5';
+  const APP_VERSION = '3.7';
+  const CACHE = `cromos-v${APP_VERSION}`;
+  const PAGE = self.location.href.replace(/\/[^\/]*$/,'/');
 
   if('serviceWorker' in navigator){
-    const swCode=`
-const CACHE='cromos-v${APP_VERSION}';
-const PAGE=self.location.href.replace(/\\/[^\\/]*$/,'/');
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll([PAGE]).catch(()=>{})));
-  self.skipWaiting();
-});
-self.addEventListener('activate',e=>{
-  e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-  self.clients.claim();
-  self.clients.matchAll({includeUncontrolled:true}).then(clients=>{
-    clients.forEach(c=>c.postMessage({type:'NEW_VERSION',version:'${APP_VERSION}'}));
-  });
-});
-self.addEventListener('message',e=>{
-  if(e.data&&e.data.type==='SKIP_WAITING') self.skipWaiting();
-});
-self.addEventListener('fetch',e=>{
-  if(e.request.mode==='navigate'){
-    e.respondWith(fetch(e.request).then(r=>{
-      const clone=r.clone();
-      caches.open(CACHE).then(c=>c.put(e.request,clone));
-      return r;
-    }).catch(()=>caches.match(e.request).then(r=>r||caches.match(PAGE))));
-  }
-});`;
+    const swCode = `
+      const CACHE = "${CACHE}";
+      const PAGE = "${PAGE}";
+      
+      self.addEventListener('install', e => {
+        e.waitUntil(caches.open(CACHE).then(c => c.addAll([PAGE, "./"])));
+        self.skipWaiting();
+      });
+      
+      self.addEventListener('activate', e => {
+        e.waitUntil(caches.keys().then(ks => Promise.all(
+          ks.filter(k => k !== CACHE).map(k => caches.delete(k))
+        )));
+        self.clients.claim();
+      });
+      
+      self.addEventListener('fetch', e => {
+        const url = new URL(e.request.url);
+        
+        // Estrategia: Stale-While-Revalidate para la página principal y assets locales
+        if(e.request.mode === 'navigate' || url.origin === self.location.origin){
+          e.respondWith(
+            caches.open(CACHE).then(cache => {
+              return cache.match(e.request).then(cached => {
+                const fetched = fetch(e.request).then(res => {
+                  if(res.status === 200) cache.put(e.request, res.clone());
+                  return res;
+                }).catch(() => null);
+                return cached || fetched;
+              });
+            })
+          );
+        } else {
+          // Estrategia: Cache-First para imágenes externas (escudos) y otros recursos
+          e.respondWith(
+            caches.match(e.request).then(cached => {
+              if(cached) return cached;
+              return fetch(e.request).then(res => {
+                // Solo cachear peticiones exitosas (200 o opaque/cors)
+                if(!res || (res.status !== 200 && res.type !== 'opaque')) return res;
+                const clone = res.clone();
+                caches.open(CACHE).then(cache => cache.put(e.request, clone));
+                return res;
+              }).catch(() => null);
+            })
+          );
+        }
+      });
+    `;
     // Nota: el blob URL no se revoca (window._swBlobUrl guarda la referencia)
     // para que Firefox y Safari puedan releer el script si el SW se reactiva tras recarga.
     try{
@@ -1253,7 +1376,6 @@ const STORE_KEY      = 'checklist_v3_mine';
 const STORE_THEIR    = 'checklist_v3_theirs';
 const STORE_P2NAME   = 'checklist_v3_p2name';
 const STORE_CUSTOM   = 'checklist_v3_custom';
-const STORE_DATES    = 'checklist_v3_dates';
 const DB_NAME        = 'ChecklistV3';
 const DB_STORE       = 'data';
 
@@ -1266,7 +1388,6 @@ let activeFilter = 'all';
 let searchQuery  = '';
 let db           = null;
 let pendingImport = null;
-let cardDates    = {}; // {id: isoString}
 
 // ─────────────────────────────────────────────────────────
 //  PERSISTENCIA
@@ -1311,7 +1432,6 @@ async function saveAll(){
   await dbSet(STORE_KEY,    JSON.stringify([...myCards]));
   await dbSet(STORE_THEIR,  JSON.stringify([...theirCards]));
   await dbSet(STORE_CUSTOM, JSON.stringify(customCards));
-  await dbSet(STORE_DATES,  JSON.stringify(cardDates));
 }
 
 async function saveProfile(){
@@ -1352,9 +1472,6 @@ async function loadAll(){
       injectCustomCards();
     }catch(e){ customCards = []; }
   }
-  const dates = await dbGet(STORE_DATES);
-  if(dates){ try{ cardDates = JSON.parse(dates); }catch(e){ cardDates = {}; } }
-
   const p2name = await dbGet(STORE_P2NAME);
   if(p2name){
     document.getElementById('p2NameInput').value = p2name;
@@ -1569,13 +1686,13 @@ function renderGrid(containerId, cards){
       <div class="cards-grid">`;
     for(const c of g.cards){
       const state=cardState(c.id);
-      let dots='<div class="card-dots">';
-      if(myCards.has(c.id))    dots+='<div class="cdot p1"></div>';
-      if(theirCards.has(c.id)) dots+='<div class="cdot p2"></div>';
-      dots+='</div>';
-      html+=`<div class="card ${state}" data-id="${c.id}" data-block="${c.block}" onclick="toggleCard('${c.id}',event)">
-        ${dots}
-        <span class="card-num">${c.label}</span>
+      let classNames = 'card ' + (state==='both'?'has-both':state==='mine'?'has-mine':state==='theirs'?'has-theirs':'');
+      html+=`<div class="${classNames}" data-id="${c.id}" data-block="${c.block}" onclick="toggleCard('${c.id}',event)">
+        <div class="card-thumb">
+          <div class="thumb-silhouette">👤</div>
+          <div class="thumb-num">${c.label}</div>
+          <div class="thumb-strip" style="background:${blockColor(c.block)}"></div>
+        </div>
         <span class="card-badge">${c.block}</span>
       </div>`;
     }
@@ -1686,8 +1803,16 @@ function renderStats(){
 let _patchTimer = null;
 let _renderSeq  = 0; // incrementado en cada renderAll() para invalidar timers obsoletos
 function toggleCard(id, evt){
+  // Detección de "Click Largo" o "Doble Tap" para ver detalle (opcional)
+  // Por ahora, implementamos un icono de info en el renderGrid si quisiéramos,
+  // pero para esta demo, un click normal marca, y añadiremos un botón de info pequeño.
   if(evt){
     const el=evt.currentTarget||evt.target.closest('.card');
+    // Si se pulsa cerca del número o con shift, ver detalle
+    if(evt.shiftKey){
+      showDetail(id);
+      return;
+    }
     const r=document.createElement('span');
     r.className='ripple';
     const rect=el.getBoundingClientRect();
@@ -1699,55 +1824,32 @@ function toggleCard(id, evt){
   const wasMine=myCards.has(id);
   historyStack.push({id,was:wasMine});
   if(historyStack.length>50) historyStack.shift();
-  if(wasMine){
-    myCards.delete(id);
-    delete cardDates[id];
-  } else {
-    myCards.add(id);
-    if(!cardDates[id]) cardDates[id] = new Date().toISOString();
-  }
+  if(wasMine) myCards.delete(id);
+  else myCards.add(id);
   saveAll();
 
-  // Actualización quirúrgica: solo re-renderiza las tarjetas afectadas y contadores
-  // sin destruir todo el DOM (evita parpadeo, pérdida de foco y cancelación del ripple)
+  // Actualización quirúrgica
   patchCardDOM(id);
   updateCounters();
   if(activeTab==='stats') renderStats();
   if(activeTab==='map') renderMap();
 
   showToast(wasMine?`❌ ${id} desmarcado`:`✅ ${id} conseguido`);
-  vibrate(wasMine?[50]:[40,20,40]);
 }
 
 // Recalcula el estado visual de todas las instancias de una tarjeta en el DOM
 function patchCardDOM(id){
   const state=cardState(id);
-  // Patch normal card grid
+  const classNames = 'card ' + (state==='both'?'has-both':state==='mine'?'has-mine':state==='theirs'?'has-theirs':'');
   document.querySelectorAll(`.card[data-id="${id}"]`).forEach(el=>{
-    el.classList.remove('mine','theirs','both');
-    if(state) el.classList.add(state);
-    let dots=el.querySelector('.card-dots');
-    if(!dots){dots=document.createElement('div');dots.className='card-dots';el.prepend(dots);}
-    dots.innerHTML='';
-    if(myCards.has(id)){const d=document.createElement('div');d.className='cdot p1';dots.appendChild(d);}
-    if(theirCards.has(id)){const d=document.createElement('div');d.className='cdot p2';dots.appendChild(d);}
-    el.classList.remove('popin');
+    el.className = classNames;
     void el.offsetWidth;
     el.classList.add('popin');
   });
-  // Patch map mini-cards
-  document.querySelectorAll(`.map-mini-card[data-id="${id}"]`).forEach(el=>{
-    el.classList.remove('mine','theirs','both');
-    if(state) el.classList.add(state);
-  });
-
-  // Si la tarjeta cambia de panel (aparece/desaparece en Faltan o Tengo),
-  // necesitamos re-render completo solo de esos paneles — pero diferido para
-  // no cancelar el ripple que acaba de añadirse
   clearTimeout(_patchTimer);
   const seqAtToggle = _renderSeq;
   _patchTimer = setTimeout(()=>{
-    if(_renderSeq !== seqAtToggle) return; // renderAll() ya actualizó el DOM, no pisar
+    if(_renderSeq !== seqAtToggle) return;
     const missing=allCards.filter(c=>!myCards.has(c.id)&&!theirCards.has(c.id));
     const done=allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id));
     renderGrid('missingGrid',missing);
@@ -1759,7 +1861,6 @@ function patchCardDOM(id){
 function undo(){
   if(!historyStack.length){showToast('Nada que deshacer');return;}
   const last=historyStack.pop();
-  // Bug 14: guard against orphan IDs (e.g. custom card marked then deleted)
   const stillExists = allCards.some(c=>c.id===last.id);
   if(!stillExists){showToast(`↩️ Carta ya no existe: ${last.id}`);saveAll();renderAll();return;}
   if(last.was) myCards.add(last.id);
@@ -1768,15 +1869,11 @@ function undo(){
   showToast(`↩️ Deshecho: ${last.id}`);
 }
 
-// ─────────────────────────────────────────────────────────
-//  COMPARTIR
-// ─────────────────────────────────────────────────────────
 function openShareModal(){
   const link = buildMagicLink();
   const linkLen = link ? link.length : 0;
-  const tooLong = linkLen > 3800;
   document.getElementById('shareStats').textContent =
-    `Tienes ${myCards.size} cromos · ${tooLong ? '⚠️ Enlace largo, se enviará JSON' : `🔗 Enlace listo (${linkLen} caracteres)`}`;
+    `Tienes ${myCards.size} cromos · 🔗 Enlace listo (${linkLen} caracteres)`;
   document.getElementById('shareModal').classList.add('open');
 }
 
@@ -1784,82 +1881,150 @@ function openShareModal(){
 //  SISTEMA DE ENLACE MÁGICO (sync por URL)
 // ─────────────────────────────────────────────────────────
 
-// Codifica los datos en base64 para la URL.
-// Usa TextEncoder/TextDecoder (soporta emojis y no-ASCII en todos los browsers).
+// Calcula un checksum simple para verificar la integridad del payload
+function calculateChecksum(payload){
+  const s = JSON.stringify(payload);
+  let hash = 0;
+  for(let i=0; i<s.length; i++) hash = (hash << 5) - hash + s.charCodeAt(i);
+  return Math.abs(hash % 1000).toString(36);
+}
+
+// Codifica los datos en base64 URL-safe para la URL.
 function encodeSyncData(payload){
   try{
     const json = JSON.stringify(payload);
     const bytes = new TextEncoder().encode(json);
     let binary = '';
-    for(const b of bytes) binary += String.fromCharCode(b);
-    return btoa(binary);
+    const len = bytes.byteLength;
+    for(let i=0; i<len; i++) binary += String.fromCharCode(bytes[i]);
+    // Base64 URL-safe: + -> -, / -> _, eliminar padding =
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }catch(e){ return null; }
 }
 
 function decodeSyncData(encoded){
   try{
-    const binary = atob(encoded);
+    // Restaurar Base64 estándar
+    let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    while(b64.length % 4) b64 += '=';
+    const binary = atob(b64);
     const bytes = new Uint8Array(binary.length);
     for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
     const json = new TextDecoder().decode(bytes);
-    return JSON.parse(json);
+    const data = JSON.parse(json);
+    
+    // Formato array posicional (v5 y v6)
+    if(Array.isArray(data) && data[0] >= 5){
+      // Validar Checksum en v6+
+      if(data[0] >= 6){
+        const providedChecksum = data.pop();
+        const expectedChecksum = calculateChecksum(data);
+        if(providedChecksum !== expectedChecksum) return null;
+      }
+      return {
+        v: data[0],
+        t: data[1],
+        from: data[2],
+        emoji: data[3],
+        color: data[4],
+        ids: data[5],
+        cc: (data[6]||[]).map(c => ({id:c[0], label:c[1], block:c[2], group:c[3]}))
+      };
+    }
+    return data;
   }catch(e){
-    // Fallback para enlaces generados con la codificación antigua
-    try{ return JSON.parse(decodeURIComponent(escape(atob(encoded)))); }catch(e2){ return null; }
+    // Fallback para enlaces antiguos
+    try{ return JSON.parse(decodeURIComponent(escape(atob(encoded.replace(/ /g, '+'))))); }catch(e2){ return null; }
   }
 }
 
-// Genera la URL mágica con los datos del jugador incrustados.
-// Usamos hash (#sync=) en lugar de query string (?sync=) porque cuando la PWA
-// está instalada, Android/iOS lanza el start_url del manifest descartando el
-// query string. El hash SÍ se preserva al abrir la PWA instalada.
+// ── Compresión de IDs para acortar el enlace (Bitset) ─────────────────────────
+function compressIds(idsSet){
+  const bits = new Uint8Array(110);
+  idsSet.forEach(id => {
+    let idx = -1;
+    if(/^[0-9]{3}$/.test(id)){ idx = parseInt(id) - 1; }
+    else if(/^[0-9]+bis$/.test(id)){
+      const n = parseInt(id);
+      if(n >= 7 && n <= 355) idx = 522 + (n - 7);
+    }
+    if(idx >= 0 && idx < 880) bits[idx >> 3] |= (1 << (idx & 7));
+  });
+  let binary = '';
+  for(let i=0; i<bits.length; i++) binary += String.fromCharCode(bits[i]);
+  return 'b:' + btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decompressIds(compressedStr){
+  if(!compressedStr.startsWith('b:')) return [];
+  // Soporta tanto b64 normal como url-safe
+  let b64 = compressedStr.slice(2).replace(/-/g, '+').replace(/_/g, '/');
+  while(b64.length % 4) b64 += '=';
+  const binary = atob(b64);
+  const ids = [];
+  for(let i=0; i<binary.length; i++){
+    const byte = binary.charCodeAt(i);
+    for(let bit=0; bit<8; bit++){
+      if(byte & (1 << bit)){
+        const idx = i * 8 + bit;
+        if(idx < 522) ids.push(String(idx + 1).padStart(3, '0'));
+        else if(idx < 871) ids.push((idx - 522 + 7) + 'bis');
+      }
+    }
+  }
+  return ids;
+}
+
 function buildMagicLink(){
   const name = userProfile.name || 'Jugador';
-  const payload = {
-    v: 3,
-    t: 'sync',
-    from: name,
-    emoji: userProfile.emoji,
-    color: userProfile.color,
-    ids: [...myCards],
-    cc: customCards.map(c=>({id:c.id,label:c.label,block:c.block,group:c.group||''}))
-  };
+  // Payload compacto (v6): Array posicional para ahorrar espacio de llaves JSON
+  const payload = [
+    6, // version
+    's', // type (sync)
+    name,
+    userProfile.emoji,
+    userProfile.color,
+    compressIds(myCards),
+    customCards.map(c => [c.id, c.label, c.block, c.group||''])
+  ];
+  // Añadir checksum al final
+  payload.push(calculateChecksum(payload));
   const encoded = encodeSyncData(payload);
   if(!encoded) return null;
-  const baseUrl = 'https://carlosescudero81-coder.github.io/Adrenalyne/';
-  return `${baseUrl}#sync=${encoded}`;
+  // URL dinámica: usa la dirección actual sin parámetros para mayor portabilidad
+  const baseUrl = window.location.href.split('?')[0];
+  return `${baseUrl}?sync=${encoded}`;
 }
 
-// Comprueba si hay datos de sync en la URL al arrancar la app.
-// Lee el hash (#sync=) como fuente primaria — es lo que preservan las PWA instaladas.
-// El query string (?sync=) se mantiene como fallback para compatibilidad con enlaces viejos.
 function checkSyncFromURL(){
   try{
-    let syncParam = null;
-
-    // 1. Hash primero — funciona aunque la PWA este instalada
-    if(window.location.hash.startsWith('#sync=')){
-      syncParam = window.location.hash.slice(6);
-    }
-    // 2. Query string — fallback para enlaces generados antes de esta version
-    if(!syncParam){
-      const params = new URLSearchParams(window.location.search);
-      syncParam = params.get('sync');
-    }
-
+    const params = new URLSearchParams(window.location.search);
+    const syncParam = params.get('sync');
     if(!syncParam) return;
-    // Limpiar la URL inmediatamente (sin recargar) para que no se procese de nuevo
-    window.history.replaceState({}, '', window.location.pathname);
+    
+    const overlay = document.getElementById('syncOverlay');
+    if(overlay) overlay.style.display = 'flex';
+    
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+    
     const data = decodeSyncData(syncParam);
-    if(!data || data.t !== 'sync' || !Array.isArray(data.ids)) return;
-    // Guardar para procesar despues de que la app este inicializada
+    if(!data || (data.t !== 'sync' && data.t !== 's')) return;
+    
+    let ids = [];
+    if(typeof data.ids === 'string' && data.ids.startsWith('b:')){
+      ids = decompressIds(data.ids);
+    } else if(Array.isArray(data.ids)){
+      ids = data.ids;
+    }
+    data.ids = ids;
     window._pendingSyncFromURL = data;
-  }catch(e){}
+  }catch(e){
+    const overlay = document.getElementById('syncOverlay');
+    if(overlay) overlay.style.display = 'none';
+  }
 }
 
-// Procesa los datos de sync tras inicializar la app.
-// Cuando llega por enlace mágico (URL) se aplica AUTOMÁTICAMENTE sin confirmación
-// y se muestra directamente el popup de celebración. ¡Cero clics extra!
 function processSyncFromURL(){
   const data = window._pendingSyncFromURL;
   if(!data) return;
@@ -1869,17 +2034,14 @@ function processSyncFromURL(){
   const fromEmoji = data.emoji || '🎉';
   const fromColor = data.color || '#f97316';
 
-  // Validar IDs recibidos
   const validIds = new Set(allCards.map(c=>c.id));
   const customCardsData = Array.isArray(data.cc) ? data.cc : [];
   for(const cc of customCardsData) if(cc.id) validIds.add(cc.id);
   const ids = (data.ids||[]).filter(id=>typeof id==='string' && validIds.has(id));
 
-  // ── Aplicar import directamente, sin modal ──────────────────
   const newIds = ids.filter(id => !theirCards.has(id));
   for(const id of ids) theirCards.add(id);
 
-  // Actualizar nombre del compañero si viene y no hay uno guardado
   if(data.from){
     const inp = document.getElementById('p2NameInput');
     if(!inp.value){
@@ -1889,7 +2051,6 @@ function processSyncFromURL(){
     }
   }
 
-  // Fusionar cartas personalizadas del compañero
   const newCustomCards = [];
   const existingIds = new Set(customCards.map(c=>c.id));
   for(const cc of customCardsData){
@@ -1908,25 +2069,16 @@ function processSyncFromURL(){
 
   saveAll();
   renderAll();
-  vibrate([30,20,30,20,60]);
+  vibrate([50,30,50]);
 
-  // ── Mostrar popup de celebración directamente ───────────────
   setTimeout(()=>{
     showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards);
+    const overlay = document.getElementById('syncOverlay');
+    if(overlay) overlay.style.display = 'none';
   }, 500)
 }
 
-// Abre WhatsApp de forma compatible con PWA Android standalone.
-// window.open('_blank') falla en modo standalone; location.href contamina el historial.
-// La forma más robusta es un <a> temporal con el intent de WhatsApp.
-function openWhatsApp(url){
-  const a = document.createElement('a');
-  a.href = url;
-  a.rel = 'noopener noreferrer';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>a.remove(), 300);
-}
+
 
 function doShare(){
   closeModals();
@@ -1951,11 +2103,8 @@ function doShare(){
   // Intentar copiar al portapapeles también
   try{ navigator.clipboard.writeText(magicLink); }catch(e){}
 
-  // Usar location.href en lugar de window.open — las PWA standalone en Android
-  // no pueden abrir pestañas nuevas de forma fiable con window.open('_blank').
-  // location.href abre el intent de WhatsApp directamente desde el contexto actual.
   setTimeout(()=>{
-    openWhatsApp(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   }, 200);
   showToast('📲 Abriendo WhatsApp con el enlace mágico…');
 }
@@ -1978,7 +2127,7 @@ function _doShareFallbackJSON(name){
   URL.revokeObjectURL(url);
   setTimeout(()=>{
     const msg=`⚽ *${name} — Adrenalyn XL 25/26*\n\n✅ Te mando mis *${myCards.size} cromos*.\n\n📲 *Para importar el archivo:*\nAjustes → "Importar checklist del compañero"\n\n_${new Date().toLocaleDateString('es-ES')}_`;
-    openWhatsApp(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   },800);
   showToast('📲 Archivo descargado (muchos datos)');
 }
@@ -2056,7 +2205,6 @@ function confirmImport(){
   const fromColor = pendingImport.fromColor || '#f97316';
   pendingImport=null;
   saveAll();renderAll();closeModals();
-  vibrate([30,20,30,20,60]);
 
   // Show celebration popup
   showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards);
@@ -2065,97 +2213,46 @@ function confirmImport(){
 // ─────────────────────────────────────────────────────────
 //  POPUP CELEBRACIÓN
 // ─────────────────────────────────────────────────────────
+// Muestra el popup de celebración con confeti y lista de cartas recibidas
 function showCelebrate(name, emoji, color, newIds, newCustom){
   // Guardar quién envió para el botón de respuesta
-  document.getElementById('celebrateOverlay').dataset.replyName = name;
-  document.getElementById('celebrateReplyTxt').textContent = `Enviarle los míos a ${name}`;
+  const overlay = document.getElementById('celebrateOverlay');
+  overlay.dataset.replyName = name;
 
   // Header
-  const avatarEl = document.getElementById('celebrateAvatar');
-  avatarEl.textContent = emoji;
-  avatarEl.style.background = color + '30';
-  avatarEl.style.borderColor = color + '60';
-  document.getElementById('celebrateName').textContent = name;
-  document.getElementById('celebrateBig').textContent = newIds.length + newCustom.length;
-
-  // Body — group new cards by group
-  const body = document.getElementById('celebrateBody');
-  if(!newIds.length && !newCustom.length){
-    body.innerHTML = '<p style="text-align:center;padding:12px 0;color:var(--text2);font:600 14px var(--font)">Ya teníais todos sus cromos registrados 👌</p>';
+  document.getElementById('celebrateEmoji').textContent = emoji;
+  document.getElementById('celebrateTitle').textContent = '¡Sincronizado!';
+  
+  const total = newIds.length + newCustom.length;
+  const msgEl = document.getElementById('celebrateMsg');
+  
+  if(total === 0){
+    msgEl.innerHTML = `¡Ya tenías todos los cromos de <b>${escapeHTML(name)}</b>! 👌`;
   } else {
-    // Map id → card object for lookup
-    const cardMap = new Map(allCards.map(c=>[c.id, c]));
-    const groups = new Map();
-    for(const id of newIds){
-      const card = cardMap.get(id);
-      if(!card) continue;
-      const key = card.group;
-      if(!groups.has(key)) groups.set(key, {group:card.group, block:card.block, cards:[]});
-      groups.get(key).cards.push(card);
-    }
-    // Add new custom cards as their own group if any
-    for(const cc of newCustom){
-      const key = cc.group || cc.block;
-      if(!groups.has(key)) groups.set(key, {group:key, block:cc.block, cards:[]});
-      groups.get(key).cards.push({id:cc.id, label:cc.label, block:cc.block, group:key});
-    }
-    let html = '';
-    for(const [, g] of groups){
-      const dotColor = blockColor(g.block);
-      html += `<div class="celebrate-group">
-        <div class="celebrate-group-name">
-          <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;display:inline-block"></span>
-          ${escapeHTML(g.group)} <span style="color:var(--text2);font-weight:600">(${g.cards.length})</span>
-        </div>
-        <div class="celebrate-chips">
-          ${g.cards.map(c=>`<span class="celebrate-chip${c.block==='BIS'?' bis':''}">${escapeHTML(c.label)}</span>`).join('')}
-        </div>
-      </div>`;
-    }
-    body.innerHTML = html;
+    msgEl.innerHTML = `¡Has recibido <b>${total}</b> cromos nuevos de <b>${escapeHTML(name)}</b>! ✨`;
   }
 
-  // Show overlay
-  document.getElementById('celebrateOverlay').classList.add('open');
+  // Si quieres mostrar la lista detallada de lo que ha llegado:
+  // (Opcional: podrías añadir un contenedor div#celebrateBody en el HTML si quieres listar los IDs)
 
-  // Confetti animation
+  // Mostrar overlay
+  overlay.style.display = 'flex';
+
+  // Animación de confeti
   launchConfetti(color);
 }
 
 function closeCelebrate(){
-  document.getElementById('celebrateOverlay').classList.remove('open');
+  document.getElementById('celebrateOverlay').style.display = 'none';
   stopConfetti();
 }
 
+// Función para devolver el favor: enviar mis cromos al compañero
 function celebrateReply(){
-  // Obtener el nombre del que nos envió (guardado en el dataset del overlay)
   const replyTo = document.getElementById('celebrateOverlay').dataset.replyName || 'Compañero';
-  const myName  = userProfile.name || 'Jugador';
-  const magicLink = buildMagicLink();
-
-  closeCelebrate();
-
-  if(!magicLink || magicLink.length > 3800){
-    // Fallback: descargar JSON igual que hace doShare()
-    _doShareFallbackJSON(myName);
-    return;
-  }
-
-  const fecha = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long'});
-  const msg = `⚽ *${myName} — Adrenalyn XL 25/26*
-
-✅ Llevo *${myCards.size} cromos* conseguidos.
-
-👇 *Pulsa para actualizar tu lista con los míos:*
-${magicLink}
-
-_(${fecha})_`;
-
-  setTimeout(()=>{
-    openWhatsApp(`https://wa.me/?text=${encodeURIComponent(msg)}`);
-  }, 200);
-  showToast(`📲 Enviando tus cromos a ${replyTo}…`);
+  doShare(); // Reutiliza la lógica de compartir
 }
+
 
 let _confettiAnim = null;
 let _confettiCtx = null;
@@ -2270,202 +2367,87 @@ function importBackup(evt){
 //  PDF
 // ─────────────────────────────────────────────────────────
 function exportPDF(){
+  // Use joint missing: cards neither player has
   const missing = allCards.filter(c => !myCards.has(c.id) && !theirCards.has(c.id));
   if(!missing.length){ showToast('🎉 ¡No falta ningún cromo!'); return; }
 
-  showToast('📄 Generando PDF…');
+  const date = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+  const name = userProfile.name || 'Checklist';
+  const p2name = document.getElementById('p2NameInput').value || '';
+  const titulo = p2name ? `${name} & ${p2name}` : name;
+  const total = allCards.length;
+  const tenemos = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
+  const pct = Math.round(tenemos/total*100);
 
-  // Cargar jsPDF desde CDN si no está ya cargado
-  function _doGenPDF(){
-    const { jsPDF } = window.jspdf;
-
-    // A5 horizontal: 210 × 148 mm
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a5' });
-    const W = 210, H = 148;
-    const ML = 10, MR = 10, MT = 10, MB = 10;
-    const CW = W - ML - MR; // content width = 190
-
-    const name   = userProfile.name || 'Checklist';
-    const p2name = document.getElementById('p2NameInput').value || '';
-    const titulo = p2name ? `${name} & ${p2name}` : name;
-    const date   = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
-    const total  = allCards.length;
-    const tenemos = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
-    const pct    = Math.round(tenemos/total*100);
-
-    // ── Colores por bloque ────────────────────────────────────
-    const BCOL = {Base:[29,77,216],Especiales:[147,51,234],'Élite':[217,119,6],Plus:[22,163,74],BIS:[236,72,153]};
-    const BTXT = {Base:[255,255,255],Especiales:[255,255,255],'Élite':[0,0,0],Plus:[255,255,255],BIS:[255,255,255]};
-
-    // ── Agrupar por bloque → grupo ────────────────────────────
-    const groups = new Map();
-    for(const c of missing){
-      const key = c.block+'||'+c.group;
-      if(!groups.has(key)) groups.set(key,{block:c.block,group:c.group,cards:[]});
-      groups.get(key).cards.push(c);
-    }
-
-    // ── CABECERA ──────────────────────────────────────────────
-    let y = MT;
-
-    // Línea azul superior
-    doc.setDrawColor(29,77,216);
-    doc.setLineWidth(0.8);
-    doc.line(ML, y, W-MR, y);
-    y += 4;
-
-    // Título
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(13);
-    doc.setTextColor(29,77,216);
-    doc.text('Adrenalyn XL 25/26  —  Cromos que faltan', ML, y);
-
-    // Número grande de faltan (derecha)
-    doc.setFontSize(22);
-    doc.setTextColor(220,38,38);
-    doc.text(String(missing.length), W-MR, y, {align:'right'});
-
-    y += 4;
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(100,100,100);
-    doc.text(`${titulo}  ·  ${date}  ·  Tenemos ${tenemos}/${total} (${pct}%)  ·  Faltan ${missing.length} cromos`, ML, y);
-
-    y += 2;
-    doc.setDrawColor(29,77,216);
-    doc.setLineWidth(0.4);
-    doc.line(ML, y, W-MR, y);
-    y += 4;
-
-    // ── CUADRÍCULA DE NÚMEROS ──────────────────────────────────
-    // Layout: 3 columnas con separación
-    const COLS = 3;
-    const colW = (CW - 4) / COLS; // 4mm de gap total entre cols
-    const colX = [ML, ML + colW + 2, ML + (colW+2)*2];
-
-    // Parámetros de chip
-    const CHIP_H  = 4.8;  // altura de cada chip
-    const CHIP_GAP = 1.0; // gap vertical entre chips
-    const CHIP_W_BASE = 7.5; // ancho base para números cortos
-    const CHIP_PW = 1.5;  // padding horizontal chip
-
-    // Header de grupo
-    const GRP_H = 5.2;
-    const GRP_MB = 1.2; // margen bajo header
-    const BLK_MB = 3.0; // margen entre bloques
-
-    // Distribuir grupos en 3 columnas (fill columns top→bottom)
-    // Calcular altura de cada grupo
-    function groupHeight(g){
-      // chips por fila: estimamos ancho de cada chip
-      const chipW = Math.max(CHIP_W_BASE, doc.getStringUnitWidth(g.cards[0]?.label||'000') * 8 / doc.internal.scaleFactor + CHIP_PW*2);
-      const chipsPerRow = Math.max(1, Math.floor((colW) / (chipW + 1)));
-      const rows = Math.ceil(g.cards.length / chipsPerRow);
-      return GRP_H + GRP_MB + rows * (CHIP_H + CHIP_GAP) + BLK_MB;
-    }
-
-    const availH = H - y - MB - 6; // 6 = footer
-    const grpList = [...groups.values()];
-
-    // Greedy fill: asignar grupos a columnas
-    const colGroups = [[],[],[]];
-    const colHeights = [0,0,0];
-    for(const g of grpList){
-      const gh = groupHeight(g);
-      // Pon en la columna con menos altura acumulada
-      let best = 0;
-      for(let i=1;i<COLS;i++) if(colHeights[i] < colHeights[best]) best=i;
-      colGroups[best].push(g);
-      colHeights[best] += gh;
-    }
-
-    // Renderizar columnas
-    for(let col=0; col<COLS; col++){
-      let cy = y;
-      const cx = colX[col];
-      for(const g of colGroups[col]){
-        if(cy + groupHeight(g) > H - MB - 6) break; // no cabe
-
-        // Header del grupo
-        const bcol = BCOL[g.block] || [80,80,80];
-        const btxt = BTXT[g.block] || [255,255,255];
-        doc.setFillColor(...bcol);
-        doc.roundedRect(cx, cy, colW, GRP_H, 1, 1, 'F');
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(6.8);
-        doc.setTextColor(...btxt);
-        // nombre del grupo (truncado si hace falta)
-        const maxGrpW = colW - 10;
-        let grpLabel = g.group;
-        while(doc.getStringUnitWidth(grpLabel) * 6.8 / doc.internal.scaleFactor > maxGrpW && grpLabel.length > 3)
-          grpLabel = grpLabel.slice(0,-1);
-        if(grpLabel !== g.group) grpLabel += '…';
-        doc.text(grpLabel, cx + 1.5, cy + 3.5);
-        // cuenta derecha
-        doc.text(String(g.cards.length), cx + colW - 1.5, cy + 3.5, {align:'right'});
-
-        cy += GRP_H + GRP_MB;
-
-        // Chips de números
-        // Calcular ancho óptimo de chip según los labels del grupo
-        const maxLabelW = Math.max(...g.cards.map(c=>
-          doc.getStringUnitWidth(c.label) * 7.5 / doc.internal.scaleFactor
-        ));
-        const chipW = Math.min(colW / 3 - 0.5, Math.max(CHIP_W_BASE, maxLabelW + CHIP_PW*2));
-        const chipsPerRow = Math.max(1, Math.floor((colW + 0.5) / (chipW + 0.8)));
-
-        let cx2 = cx;
-        let row  = 0;
-        for(let i=0; i<g.cards.length; i++){
-          const c = g.cards[i];
-          if(i > 0 && i % chipsPerRow === 0){
-            cx2 = cx;
-            row++;
-            cy += CHIP_H + CHIP_GAP;
-            if(cy + CHIP_H > H - MB - 6) break;
-          }
-          // Fondo chip
-          doc.setFillColor(245,247,250);
-          doc.setDrawColor(210,214,220);
-          doc.setLineWidth(0.2);
-          doc.roundedRect(cx2, cy, chipW, CHIP_H, 0.8, 0.8, 'FD');
-          // Número
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(7.5);
-          doc.setTextColor(30,30,30);
-          doc.text(c.label, cx2 + chipW/2, cy + CHIP_H*0.67, {align:'center'});
-          cx2 += chipW + 0.8;
-        }
-        cy += CHIP_H + BLK_MB;
-      }
-    }
-
-    // ── PIE ───────────────────────────────────────────────────
-    doc.setDrawColor(200,200,200);
-    doc.setLineWidth(0.3);
-    doc.line(ML, H-MB-4, W-MR, H-MB-4);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(6.5);
-    doc.setTextColor(160,160,160);
-    doc.text(`Generado el ${date}  ·  Adrenalyn XL La Liga 2025-26`, W/2, H-MB-1.5, {align:'center'});
-
-    // ── DESCARGAR ─────────────────────────────────────────────
-    const dateStr = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'}).replaceAll('/','_');
-    const safeName = (name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-    doc.save(`cromos_faltan_${safeName}_${dateStr}.pdf`);
-    showToast('✅ PDF descargado');
+  // Group by block+group
+  const blockColorMap = {Base:'#1d4ed8',Especiales:'#9333ea','Élite':'#d97706',Plus:'#16a34a',BIS:'#ec4899'};
+  const blockTextMap  = {Base:'#fff',Especiales:'#fff','Élite':'#000',Plus:'#fff',BIS:'#fff'};
+  const groups = new Map();
+  for(const c of missing){
+    const key = c.block+'|'+c.group;
+    if(!groups.has(key)) groups.set(key,{block:c.block,group:c.group,cards:[]});
+    groups.get(key).cards.push(c);
   }
 
-  // Cargar jsPDF si no está disponible
-  if(window.jspdf){
-    _doGenPDF();
-  } else {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    s.onload = _doGenPDF;
-    s.onerror = ()=>showToast('⚠️ Sin conexión para cargar jsPDF');
-    document.head.appendChild(s);
+  let blocksHtml = '';
+  for(const [,g] of groups){
+    const bg = blockColorMap[g.block]||'#333';
+    const fg = blockTextMap[g.block]||'#fff';
+    blocksHtml += `<div class="pb">
+      <div class="pbt" style="background:${bg};color:${fg}">
+        <span>${g.group}</span>
+        <span>${g.cards.length}</span>
+      </div>
+      <div class="pbc">${g.cards.map(c=>`<span class="pc">${c.label}</span>`).join('')}</div>
+    </div>`;
   }
+
+  const html = `<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8">
+<title>Cromos que faltan — ${titulo}</title>
+<style>
+  @page{size:A5 landscape;margin:9mm 11mm}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#000;font-size:9px}
+  .page{width:100%}
+  .hdr{display:flex;align-items:flex-end;justify-content:space-between;
+    border-bottom:2.5px solid #1d4ed8;padding-bottom:5px;margin-bottom:8px}
+  .hdr-l h1{font-size:14px;font-weight:900;color:#1d4ed8;margin-bottom:2px}
+  .hdr-l p{font-size:8px;color:#666;margin-top:1px}
+  .hdr-r{text-align:right;font-size:8px;color:#666}
+  .hdr-r .big{font-size:20px;font-weight:900;color:#dc2626;display:block;line-height:1}
+  .hdr-r .lbl{font-size:8px;color:#888}
+  .cols{column-count:3;column-gap:7mm}
+  .pb{break-inside:avoid;margin-bottom:7px}
+  .pbt{font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;
+    padding:2px 5px;border-radius:2px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+  .pbc{display:flex;flex-wrap:wrap;gap:2px}
+  .pc{border:1px solid #ddd;border-radius:2px;padding:1px 3px;font-size:7.5px;font-weight:700;background:#f7f7f7;color:#222}
+  .ftr{margin-top:10px;border-top:1px solid #eee;padding-top:4px;font-size:7px;color:#aaa;text-align:center}
+</style>
+</head><body>
+<div class="page">
+  <div class="hdr">
+    <div class="hdr-l">
+      <h1>⚽ Adrenalyn XL 25/26 — Faltan</h1>
+      <p>${titulo} · ${date}</p>
+      <p>Tenemos ${tenemos}/${total} (${pct}%) · Faltan <strong style="color:#dc2626">${missing.length}</strong> cromos</p>
+    </div>
+    <div class="hdr-r">
+      <span class="big">${missing.length}</span>
+      <span class="lbl">faltan</span>
+    </div>
+  </div>
+  <div class="cols">${blocksHtml}</div>
+  <div class="ftr">Generado el ${date} · Adrenalyn XL La Liga 2025-26</div>
+</div>
+<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),1000)}<\/script>
+</body></html>`;
+
+  const w = window.open('','_blank','width=900,height=600');
+  if(!w){ showToast('⚠️ Permite las ventanas emergentes para imprimir'); return; }
+  w.document.write(html);
+  w.document.close();
 }
 
 function shareText(){
@@ -2831,112 +2813,6 @@ document.getElementById('mapContent').addEventListener('click', function(e){
   }
 });
 
-
-// ─────────────────────────────────────────────────────────
-//  HISTORIAL
-// ─────────────────────────────────────────────────────────
-const histExpanded = new Set();
-
-function renderHistory(){
-  const el = document.getElementById('historyContent');
-  if(!el) return;
-
-  // Build card lookup
-  const cardMap = new Map(allCards.map(c=>[c.id,c]));
-
-  // Group by local date string (YYYY-MM-DD)
-  const byDay = {}; // {'2025-05-03': [{id, card, iso}]}
-  for(const [id, iso] of Object.entries(cardDates)){
-    if(!myCards.has(id)) continue; // only currently marked cards
-    const d = new Date(iso);
-    const key = d.toLocaleDateString('sv-SE'); // YYYY-MM-DD, locale-safe
-    if(!byDay[key]) byDay[key] = [];
-    byDay[key].push({id, card: cardMap.get(id), iso, ts: d.getTime()});
-  }
-
-  const days = Object.keys(byDay).sort((a,b)=>b.localeCompare(a)); // newest first
-
-  if(!days.length){
-    el.innerHTML = `<div class="hist-empty">
-      <div class="emoji">📅</div>
-      <h3>Sin historial aún</h3>
-      <p>Cuando marques cromos aparecerán aquí ordenados por día</p>
-    </div>`;
-    return;
-  }
-
-  // Summary bar
-  const totalDays = days.length;
-  const totalCards = Object.values(byDay).reduce((s,a)=>s+a.length,0);
-  // Streak: consecutive days with at least 1 card
-  let streak = 0;
-  const today = new Date().toLocaleDateString('sv-SE');
-  let cursor = new Date();
-  for(let i=0; i<365; i++){
-    const key = cursor.toLocaleDateString('sv-SE');
-    if(byDay[key]){ streak++; cursor.setDate(cursor.getDate()-1); }
-    else if(i===0){ cursor.setDate(cursor.getDate()-1); } // allow today to be empty
-    else break;
-  }
-
-  let html = `<div class="hist-summary">
-    <div>
-      <div class="hist-summary-num">${totalCards}</div>
-      <div class="hist-summary-label">cromos registrados</div>
-    </div>
-    <div style="width:1px;background:var(--border);align-self:stretch"></div>
-    <div>
-      <div class="hist-summary-days">${totalDays} ${totalDays===1?'día':'días'}</div>
-      <div class="hist-summary-label">con actividad</div>
-    </div>
-    ${streak>1?`<div style="width:1px;background:var(--border);align-self:stretch"></div>
-    <div>
-      <div class="hist-summary-days">🔥 ${streak}</div>
-      <div class="hist-summary-label">días seguidos</div>
-    </div>`:''}
-  </div>`;
-
-  for(const day of days){
-    const entries = byDay[day].sort((a,b)=>b.ts-a.ts);
-    const open = histExpanded.has(day);
-    const dateLabel = new Date(day+'T12:00:00').toLocaleDateString('es-ES',
-      {weekday:'long', day:'numeric', month:'long'});
-    const isToday = day === today;
-    const isYesterday = day === new Date(Date.now()-86400000).toLocaleDateString('sv-SE');
-    const prefix = isToday ? '🟢 Hoy · ' : isYesterday ? '🕐 Ayer · ' : '';
-
-    html += `<div class="hist-day${open?' open':''}" data-day="${escapeHTML(day)}">
-      <div class="hist-day-header">
-        <div class="hist-day-date">${prefix}${escapeHTML(dateLabel.charAt(0).toUpperCase()+dateLabel.slice(1))}</div>
-        <div class="hist-day-count">${entries.length} ${entries.length===1?'cromo':'cromos'}</div>
-        <span class="hist-day-arrow">▶</span>
-      </div>
-      <div class="hist-cards">
-        ${entries.map(e=>{
-          const c = e.card;
-          const block = c ? c.block : 'Base';
-          const label = c ? c.label : e.id;
-          const group = c ? c.group : '';
-          const time = new Date(e.iso).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-          return `<div class="hist-chip ${escapeHTML(block)}" title="${escapeHTML(group)} · ${time}">${escapeHTML(label)}</div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
-
-  el.innerHTML = html;
-
-  // Event delegation for expand/collapse
-  el.querySelectorAll('.hist-day-header').forEach(hdr=>{
-    hdr.addEventListener('click', ()=>{
-      const day = hdr.closest('.hist-day').dataset.day;
-      if(histExpanded.has(day)) histExpanded.delete(day);
-      else histExpanded.add(day);
-      renderHistory();
-    });
-  });
-}
-
 // ─────────────────────────────────────────────────────────
 //  TABS
 // ─────────────────────────────────────────────────────────
@@ -2952,7 +2828,6 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     document.getElementById('searchArea').style.display=showSearch?'':'none';
     if(tab==='stats') renderStats();
     if(tab==='map') renderMap();
-    if(tab==='history') renderHistory();
     if(tab==='settings'){ renderCustomCardsList(); renderBisCardsList(); }
   });
 });
@@ -3012,20 +2887,6 @@ async function installPWA(){
 
 // Capturar datos de sync de la URL ANTES de que la página se limpie
 checkSyncFromURL();
-
-// Fix: si la app ya estaba abierta y el usuario llega via enlace mágico,
-// el SW puede hacer que la página no recargue. Escuchamos el evento de
-// visibilidad para re-chequear la URL cuando la pestaña vuelve a estar activa.
-document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible'){
-    const params = new URLSearchParams(window.location.search);
-    const syncParam = params.get('sync');
-    if(syncParam && !window._pendingSyncFromURL){
-      checkSyncFromURL();
-      if(window._pendingSyncFromURL) processSyncFromURL();
-    }
-  }
-});
 
 async function init(){
   await initDB();
