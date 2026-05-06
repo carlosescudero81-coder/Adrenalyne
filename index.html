@@ -1365,25 +1365,37 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
   const iconSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="#2563eb"/><circle cx="256" cy="256" r="180" fill="#fff"/><circle cx="256" cy="256" r="180" fill="none" stroke="#1d4ed8" stroke-width="12"/><polygon points="256,120 290,210 386,210 310,268 338,358 256,300 174,358 202,268 126,210 222,210" fill="#1d4ed8"/></svg>';
   const iconB64='data:image/svg+xml;base64,'+btoa(iconSvg);
 
-  const APP_VERSION = '3.8';
+  const APP_VERSION = '3.9';
 
-  // 🚀 SCRIPT DE LIMPIEZA DE EMERGENCIA (Force Update)
+  // 🚀 SCRIPT DE LIMPIEZA DE EMERGENCIA (Force Update - Agresivo)
   (function() {
     const lastVer = localStorage.getItem('app_v_sync');
+    // Si la versión guardada es distinta a la actual, LIMPIEZA TOTAL
     if (lastVer && lastVer !== APP_VERSION) {
-      console.log('Nueva versión detectada, limpiando cachés y SW...');
+      console.warn("ACTUALIZACIÓN CRÍTICA: Forzando limpieza de caché...");
+      
+      // 1. Desregistrar Service Workers
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          for(let r of regs) r.unregister();
+        });
+      }
+      
+      // 2. Limpiar Caches de la PWA
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          for(let n of names) caches.delete(n);
+        });
+      }
+
+      // 3. Marcar nueva versión y RECARGA DURA
       localStorage.setItem('app_v_sync', APP_VERSION);
-      const cleanAndReload = () => window.location.reload(true);
-      // Desregistrar todos los SW primero (el SW con blob URL puede estar sirviendo una versión vieja)
-      const swClean = ('serviceWorker' in navigator)
-        ? navigator.serviceWorker.getRegistrations()
-            .then(regs => Promise.all(regs.map(r => r.unregister())))
-            .catch(() => {})
-        : Promise.resolve();
-      const cacheClean = ('caches' in window)
-        ? caches.keys().then(names => Promise.all(names.map(n => caches.delete(n)))).catch(() => {})
-        : Promise.resolve();
-      Promise.all([swClean, cacheClean]).then(cleanAndReload);
+      
+      // Pequeño delay para asegurar que las promesas de limpieza se procesan
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 500);
+      
     } else {
       localStorage.setItem('app_v_sync', APP_VERSION);
     }
