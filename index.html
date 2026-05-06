@@ -2130,11 +2130,7 @@ function toggleCard(id, evt){
   // pero para esta demo, un click normal marca, y añadiremos un botón de info pequeño.
   if(evt){
     const el=evt.currentTarget||evt.target.closest('.card');
-    // Si se pulsa cerca del número o con shift, ver detalle
-    if(evt.shiftKey){
-      showDetail(id);
-      return;
-    }
+    if(evt.shiftKey) return; // shift+click reservado para futuro detalle — no hace nada por ahora
     const r=document.createElement('span');
     r.className='ripple';
     const rect=el.getBoundingClientRect();
@@ -2156,15 +2152,21 @@ function toggleCard(id, evt){
   if(activeTab==='stats') renderStats();
   if(activeTab==='map') renderMap();
 
-  showToast(wasMine?`❌ ${id} desmarcado`:`✅ ${id} conseguido`);
+  // Usar número sin ceros iniciales en el toast (045 → 45, 7bis → 7bis)
+  const displayId = id.endsWith('bis') ? id : String(parseInt(id,10));
+  showToast(wasMine?`❌ ${displayId} desmarcado`:`✅ ${displayId} conseguido`);
 }
 
 // Recalcula el estado visual de todas las instancias de una tarjeta en el DOM
 function patchCardDOM(id){
   const state=cardState(id);
-  const classNames = 'card ' + (state==='both'?'has-both':state==='mine'?'has-mine':state==='theirs'?'has-theirs':'');
+  const baseClass = 'card ' + (state==='both'?'has-both':state==='mine'?'has-mine':state==='theirs'?'has-theirs':'');
   document.querySelectorAll(`.card[data-id="${id}"]`).forEach(el=>{
-    el.className = classNames;
+    // Preservar card-foil-anim para cartas Élite/Plus cuando están conseguidas
+    const block = el.dataset.block||'';
+    const isElite = block==='Élite'||block==='Plus';
+    const hasFoil = isElite && (state==='mine'||state==='both');
+    el.className = baseClass + (hasFoil ? ' card-foil-anim' : '');
     void el.offsetWidth;
     el.classList.add('popin');
   });
@@ -2183,6 +2185,16 @@ function patchCardDOM(id){
 function undo(){
   if(!historyStack.length){showToast('Nada que deshacer');return;}
   const last=historyStack.pop();
+  // Entrada bulk atómica: {bulkIds, was}
+  if(last.bulkIds){
+    for(const id of last.bulkIds){
+      if(last.was) myCards.add(id); else myCards.delete(id);
+    }
+    saveAll();renderAll();
+    showToast(`↩️ Deshecho: ${last.bulkIds.length} cromo${last.bulkIds.length!==1?'s':''}`);
+    return;
+  }
+  // Entrada individual: {id, was}
   const stillExists = allCards.some(c=>c.id===last.id);
   if(!stillExists){showToast(`↩️ Carta ya no existe: ${last.id}`);saveAll();renderAll();return;}
   if(last.was) myCards.add(last.id);
@@ -2250,7 +2262,7 @@ function decodeSyncData(encoded){
         emoji: data[3],
         color: data[4],
         ids: data[5],
-        cc: (data[6]||[]).map(c => ({id:c[0], label:c[1], block:c[2], group:c[3]}))
+        cc: (data[6]||[]).map(c => ({id:c[0], label:c[1], block:c[2], group:c[3], collected:!!c[4]}))
       };
     }
     return data;
@@ -2315,7 +2327,13 @@ function decompressIds(compressedStr){
 
 function buildMagicLink(){
   const name = userProfile.name || 'Jugador';
-  // Payload compacto (v6): Array posicional para ahorrar espacio de llaves JSON
+  // Las cartas personalizadas conseguidas (myCards ∩ custom) no caben en el bitfield,
+  // así que se marcan con un flag 'collected:true' dentro del array de customCards
+  const ccPayload = customCards.map(c => {
+    const entry = [c.id, c.label, c.block, c.group||''];
+    if(myCards.has(c.id)) entry.push(1); // índice 4: está conseguida
+    return entry;
+  });
   const payload = [
     6, // version
     's', // type (sync)
@@ -2323,13 +2341,12 @@ function buildMagicLink(){
     userProfile.emoji,
     userProfile.color,
     compressIds(myCards),
-    customCards.map(c => [c.id, c.label, c.block, c.group||''])
+    ccPayload
   ];
   // Añadir checksum al final
   payload.push(calculateChecksum(payload));
   const encoded = encodeSyncData(payload);
   if(!encoded) return null;
-  // URL dinámica: usa la dirección actual sin parámetros para mayor portabilidad
   const baseUrl = window.location.href.split('?')[0];
   return `${baseUrl}?sync=${encoded}`;
 }
@@ -2400,6 +2417,8 @@ function processSyncFromURL(){
       customCards.push(cc);
       newCustomCards.push(cc);
     }
+    // Si el compañero tiene esa carta custom conseguida, añadirla a theirCards
+    if(cc.collected && cc.id) theirCards.add(cc.id);
   }
   if(newCustomCards.length > 0){
     injectCustomCards();
@@ -2536,6 +2555,8 @@ function confirmImport(){
         customCards.push(cc);
         newCustomCards.push(cc);
       }
+      // Si el compañero tiene esa carta custom conseguida, marcarla en theirCards
+      if(cc.collected && cc.id) theirCards.add(cc.id);
     }
     if(newCustomCards.length > 0){
       injectCustomCards();
@@ -2677,7 +2698,10 @@ function exportJSON(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;a.download=`backup_${name.toLowerCase().replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();URL.revokeObjectURL(url);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
   showToast('📤 Copia de seguridad exportada');
 }
 
@@ -3093,7 +3117,7 @@ document.getElementById('customCardLabel').addEventListener('keydown', e=>{
 //  RESET
 // ─────────────────────────────────────────────────────────
 function showResetModal(){document.getElementById('resetModal').classList.add('open');}
-function closeModals(){document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));}
+function closeModals(){document.querySelectorAll('.modal-overlay, .bulk-modal-overlay').forEach(m=>m.classList.remove('open'));}
 function resetProgress(){
   myCards.clear();historyStack=[];saveAll();renderAll();closeModals();
   // BUG6-FIX: aclarar en el toast que solo se borran los cromos propios
@@ -3160,11 +3184,9 @@ function renderMap(){
   </div><div class="map-blocks">`;
 
   let globalRank = 0;
-  let blockRank = 0;
   for(const [block, groups] of blockGroups){
     if(!groups.length) continue;
     html += `<div class="map-block-title">${block}</div>`;
-    blockRank=0;
     for(const {group, block:blk, cards} of groups){
       globalRank++;
       const total = cards.length;
@@ -3374,15 +3396,37 @@ function openBulkModal(){
   document.getElementById('bulkModalOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('bulkInput').focus(),200);
 }
-function closeBulkModal(e){
-  if(e && e.target!==document.getElementById('bulkModalOverlay')) return;
+function closeBulkModal(){
   document.getElementById('bulkModalOverlay').classList.remove('open');
 }
+// Registrar el listener del backdrop una vez que el DOM esté listo
+window.addEventListener('DOMContentLoaded', function(){
+  const overlay = document.getElementById('bulkModalOverlay');
+  const panel   = document.getElementById('bulkModalPanel');
+  if(!overlay || !panel) return;
+  overlay.addEventListener('pointerdown', function(e){
+    if(!overlay.classList.contains('open')) return;
+    const r = panel.getBoundingClientRect();
+    const outside = e.clientX < r.left || e.clientX > r.right ||
+                    e.clientY < r.top  || e.clientY > r.bottom;
+    if(outside) closeBulkModal();
+  });
+});
 function parseBulkInput(raw){
   const tokens=raw.split(/[\s,;]+/).map(t=>t.trim()).filter(Boolean);
   const ids=new Set();
   const invalid=[];
   for(const tok of tokens){
+    // Rango BIS explícito: 7bis-15bis o 7bis–15bis
+    const rangeBisMatch=tok.match(/^(\d+)\s*bis\s*[-–]\s*(\d+)\s*bis$/i);
+    if(rangeBisMatch){
+      const from=parseInt(rangeBisMatch[1]),to=parseInt(rangeBisMatch[2]);
+      if(from<=to&&(to-from)<=200){
+        for(let n=from;n<=to;n++) ids.add(n+'bis');
+      } else invalid.push(tok);
+      continue;
+    }
+    // Rango numérico normal: 100-120 o 100–120 (opcionalmente con bis al final para compatibilidad)
     const rangeMatch=tok.match(/^(\d+)\s*[-–]\s*(\d+)(bis)?$/i);
     if(rangeMatch){
       const from=parseInt(rangeMatch[1]),to=parseInt(rangeMatch[2]),isBis=!!rangeMatch[3];
@@ -3431,8 +3475,11 @@ function confirmBulkInput(){
   const raw=document.getElementById('bulkInput').value;
   const {validInCatalog}=parseBulkInput(raw);
   if(!validInCatalog.length) return;
-  for(const id of validInCatalog){ myCards.add(id); historyStack.push({id,was:false}); }
+  // Guardar como operación atómica: un único entry en historyStack con todos los IDs
+  // para que un solo Deshacer revierta toda la operación bulk
+  historyStack.push({bulkIds: validInCatalog, was: false});
   if(historyStack.length>200) historyStack.splice(0,historyStack.length-200);
+  for(const id of validInCatalog) myCards.add(id);
   saveAll(); renderAll();
   document.getElementById('bulkModalOverlay').classList.remove('open');
   showToast(`✅ ${validInCatalog.length} cromo${validInCatalog.length!==1?'s':''} marcado${validInCatalog.length!==1?'s':''}`);
@@ -3471,8 +3518,8 @@ function confirmBulkInput(){
 <button class="bulk-fab" id="bulkFab" onclick="openBulkModal()" title="Meter cromos por número" style="display:none">✏️</button>
 
 <!-- BULK INPUT MODAL -->
-<div class="bulk-modal-overlay" id="bulkModalOverlay" onclick="closeBulkModal(event)">
-  <div class="bulk-modal" onclick="event.stopPropagation()">
+<div class="bulk-modal-overlay" id="bulkModalOverlay">
+  <div class="bulk-modal" id="bulkModalPanel" onclick="event.stopPropagation()">
     <div class="bulk-modal-title">✏️ Meter cromos por número</div>
     <div class="bulk-modal-sub">Escribe los números separados por comas, espacios o saltos de línea. También puedes usar rangos.<br><strong>Ej: 45, 123, 7bis, 200-215</strong></div>
     <textarea class="bulk-textarea" id="bulkInput" placeholder="45, 123, 7bis&#10;150 151 152&#10;300-310" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="onBulkInput()"></textarea>
