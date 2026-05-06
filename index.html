@@ -21,6 +21,8 @@
   --bg:#f0f4f8; --bg2:#fff; --bg3:#e2e8f0;
   --surface:#fff; --border:#e2e8f0;
   --text:#0f172a; --text2:#64748b;
+  /* Alias usados en bloques de estilos modernos — evitan color undefined si modern-theme carga tarde */
+  --text-main:#0f172a; --text-muted:#64748b;
   --accent:#2563eb; --accent2:#1d4ed8;
   --success:#16a34a; --danger:#dc2626; --warn:#d97706;
   --base:#2563eb; --especiales:#9333ea; --elite:#f59e0b; --plus:#10b981; --bis:#ec4899;
@@ -34,6 +36,7 @@
   --bg:#070d1a; --bg2:#0d1526; --bg3:#1a2540;
   --surface:#0d1526; --border:#1e2d4a;
   --text:#e8edf5; --text2:#6b7fa3;
+  --text-main:#e8edf5; --text-muted:#6b7fa3;
   --shadow:0 4px 20px rgba(0,0,0,.5);
   --card-glow:0 0 0 1.5px rgba(99,102,241,.55),0 4px 20px rgba(0,0,0,.6);
 }}
@@ -207,13 +210,6 @@ main{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contai
 .cdot.p2{background:var(--p2)}
 
 .card-num{font:900 15px var(--font);color:var(--text);line-height:1}
-.card-badge{display:inline-block;padding:1px 5px;border-radius:4px;
-  font:700 8px var(--font);color:#fff;margin-top:3px;}
-.card[data-block="Base"] .card-badge{background:var(--base)}
-.card[data-block="Especiales"] .card-badge{background:var(--especiales)}
-.card[data-block="Élite"] .card-badge{background:var(--elite);color:#000}
-.card[data-block="Plus"] .card-badge{background:var(--plus)}
-.card[data-block="BIS"] .card-badge{background:var(--bis)}
 
 @keyframes ripple{0%{transform:scale(0);opacity:.4}100%{transform:scale(3);opacity:0}}
 .ripple{position:absolute;border-radius:50%;width:50px;height:50px;margin:-25px 0 0 -25px;
@@ -504,19 +500,6 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   to { filter: brightness(1.15) contrast(1.1); box-shadow: 0 0 18px rgba(217,119,6,0.5); }
 }
 
-.card-badge {
-  font-size: 0.55rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  margin-top: 5px;
-  color: var(--text-muted);
-  width: 100%;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Card Detail Modal */
 .detail-card {
   width: 260px;
@@ -627,6 +610,17 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 
 /* Override old .card-badge (now inside top band) */
 .card-badge{display:none}
+
+/* Respetar preferencia del usuario de reducir movimiento */
+@media(prefers-reduced-motion:reduce){
+  .card-foil-anim::after{animation:none}
+  .card[data-block="Balon de oro"] .card-thumb,
+  .card[data-block="Nuevo Balon de oro"] .card-thumb{animation:none}
+  .w-particle{animation:none}
+  .welcome-logo-ring{animation:none}
+  @keyframes bounceIn{0%,100%{transform:scale(1);opacity:1}}
+  .card{transition:none}
+}
 
 /* ── IDEA 2: Dark mode improvements (extra) ── */
 @media(prefers-color-scheme:dark){
@@ -1139,9 +1133,9 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
 </div><!-- #app -->
 
 <!-- MODAL AÑADIR CARTA BIS -->
-<div class="modal-overlay" id="addBisModal">
+<div class="modal-overlay" id="addBisModal" role="dialog" aria-modal="true" aria-labelledby="addBisModal-title">
   <div class="modal">
-    <h3>♊ Añadir carta BIS</h3>
+    <h3 id="addBisModal-title">♊ Añadir carta BIS</h3>
     <p style="font:400 13px var(--font);color:var(--text2);margin-bottom:16px">Introduce el número del cromo. Se guardará como <strong>340bis</strong>, <strong>412bis</strong>, etc.</p>
     <div class="modal-field">
       <label>Número de la carta</label>
@@ -1161,9 +1155,9 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
 </div>
 
 <!-- MODAL AÑADIR CARTA PERSONALIZADA -->
-<div class="modal-overlay" id="addCustomModal">
+<div class="modal-overlay" id="addCustomModal" role="dialog" aria-modal="true" aria-labelledby="addCustomModal-title">
   <div class="modal">
-    <h3>✏️ Añadir carta personalizada</h3>
+    <h3 id="addCustomModal-title">✏️ Añadir carta personalizada</h3>
     <div class="modal-field">
       <label>Nombre o número de la carta</label>
       <input class="modal-input" id="customCardLabel" type="text" placeholder="Ej: Lewandowski LE, 572, CR7 BIS…" maxlength="40" autocomplete="off">
@@ -1193,9 +1187,9 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
 <div id="toast"></div>
 
 <!-- MODAL RESET -->
-<div class="modal-overlay" id="resetModal">
+<div class="modal-overlay" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModal-title">
   <div class="modal">
-    <h3>🗑️ Reiniciar mi progreso</h3>
+    <h3 id="resetModal-title">🗑️ Reiniciar mi progreso</h3>
     <p>¿Seguro? Se borrarán todos mis cromos marcados. Los datos del compañero no se verán afectados.</p>
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
@@ -1205,9 +1199,9 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
 </div>
 
 <!-- MODAL COMPARTIR -->
-<div class="modal-overlay" id="shareModal">
+<div class="modal-overlay" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareModal-title">
   <div class="modal">
-    <h3>📲 Enviar mi checklist</h3>
+    <h3 id="shareModal-title">📲 Enviar mi checklist</h3>
     <div class="share-modal-body">
       <div class="share-info">
         <strong>✨ Enlace mágico — súper sencillo</strong><br>
@@ -1224,9 +1218,9 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
 </div>
 
 <!-- MODAL IMPORTAR COMPAÑERO -->
-<div class="modal-overlay" id="importModal">
+<div class="modal-overlay" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModal-title">
   <div class="modal">
-    <h3>📥 Checklist del compañero</h3>
+    <h3 id="importModal-title">📥 Checklist del compañero</h3>
     <div class="import-preview" id="importPreview">
       <span class="count" id="importCount">0</span>
       <span class="sub" id="importSub">cromos nuevos</span>
@@ -1243,9 +1237,9 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
 </div>
 
 <!-- MODAL EXPORTAR PDF — selector de acción -->
-<div class="modal-overlay" id="pdfModal">
+<div class="modal-overlay" id="pdfModal" role="dialog" aria-modal="true" aria-labelledby="pdfModal-title">
   <div class="modal">
-    <h3>📄 Exportar lista de faltantes</h3>
+    <h3 id="pdfModal-title">📄 Exportar lista de faltantes</h3>
     <p id="pdfModalStats" style="font:600 13px var(--font);color:var(--text2);margin-bottom:16px"></p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
       <button class="btn" style="background:var(--success);color:#fff;display:flex;align-items:center;gap:10px;justify-content:center;padding:16px"
@@ -1266,8 +1260,8 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
         <span style="text-align:left"><strong>Enviar por correo</strong><br>
           <span style="font:400 12px var(--font);opacity:.85">Abre tu app de email con el asunto listo</span></span>
       </button>
-      <button class="btn" style="background:var(--bg3);color:var(--text);display:flex;align-items:center;gap:10px;justify-content:center;padding:16px"
-              id="pdfShareBtn" onclick="doPdfAction('share')" style="display:none">
+      <button class="btn" style="background:var(--bg3);color:var(--text);display:none;align-items:center;gap:10px;justify-content:center;padding:16px"
+              id="pdfShareBtn" onclick="doPdfAction('share')">
         <span style="font-size:20px">📤</span>
         <span style="text-align:left"><strong>Compartir…</strong><br>
           <span style="font:400 12px var(--font);opacity:.7">Elige cualquier app instalada</span></span>
@@ -1287,7 +1281,7 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
 <!-- Overlay de Celebración (Modernizado) -->
 <!-- BUG2-FIX: sin display:none inline; la clase .modal-overlay lo oculta por defecto (opacity:0).
      Se muestra añadiendo .open (igual que los demás modales). closeModals() ya lo cierra automáticamente. -->
-<div id="celebrateOverlay" class="modal-overlay" style="z-index:9000; background:rgba(15, 23, 42, 0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);">
+<div id="celebrateOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="celebrateTitle" style="z-index:9000; background:rgba(15, 23, 42, 0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);">
   <div class="celebrate-card" style="background:var(--bg2); border-radius:32px; padding:48px 24px; width:92%; max-width:420px; text-align:center; position:relative; box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1); overflow:hidden;">
     <canvas id="celebrateCanvas" style="position:absolute; inset:0; pointer-events:none; z-index:1;"></canvas>
     <div style="position:relative; z-index:2;">
@@ -1459,6 +1453,10 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
       navigator.serviceWorker.register(swUrl,{scope:'./'})
         .then(reg=>{
           reg.update();
+          // Revocar el blob URL una vez que el SW está registrado y activo
+          navigator.serviceWorker.ready.then(()=>{
+            if(window._swBlobUrl){ URL.revokeObjectURL(window._swBlobUrl); window._swBlobUrl=null; }
+          });
           navigator.serviceWorker.addEventListener('message',ev=>{
             if(ev.data&&ev.data.type==='NEW_VERSION'){
               showUpdateBanner(ev.data.version);
@@ -1683,6 +1681,7 @@ let myCards      = new Set();
 let theirCards   = new Set();
 let customCards  = []; // [{id, label, block, group}]
 let historyStack = [];
+const HISTORY_LIMIT = 100; // límite único para undo — consistente en toggleCard y confirmBulkInput
 let activeTab    = 'missing';
 let activeFilter = 'all';
 let searchQuery  = '';
@@ -1765,8 +1764,8 @@ async function loadAll(){
         return true;
       });
       if(migratedBis.length > 0){
-        // Guardar la migración de forma asíncrona (no bloqueante)
-        Promise.resolve().then(()=>saveAll());
+        // Guardar la migración de forma bloqueante para garantizar persistencia
+        await saveAll();
       }
       // Inject into allCards (avoid duplicates on hot reload)
       injectCustomCards();
@@ -2141,7 +2140,7 @@ function toggleCard(id, evt){
   }
   const wasMine=myCards.has(id);
   historyStack.push({id,was:wasMine});
-  if(historyStack.length>50) historyStack.shift();
+  if(historyStack.length>HISTORY_LIMIT) historyStack.shift();
   if(wasMine) myCards.delete(id);
   else myCards.add(id);
   saveAll();
@@ -2160,13 +2159,16 @@ function toggleCard(id, evt){
 // Recalcula el estado visual de todas las instancias de una tarjeta en el DOM
 function patchCardDOM(id){
   const state=cardState(id);
-  const baseClass = 'card ' + (state==='both'?'has-both':state==='mine'?'has-mine':state==='theirs'?'has-theirs':'');
   document.querySelectorAll(`.card[data-id="${id}"]`).forEach(el=>{
-    // Preservar card-foil-anim para cartas Élite/Plus cuando están conseguidas
+    // Usar classList para no sobreescribir clases que no gestionamos (evita pérdida de clases externas)
+    el.classList.remove('has-mine','has-theirs','has-both','card-foil-anim');
+    if(state==='mine')        el.classList.add('has-mine');
+    else if(state==='theirs') el.classList.add('has-theirs');
+    else if(state==='both')   el.classList.add('has-both');
     const block = el.dataset.block||'';
     const isElite = block==='Élite'||block==='Plus';
-    const hasFoil = isElite && (state==='mine'||state==='both');
-    el.className = baseClass + (hasFoil ? ' card-foil-anim' : '');
+    if(isElite && (state==='mine'||state==='both')) el.classList.add('card-foil-anim');
+    // Forzar reflow solo en la card afectada (necesario para reiniciar animación popin)
     void el.offsetWidth;
     el.classList.add('popin');
   });
@@ -2391,7 +2393,9 @@ function processSyncFromURL(){
 
   const fromName  = data.from  || 'Compañero';
   const fromEmoji = data.emoji || '🎉';
-  const fromColor = data.color || '#f97316';
+  // Validar que el color sea un hex CSS válido — evita inyección de CSS arbitrario
+  const _rawColor = data.color || '';
+  const fromColor = /^#[0-9a-fA-F]{3,6}$/.test(_rawColor) ? _rawColor : '#f97316';
 
   const validIds = new Set(allCards.map(c=>c.id));
   const customCardsData = Array.isArray(data.cc) ? data.cc : [];
@@ -2518,7 +2522,8 @@ function importCompanion(evt){
       }
       // Filtrar IDs recibidos — descartar los que no existen en esta colección
       ids=ids.filter(id=>validIds.has(id));
-      pendingImport={ids, customCards: data.customCards||[], fromName: data.from||'', fromEmoji: data.emoji||'🎉', fromColor: data.color||'#f97316'};
+      const _impColor = data.color||'';
+      pendingImport={ids, customCards: data.customCards||[], fromName: data.from||'', fromEmoji: data.emoji||'🎉', fromColor: /^#[0-9a-fA-F]{3,6}$/.test(_impColor)?_impColor:'#f97316'};
       const fromName=data.from||document.getElementById('p2NameInput').value||'Compañero';
       const nuevos=ids.filter(id=>!theirCards.has(id)).length;
       const yaTenia=ids.filter(id=>theirCards.has(id)).length;
@@ -2619,11 +2624,14 @@ function closeCelebrate(){
 
 // Función para devolver el favor: enviar mis cromos al compañero
 function celebrateReply(){
-  // BUG8-FIX: cerrar el overlay de celebración antes de abrir el share,
-  // ya que doShare() llama closeModals() que no afecta al celebrateOverlay.
   closeCelebrate();
   // Pequeño delay para que la animación de cierre termine antes de abrir WhatsApp
-  setTimeout(()=>{ openShareModal(); }, 200);
+  setTimeout(()=>{
+    // Avisar si no hay nombre/número de compañero configurado
+    const p2val = document.getElementById('p2NameInput').value.trim();
+    if(!p2val) showToast('💡 Añade el nombre del compañero en Ajustes primero');
+    openShareModal();
+  }, 200);
 }
 
 
@@ -2632,6 +2640,8 @@ let _confettiCtx = null;
 let _confettiParticles = [];
 
 function launchConfetti(accentColor){
+  // Respetar preferencia del sistema de reducir movimiento
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const canvas = document.getElementById('celebrateCanvas');
   const box = canvas.parentElement;
   canvas.width = box.offsetWidth || 400;
@@ -3117,7 +3127,11 @@ document.getElementById('customCardLabel').addEventListener('keydown', e=>{
 //  RESET
 // ─────────────────────────────────────────────────────────
 function showResetModal(){document.getElementById('resetModal').classList.add('open');}
-function closeModals(){document.querySelectorAll('.modal-overlay, .bulk-modal-overlay').forEach(m=>m.classList.remove('open'));}
+function closeModals(){
+  document.querySelectorAll('.modal-overlay, .bulk-modal-overlay').forEach(m=>m.classList.remove('open'));
+  // Detener confetti si estaba corriendo (evita rAF infinito si el celebrateOverlay se cierra aquí)
+  if(typeof stopConfetti==='function') stopConfetti();
+}
 function resetProgress(){
   myCards.clear();historyStack=[];saveAll();renderAll();closeModals();
   // BUG6-FIX: aclarar en el toast que solo se borran los cromos propios
@@ -3309,10 +3323,12 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
 // ─────────────────────────────────────────────────────────
 const searchInput=document.getElementById('searchInput');
 const clearSearch=document.getElementById('clearSearch');
+let _searchDebounce;
 searchInput.addEventListener('input',()=>{
   searchQuery=searchInput.value.trim();
   clearSearch.style.display=searchQuery?'block':'none';
-  renderAll();
+  clearTimeout(_searchDebounce);
+  _searchDebounce=setTimeout(renderAll,150);
 });
 clearSearch.addEventListener('click',()=>{
   searchInput.value='';searchQuery='';clearSearch.style.display='none';renderAll();
@@ -3399,8 +3415,8 @@ function openBulkModal(){
 function closeBulkModal(){
   document.getElementById('bulkModalOverlay').classList.remove('open');
 }
-// Registrar el listener del backdrop una vez que el DOM esté listo
-window.addEventListener('DOMContentLoaded', function(){
+// El script está al final del body — el DOM ya existe, no necesita DOMContentLoaded
+(function(){
   const overlay = document.getElementById('bulkModalOverlay');
   const panel   = document.getElementById('bulkModalPanel');
   if(!overlay || !panel) return;
@@ -3411,7 +3427,7 @@ window.addEventListener('DOMContentLoaded', function(){
                     e.clientY < r.top  || e.clientY > r.bottom;
     if(outside) closeBulkModal();
   });
-});
+})();
 function parseBulkInput(raw){
   const tokens=raw.split(/[\s,;]+/).map(t=>t.trim()).filter(Boolean);
   const ids=new Set();
@@ -3461,10 +3477,10 @@ function onBulkInput(){
   if(!raw.trim()){ preview.className='bulk-preview'; btn.disabled=true; return; }
   const {validInCatalog,validNotInCatalog,alreadyHave,invalid}=parseBulkInput(raw);
   let html='';
-  if(validInCatalog.length) html+=`<span class="ok">✅ ${validInCatalog.length} para marcar: ${validInCatalog.slice(0,15).join(', ')}${validInCatalog.length>15?'…':''}</span><br>`;
-  if(alreadyHave.length) html+=`<span style="color:var(--text2)">☑️ ${alreadyHave.length} ya los tienes: ${alreadyHave.slice(0,10).join(', ')}${alreadyHave.length>10?'…':''}</span><br>`;
-  if(validNotInCatalog.length) html+=`<span style="color:var(--warn)">⚠️ ${validNotInCatalog.length} no en catálogo: ${validNotInCatalog.slice(0,10).join(', ')}${validNotInCatalog.length>10?'…':''}</span><br>`;
-  if(invalid.length) html+=`<span class="bad">❌ No reconocidos: ${invalid.slice(0,8).join(', ')}${invalid.length>8?'…':''}</span>`;
+  if(validInCatalog.length) html+=`<span class="ok">✅ ${validInCatalog.length} para marcar: ${validInCatalog.slice(0,15).map(escapeHTML).join(', ')}${validInCatalog.length>15?'…':''}</span><br>`;
+  if(alreadyHave.length) html+=`<span style="color:var(--text2)">☑️ ${alreadyHave.length} ya los tienes: ${alreadyHave.slice(0,10).map(escapeHTML).join(', ')}${alreadyHave.length>10?'…':''}</span><br>`;
+  if(validNotInCatalog.length) html+=`<span style="color:var(--warn)">⚠️ ${validNotInCatalog.length} no en catálogo: ${validNotInCatalog.slice(0,10).map(escapeHTML).join(', ')}${validNotInCatalog.length>10?'…':''}</span><br>`;
+  if(invalid.length) html+=`<span class="bad">❌ No reconocidos: ${invalid.slice(0,8).map(escapeHTML).join(', ')}${invalid.length>8?'…':''}</span>`;
   if(!html) html='<span style="color:var(--text2)">Escribe algún número…</span>';
   preview.innerHTML=html;
   preview.className='bulk-preview visible';
@@ -3478,7 +3494,7 @@ function confirmBulkInput(){
   // Guardar como operación atómica: un único entry en historyStack con todos los IDs
   // para que un solo Deshacer revierta toda la operación bulk
   historyStack.push({bulkIds: validInCatalog, was: false});
-  if(historyStack.length>200) historyStack.splice(0,historyStack.length-200);
+  if(historyStack.length>HISTORY_LIMIT) historyStack.splice(0,historyStack.length-HISTORY_LIMIT);
   for(const id of validInCatalog) myCards.add(id);
   saveAll(); renderAll();
   document.getElementById('bulkModalOverlay').classList.remove('open');
