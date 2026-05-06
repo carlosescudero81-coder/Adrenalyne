@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://crests.football-data.org">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -31,10 +31,11 @@
   --font:'Nunito',system-ui,sans-serif;
 }
 @media(prefers-color-scheme:dark){:root{
-  --bg:#0f172a; --bg2:#1e293b; --bg3:#334155;
-  --surface:#1e293b; --border:#334155;
-  --text:#f1f5f9; --text2:#94a3b8;
-  --shadow:0 2px 8px rgba(0,0,0,.3);
+  --bg:#070d1a; --bg2:#0d1526; --bg3:#1a2540;
+  --surface:#0d1526; --border:#1e2d4a;
+  --text:#e8edf5; --text2:#6b7fa3;
+  --shadow:0 4px 20px rgba(0,0,0,.5);
+  --card-glow:0 0 0 1.5px rgba(99,102,241,.55),0 4px 20px rgba(0,0,0,.6);
 }}
 html,body{height:100%}
 body{font-family:var(--font);background:var(--bg);color:var(--text);
@@ -110,7 +111,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);
 /* HEADER */
 header{background:var(--surface);border-bottom:1px solid var(--border);
   padding:calc(var(--safe-top) + 8px) 16px 8px;
-  position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);}
+@media(prefers-color-scheme:dark){
+  header{background:rgba(7,13,26,.85);border-bottom-color:#1a2540;}
+  nav{background:rgba(7,13,26,.92);border-top-color:#1a2540;}
+  .card.has-mine{box-shadow:var(--card-glow)!important;}
+  .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px rgba(16,185,129,.2)!important;}
+  .search-wrap,.filters,.legend-bar{background:rgba(13,21,38,.9);}
+}
 .header-row{display:flex;align-items:center;gap:10px}
 .header-avatar{width:36px;height:36px;border-radius:50%;
   background:var(--p1);display:flex;align-items:center;justify-content:center;
@@ -169,21 +178,24 @@ main{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contai
   display:flex;align-items:center;justify-content:center;font-size:16px;
   flex-shrink:0;border:1.5px solid var(--border);}
 
-.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
 
 /* BUG1-FIX: definición única de .card (fusión del bloque original + modern-theme) */
-.card{background:var(--surface);border-radius:var(--radius);padding:6px;text-align:center;
-  cursor:pointer;border:2px solid transparent;border-bottom:3px solid #cbd5e1;box-shadow:var(--shadow);
-  transition:transform .15s,background .2s,border-color .2s;
+.card{
+  background:var(--surface);border-radius:10px;padding:0;text-align:center;
+  cursor:pointer;border:none;box-shadow:0 3px 12px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.1);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
   contain:layout style paint;position:relative;overflow:hidden;
-  aspect-ratio:2/2.8;display:flex;flex-direction:column;align-items:center;
-  -webkit-tap-highlight-color:transparent;user-select:none;}
-.card:active{transform:scale(.94)}
+  aspect-ratio:2/2.9;display:flex;flex-direction:column;
+  -webkit-tap-highlight-color:transparent;user-select:none;
+}
+.card:hover{transform:scale(1.06) rotate(-1deg);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.card:active{transform:scale(.93)}
 
 /* BUG1-FIX: estados activos — se usan .has-mine/.has-theirs/.has-both (asignados en JS) */
-.card.has-mine{border-bottom-color:var(--p1)!important;background:#fff!important;}
-.card.has-theirs{border-bottom-color:var(--p2)!important;background:#fff!important;}
-.card.has-both{border-bottom-color:var(--success)!important;background:#fff!important;}
+.card.has-mine{box-shadow:0 0 0 2px var(--p1),0 3px 12px rgba(0,0,0,.15)!important;}
+.card.has-theirs{box-shadow:0 0 0 2px var(--p2),0 3px 12px rgba(0,0,0,.15)!important;}
+.card.has-both{box-shadow:0 0 0 2px var(--success),0 3px 12px rgba(0,0,0,.15)!important;}
 /* thumb bg now set inline per team color */
 
 
@@ -561,6 +573,169 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   .print-card{border:1px solid #ddd;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:700;color:#111;background:#f8f8f8}
   .print-footer{margin-top:8px;border-top:1px solid #ddd;padding-top:4px;font-size:8px;color:#999;text-align:center}
 }
+
+/* ═══════════════════════════════════════════════════
+   MEGA REDESIGN — 5 IDEAS
+═══════════════════════════════════════════════════ */
+
+/* ── IDEA 1: Cromos físicos ── */
+.card-top-band{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 4px 4px;gap:2px;min-height:0;
+}
+.card-block-label{
+  font:700 7px 'Barlow Condensed','Nunito',sans-serif;
+  text-transform:uppercase;letter-spacing:1px;line-height:1;
+}
+.card-face-icon{font-size:1.6rem;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
+.card-team-name{
+  font:800 7px 'Nunito',sans-serif;
+  text-align:center;text-transform:uppercase;letter-spacing:.3px;
+  line-height:1.1;padding:0 3px;max-width:100%;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.card-bottom-num{
+  font:900 14px 'Barlow Condensed','Nunito',sans-serif;
+  letter-spacing:-.3px;line-height:1;padding:3px 0 2px;text-align:center;flex-shrink:0;
+}
+.card-color-strip{height:4px;width:100%;flex-shrink:0}
+.card-state-dot{
+  position:absolute;top:4px;right:4px;
+  width:7px;height:7px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8);
+}
+.card-state-dot.mine{background:var(--p1)}
+.card-state-dot.theirs{background:var(--p2)}
+.card-state-dot.both{background:var(--success)}
+
+/* Foil animation for Élite/Plus collected */
+@keyframes foil-sweep{
+  0%{background-position:-200% 50%}
+  100%{background-position:200% 50%}
+}
+.card-foil-anim::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(110deg,
+    transparent 20%,
+    rgba(255,255,255,.12) 35%,
+    rgba(255,255,255,.22) 50%,
+    rgba(255,255,255,.12) 65%,
+    transparent 80%);
+  background-size:200% 100%;
+  animation:foil-sweep 2.4s ease-in-out infinite;
+  pointer-events:none;border-radius:10px;
+}
+
+/* Override old .card-badge (now inside top band) */
+.card-badge{display:none}
+
+/* ── IDEA 2: Dark mode improvements (extra) ── */
+@media(prefers-color-scheme:dark){
+  .card-top-band{backdrop-filter:none}
+  .filter-btn{background:var(--bg3);border-color:var(--border)}
+  .counter-badge{background:rgba(255,255,255,.04);border:1px solid var(--border)}
+  .hud-header{background:rgba(7,13,26,.9)!important;border-bottom-color:#1a2540!important}
+}
+
+/* ── IDEA 3: Map rank number ── */
+.map-rank-num{
+  font:900 13px 'Barlow Condensed','Nunito',sans-serif;
+  min-width:20px;text-align:center;flex-shrink:0;opacity:.7;
+}
+
+/* ── IDEA 4: HUD Header ── */
+.hud-header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:calc(var(--safe-top) + 8px) 14px 0;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.hud-top{display:flex;align-items:center;gap:10px;padding-bottom:8px}
+.hud-avatar-wrap{flex-shrink:0}
+.hud-title-block{flex:1;min-width:0}
+.hud-name{font:900 16px 'Nunito',sans-serif;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-season{font:600 10px 'Nunito',sans-serif;color:var(--text2)}
+.hud-stats{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hud-stat{display:flex;flex-direction:column;align-items:center;gap:0}
+.hud-num{font:900 16px 'Barlow Condensed','Nunito',sans-serif;line-height:1}
+.hud-num.done{color:var(--success)}
+.hud-num.miss{color:var(--danger)}
+.hud-num.pct{color:var(--p1)}
+.hud-lbl{font:700 8px 'Nunito',sans-serif;text-transform:uppercase;letter-spacing:.5px;color:var(--text2)}
+.hud-divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+.hud-progress-wrap{height:3px;background:var(--bg3);margin:0 -14px}
+.hud-progress-bar{height:100%;background:linear-gradient(90deg,var(--p1),var(--accent2));transition:width .6s ease;max-width:100%}
+
+/* ── IDEA 5: Welcome screen premium ── */
+#welcomeScreen{
+  background:radial-gradient(ellipse at 20% 20%,#1a1040 0%,#0a0e1a 40%,#0f1830 70%,#0a0e1a 100%)!important;
+}
+.w-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.w-particle{
+  position:absolute;bottom:-10px;width:5px;height:5px;border-radius:50%;
+  animation:w-float 3s ease-in-out infinite alternate;
+}
+@keyframes w-float{
+  0%{transform:translateY(0) scale(1);opacity:.4}
+  100%{transform:translateY(-80px) scale(1.6);opacity:.8}
+}
+.welcome-logo-ring{
+  width:80px;height:80px;border-radius:50%;
+  background:conic-gradient(from 0deg,#6366f1,#8b5cf6,#ec4899,#f59e0b,#6366f1);
+  padding:3px;flex-shrink:0;animation:ring-spin 8s linear infinite;
+  position:relative;z-index:1;
+}
+@keyframes ring-spin{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
+.welcome-logo-inner{
+  width:100%;height:100%;border-radius:50%;
+  background:#0f1830;display:flex;align-items:center;justify-content:center;font-size:36px;
+}
+.welcome-title{
+  font:900 28px 'Nunito',sans-serif!important;
+  line-height:1.15!important;text-align:center;
+  position:relative;z-index:1;
+}
+.welcome-card{position:relative;z-index:1}
+.welcome-btn{
+  background:linear-gradient(135deg,#6366f1,#8b5cf6)!important;
+  box-shadow:0 4px 24px rgba(99,102,241,.5)!important;
+  font-size:15px!important;letter-spacing:.3px;
+}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle-row{display:flex;gap:6px;width:100%}
+.theme-btn{
+  flex:1;padding:9px 6px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--bg);
+  font:700 12px var(--font);color:var(--text2);
+  cursor:pointer;transition:all .18s;text-align:center;
+}
+.theme-btn.active{
+  background:var(--p1);color:#fff;border-color:transparent;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.theme-btn:active{transform:scale(.95)}
+
+/* ── FORCED THEME OVERRIDES ── */
+html.theme-light{
+  --bg:#f0f4f8!important;--bg2:#fff!important;--bg3:#e2e8f0!important;
+  --surface:#fff!important;--border:#e2e8f0!important;
+  --text:#0f172a!important;--text2:#64748b!important;
+  --shadow:0 2px 8px rgba(0,0,0,.08)!important;
+  color-scheme:light;
+}
+html.theme-dark{
+  --bg:#070d1a!important;--bg2:#0d1526!important;--bg3:#1a2540!important;
+  --surface:#0d1526!important;--border:#1e2d4a!important;
+  --text:#e8edf5!important;--text2:#6b7fa3!important;
+  --shadow:0 4px 20px rgba(0,0,0,.5)!important;
+  --card-glow:0 0 0 1.5px rgba(99,102,241,.55),0 4px 20px rgba(0,0,0,.6)!important;
+  color-scheme:dark;
+}
+html.theme-dark header{background:rgba(7,13,26,.9)!important;border-bottom-color:#1a2540!important}
+html.theme-dark nav{background:rgba(7,13,26,.92)!important;border-top-color:#1a2540!important}
+html.theme-dark .search-wrap,html.theme-dark .filters,html.theme-dark .legend-bar{background:rgba(13,21,38,.9)!important}
+html.theme-dark .card.has-mine{box-shadow:var(--card-glow)!important}
+html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px rgba(16,185,129,.2)!important}
 </style>
 </head>
 <body>
@@ -569,9 +744,18 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 <!--   PANTALLA DE BIENVENIDA                    -->
 <!-- ══════════════════════════════════════════ -->
 <div id="welcomeScreen">
-  <div class="welcome-logo">⚽</div>
-  <div class="welcome-title">Adrenalyn XL 25/26</div>
-  <div class="welcome-sub">¡Personaliza tu checklist!</div>
+  <div class="w-particles" aria-hidden="true">
+    <div class="w-particle" style="left:10%;background:#818cf8;animation-delay:.3s;animation-duration:3.2s"></div>
+    <div class="w-particle" style="left:25%;background:#c084fc;animation-delay:1.1s;animation-duration:2.8s"></div>
+    <div class="w-particle" style="left:45%;background:#ec4899;animation-delay:.6s;animation-duration:3.5s"></div>
+    <div class="w-particle" style="left:65%;background:#818cf8;animation-delay:1.8s;animation-duration:3s"></div>
+    <div class="w-particle" style="left:82%;background:#c084fc;animation-delay:.9s;animation-duration:2.6s"></div>
+  </div>
+  <div class="welcome-logo-ring">
+    <div class="welcome-logo-inner">⚽</div>
+  </div>
+  <div class="welcome-title">Tu álbum<br><span style="color:#818cf8">Adrenalyn XL 25/26</span></div>
+  <div class="welcome-sub">Crea tu colección personalizada</div>
 
   <div class="welcome-card">
     <!-- Nombre -->
@@ -616,7 +800,7 @@ nav{background:var(--surface);border-top:1px solid var(--border);
     </div>
 
     <button class="welcome-btn" id="welcomeBtn" disabled onclick="finishWelcome()">
-      ¡Empezar! 🚀
+      Empezar mi colección →
     </button>
   </div>
 </div>
@@ -626,21 +810,38 @@ nav{background:var(--surface);border-top:1px solid var(--border);
 <!-- ══════════════════════════════════════════ -->
 <div id="app" style="display:none">
 
-<!-- HEADER -->
-<header>
-  <div class="header-row">
-    <div class="header-avatar" id="headerAvatar">⚽</div>
-    <div class="header-title">
-      <span id="headerName">Checklist</span>
-      <span>Adrenalyn XL · La Liga 2025-26</span>
+<!-- HEADER — HUD style -->
+<header class="hud-header">
+  <div class="hud-top">
+    <div class="hud-avatar-wrap">
+      <div class="header-avatar" id="headerAvatar">⚽</div>
+    </div>
+    <div class="hud-title-block">
+      <div class="hud-name" id="headerName">Checklist</div>
+      <div class="hud-season">Adrenalyn XL · La Liga 25-26</div>
+    </div>
+    <div class="hud-stats">
+      <div class="hud-stat">
+        <span class="hud-num done" id="cDone">0</span>
+        <span class="hud-lbl">tenemos</span>
+      </div>
+      <div class="hud-divider"></div>
+      <div class="hud-stat">
+        <span class="hud-num miss" id="cMissing">0</span>
+        <span class="hud-lbl">faltan</span>
+      </div>
+      <div class="hud-divider"></div>
+      <div class="hud-stat">
+        <span class="hud-num pct" id="cPct">0%</span>
+        <span class="hud-lbl">ratio</span>
+      </div>
     </div>
   </div>
-  <div class="counters">
-    <div class="counter-badge"><span class="num" id="cTotal">0</span><span class="lbl">Total</span></div>
-    <div class="counter-badge done"><span class="num" id="cDone">0</span><span class="lbl">Tenemos</span></div>
-    <div class="counter-badge missing"><span class="num" id="cMissing">0</span><span class="lbl">Faltan</span></div>
-    <div class="counter-badge pct"><span class="num" id="cPct">0%</span><span class="lbl">Completado</span></div>
+  <div class="hud-progress-wrap">
+    <div class="hud-progress-bar" id="hudProgressBar" style="width:0%"></div>
   </div>
+  <!-- hidden for compat -->
+  <span id="cTotal" style="display:none">0</span>
 </header>
 
 <!-- SEARCH & FILTERS -->
@@ -837,6 +1038,24 @@ nav{background:var(--surface);border-top:1px solid var(--border);
       </div>
       <div class="custom-cards-list" id="customCardsList">
         <div class="custom-empty-hint">No hay cartas personalizadas aún</div>
+      </div>
+    </div>
+
+    <!-- APARIENCIA -->
+    <div class="settings-section">
+      <div class="settings-title">🎨 Apariencia</div>
+      <div class="settings-card">
+        <div class="settings-btn" style="cursor:default;flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px">
+          <div style="display:flex;align-items:center;gap:10px;width:100%">
+            <span class="icon">🌗</span>
+            <span>Tema<span class="sub">Claro, oscuro o automático</span></span>
+          </div>
+          <div class="theme-toggle-row" id="themeToggle">
+            <button class="theme-btn" data-theme="light" onclick="setTheme('light')">☀️ Claro</button>
+            <button class="theme-btn" data-theme="auto" onclick="setTheme('auto')">🌗 Auto</button>
+            <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')">🌙 Oscuro</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1742,13 +1961,25 @@ function renderGrid(containerId, cards){
       const bgTo   = teamColor + (state ? '50' : '22');
       const iconOpacity = state ? '0.55' : '0.28';
       const numOpacity  = state ? '1'    : '0.7';
-      html+=`<div class="${classNames}" data-id="${c.id}" data-block="${c.block}" onclick="toggleCard('${c.id}',event)">
-        <div class="card-thumb" style="background:linear-gradient(160deg,${bgFrom} 0%,${bgTo} 100%)">
-          <div class="thumb-icon" style="color:${teamColor};opacity:${iconOpacity};font-size:2rem;line-height:1;margin-bottom:3px">${isTeam?'⚽':specialEmoji}</div>
-          <div class="thumb-num" style="color:${teamColor};opacity:${numOpacity}">${c.label}</div>
-          <div class="thumb-strip" style="background:${blockColor(c.block)}"></div>
+      const isElite = c.block==='Élite'||c.block==='Plus';
+      const cardBg = state
+        ? `linear-gradient(175deg,${teamColor}cc 0%,${teamColor}99 40%,${teamColor}bb 100%)`
+        : `linear-gradient(175deg,${teamColor}22 0%,${teamColor}14 60%,${teamColor}1a 100%)`;
+      const topBg = state
+        ? `linear-gradient(180deg,${teamColor}ff 0%,${teamColor}cc 100%)`
+        : `linear-gradient(180deg,${teamColor}44 0%,${teamColor}22 100%)`;
+      const numColor = state ? '#fff' : teamColor;
+      const numOpStr = state ? '1' : '0.55';
+      const foilClass = isElite && state ? 'card-foil-anim' : '';
+      html+=`<div class="${classNames} ${foilClass}" data-id="${c.id}" data-block="${c.block}" onclick="toggleCard('${c.id}',event)" style="background:${cardBg}">
+        <div class="card-top-band" style="background:${topBg}">
+          <span class="card-block-label" style="color:${state?'rgba(255,255,255,.7)':'rgba(255,255,255,.5)'}">${c.block.toUpperCase()}</span>
+          <div class="card-face-icon">${isTeam?'⚽':specialEmoji}</div>
+          <div class="card-team-name" style="color:${state?'rgba(255,255,255,.95)':'rgba(255,255,255,.6)'}">${escapeHTML(g.group)}</div>
         </div>
-        <span class="card-badge">${c.block}</span>
+        <div class="card-bottom-num" style="color:${teamColor};opacity:${numOpStr}">${c.label}</div>
+        <div class="card-color-strip" style="background:${blockColor(c.block)}"></div>
+        ${state===''?'':'<div class="card-state-dot '+state+'"></div>'}
       </div>`;
     }
     html+=`</div></div>`;
@@ -1769,15 +2000,15 @@ function renderAll(){
 
 function updateCounters(){
   const total=allCards.length;
-  // "Tenemos" = lo que tiene cualquiera de los dos
   const done=allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
-  // "Faltan" = lo que no tiene ninguno
   const missing=total-done;
   const pct=total>0?Math.round(done/total*100):0;
   document.getElementById('cTotal').textContent=total;
   document.getElementById('cDone').textContent=done;
   document.getElementById('cMissing').textContent=missing;
   document.getElementById('cPct').textContent=pct+'%';
+  const bar=document.getElementById('hudProgressBar');
+  if(bar) bar.style.width=pct+'%';
 }
 
 function renderStats(){
@@ -2874,8 +3105,17 @@ function renderMap(){
     blockGroups.get(c.block).push({group:c.group, block:c.block, cards});
   }
 
+  // Sort groups by completion % descending within each block
+  for(const [block, groups] of blockGroups){
+    groups.sort((a,b)=>{
+      const pctA = a.cards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length/a.cards.length;
+      const pctB = b.cards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length/b.cards.length;
+      return pctB - pctA;
+    });
+  }
+
   let html = `<div class="map-header">
-    <div class="map-title">🗺️ Mapa de colección</div>
+    <div class="map-title">🏆 Clasificación de colección</div>
     <div class="map-legend">
       <div class="map-legend-item"><div class="map-legend-dot" style="background:var(--p1)"></div>${escapeHTML(myName)}</div>
       ${hasCompanion?`<div class="map-legend-item"><div class="map-legend-dot" style="background:var(--p2)"></div>${escapeHTML(p2name)}</div>
@@ -2883,11 +3123,14 @@ function renderMap(){
     </div>
   </div><div class="map-blocks">`;
 
+  let globalRank = 0;
+  let blockRank = 0;
   for(const [block, groups] of blockGroups){
     if(!groups.length) continue;
     html += `<div class="map-block-title">${block}</div>`;
-
+    blockRank=0;
     for(const {group, block:blk, cards} of groups){
+      globalRank++;
       const total = cards.length;
       const bothCount = cards.filter(c=>myCards.has(c.id)&&theirCards.has(c.id)).length;
       // Union: lo que tiene al menos uno de los dos
@@ -2924,17 +3167,20 @@ function renderMap(){
       let subLine = `${unionCount}/${total} conseguidos`;
       if(hasCompanion && bothCount>0) subLine += ` · ${bothCount} coinciden`;
 
+      const rankMedal = pct===100?'🥇':pct>=80?'🥈':pct>=50?'🥉':'';
+      const teamColor2 = TEAM_SHIELDS[group]?.color || '#2563eb';
       html += `<div class="map-team-card" data-group="${escapeHTML(group)}">
         <div class="map-team-inner">
+          <div class="map-rank-num" style="color:${pctColor}">${globalRank}</div>
           ${shieldHtmlStr}
           <div class="map-team-info">
-            <div class="map-team-name">${escapeHTML(group)}</div>
+            <div class="map-team-name">${escapeHTML(group)} ${rankMedal}</div>
             <div class="map-team-sub">${subLine}</div>
           </div>
           <div class="map-team-pct" style="color:${pctColor}">${pct}%</div>
         </div>
-        <div class="map-bar-wrap">
-          <div class="map-bar-mine" style="width:${onlyMinePct}%;background:var(--p1)"></div>
+        <div class="map-bar-wrap" style="height:6px">
+          <div class="map-bar-mine" style="width:${onlyMinePct}%;background:${teamColor2}"></div>
           <div class="map-bar-both" style="left:${onlyMinePct}%;width:${bothPct}%;background:var(--success)"></div>
           ${hasCompanion?`<div class="map-bar-theirs" style="left:${onlyMinePct+bothPct}%;width:${onlyTheirPct}%;background:var(--p2)"></div>`:''}
         </div>`;
@@ -3076,6 +3322,33 @@ async function init(){
   }
 }
 init();
+
+// ─────────────────────────────────────────────────────────
+//  THEME TOGGLE
+// ─────────────────────────────────────────────────────────
+(function(){
+  const STORE = 'theme_pref';
+  function applyTheme(t){
+    const root = document.documentElement;
+    root.classList.remove('theme-light','theme-dark');
+    if(t==='light') root.classList.add('theme-light');
+    else if(t==='dark') root.classList.add('theme-dark');
+    document.querySelectorAll('.theme-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.theme===t);
+    });
+  }
+  window.setTheme = function(t){
+    localStorage.setItem(STORE, t);
+    applyTheme(t);
+    showToast(t==='light'?'☀️ Modo claro':t==='dark'?'🌙 Modo oscuro':'🌗 Modo automático');
+  };
+  // Apply saved preference on load
+  const saved = localStorage.getItem(STORE) || 'auto';
+  applyTheme(saved);
+  // Mark active button once DOM is ready
+  document.addEventListener('DOMContentLoaded', ()=>applyTheme(saved));
+})();
+
 </script>
 
 </body>
