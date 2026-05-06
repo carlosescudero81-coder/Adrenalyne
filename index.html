@@ -992,6 +992,41 @@ nav{background:var(--surface);border-top:1px solid var(--border);
   </div>
 </div>
 
+<!-- MODAL EXPORTAR PDF — selector de acción -->
+<div class="modal-overlay" id="pdfModal">
+  <div class="modal">
+    <h3>📄 Exportar lista de faltantes</h3>
+    <p id="pdfModalStats" style="font:600 13px var(--font);color:var(--text2);margin-bottom:16px"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      <button class="btn" style="background:var(--success);color:#fff;display:flex;align-items:center;gap:10px;justify-content:center;padding:16px"
+              onclick="doPdfAction('print')">
+        <span style="font-size:20px">🖨️</span>
+        <span style="text-align:left"><strong>Imprimir / Guardar PDF</strong><br>
+          <span style="font:400 12px var(--font);opacity:.85">Abre el diálogo de impresión del sistema</span></span>
+      </button>
+      <button class="btn" style="background:#25D366;color:#fff;display:flex;align-items:center;gap:10px;justify-content:center;padding:16px"
+              onclick="doPdfAction('whatsapp')">
+        <span style="font-size:20px">💬</span>
+        <span style="text-align:left"><strong>Enviar por WhatsApp</strong><br>
+          <span style="font:400 12px var(--font);opacity:.85">Descarga el PDF y abre WhatsApp</span></span>
+      </button>
+      <button class="btn" style="background:#2563eb;color:#fff;display:flex;align-items:center;gap:10px;justify-content:center;padding:16px"
+              onclick="doPdfAction('email')">
+        <span style="font-size:20px">✉️</span>
+        <span style="text-align:left"><strong>Enviar por correo</strong><br>
+          <span style="font:400 12px var(--font);opacity:.85">Abre tu app de email con el asunto listo</span></span>
+      </button>
+      <button class="btn" style="background:var(--bg3);color:var(--text);display:flex;align-items:center;gap:10px;justify-content:center;padding:16px"
+              id="pdfShareBtn" onclick="doPdfAction('share')" style="display:none">
+        <span style="font-size:20px">📤</span>
+        <span style="text-align:left"><strong>Compartir…</strong><br>
+          <span style="font:400 12px var(--font);opacity:.7">Elige cualquier app instalada</span></span>
+      </button>
+    </div>
+    <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+  </div>
+</div>
+
 <!-- Overlay de Sincronización Inmediato -->
 <div id="syncOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.95); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:white; backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px);">
   <div class="spinner" style="width:60px; height:60px; border-width:5px; border-top-color:var(--accent); margin-bottom:24px;"></div>
@@ -2416,22 +2451,22 @@ function importBackup(evt){
 }
 
 // ─────────────────────────────────────────────────────────
-//  PDF
+//  PDF — modal de acciones
 // ─────────────────────────────────────────────────────────
-function exportPDF(){
-  // Use joint missing: cards neither player has
-  const missing = allCards.filter(c => !myCards.has(c.id) && !theirCards.has(c.id));
-  if(!missing.length){ showToast('🎉 ¡No falta ningún cromo!'); return; }
 
-  const date = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
-  const name = userProfile.name || 'Checklist';
+// Genera el HTML del documento de faltantes (reutilizable)
+function _buildPdfHtml(){
+  const missing = allCards.filter(c => !myCards.has(c.id) && !theirCards.has(c.id));
+  if(!missing.length) return null;
+
+  const date   = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+  const name   = userProfile.name || 'Checklist';
   const p2name = document.getElementById('p2NameInput').value || '';
   const titulo = p2name ? `${name} & ${p2name}` : name;
-  const total = allCards.length;
+  const total  = allCards.length;
   const tenemos = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
-  const pct = Math.round(tenemos/total*100);
+  const pct    = Math.round(tenemos/total*100);
 
-  // Group by block+group
   const blockColorMap = {Base:'#1d4ed8',Especiales:'#9333ea','Élite':'#d97706',Plus:'#16a34a',BIS:'#ec4899'};
   const blockTextMap  = {Base:'#fff',Especiales:'#fff','Élite':'#000',Plus:'#fff',BIS:'#fff'};
   const groups = new Map();
@@ -2447,14 +2482,15 @@ function exportPDF(){
     const fg = blockTextMap[g.block]||'#fff';
     blocksHtml += `<div class="pb">
       <div class="pbt" style="background:${bg};color:${fg}">
-        <span>${g.group}</span>
-        <span>${g.cards.length}</span>
+        <span>${g.group}</span><span>${g.cards.length}</span>
       </div>
       <div class="pbc">${g.cards.map(c=>`<span class="pc">${c.label}</span>`).join('')}</div>
     </div>`;
   }
 
-  const html = `<!DOCTYPE html><html lang="es"><head>
+  return {
+    missing, titulo, date, tenemos, total, pct,
+    html: `<!DOCTYPE html><html lang="es"><head>
 <meta charset="UTF-8">
 <title>Cromos que faltan — ${titulo}</title>
 <style>
@@ -2493,13 +2529,74 @@ function exportPDF(){
   <div class="cols">${blocksHtml}</div>
   <div class="ftr">Generado el ${date} · Adrenalyn XL La Liga 2025-26</div>
 </div>
-<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),1000)}<\/script>
-</body></html>`;
+</body></html>`
+  };
+}
 
-  const w = window.open('','_blank','width=900,height=600');
-  if(!w){ showToast('⚠️ Permite las ventanas emergentes para imprimir'); return; }
-  w.document.write(html);
-  w.document.close();
+function exportPDF(){
+  const data = _buildPdfHtml();
+  if(!data){ showToast('🎉 ¡No falta ningún cromo!'); return; }
+
+  // Actualizar stats del modal
+  document.getElementById('pdfModalStats').textContent =
+    `Faltan ${data.missing.length} cromos · Completado ${data.pct}% (${data.tenemos}/${data.total})`;
+
+  // Mostrar botón "Compartir" solo si la API Web Share está disponible
+  const shareBtn = document.getElementById('pdfShareBtn');
+  if(shareBtn) shareBtn.style.display = navigator.share ? 'flex' : 'none';
+
+  document.getElementById('pdfModal').classList.add('open');
+}
+
+async function doPdfAction(action){
+  closeModals();
+  const data = _buildPdfHtml();
+  if(!data){ showToast('🎉 ¡No falta ningún cromo!'); return; }
+
+  const name = userProfile.name || 'Checklist';
+  const dateStr = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'}).replaceAll('/','_');
+  const fileName = `faltan_${name.toLowerCase().replace(/\s+/g,'_')}_${dateStr}.html`;
+  const blob = new Blob([data.html], {type:'text/html;charset=utf-8'});
+
+  if(action === 'print'){
+    // Abre ventana emergente con diálogo de impresión
+    const w = window.open('','_blank','width=900,height=650');
+    if(!w){ showToast('⚠️ Permite las ventanas emergentes para imprimir'); return; }
+    w.document.write(data.html.replace('</body>', '<script>window.onload=()=>{window.print();}<\/script></body>'));
+    w.document.close();
+    return;
+  }
+
+  if(action === 'share' && navigator.share){
+    try{
+      const file = new File([blob], fileName, {type:'text/html'});
+      // Intentar compartir con archivo; si el dispositivo no lo soporta, fallback a texto
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'Cromos que faltan', text:`Faltan ${data.missing.length} cromos — ${data.titulo}`});
+      } else {
+        await navigator.share({title:'Cromos que faltan', text:`Faltan ${data.missing.length} cromos — ${data.titulo}\n\nUsa la app para ver el detalle completo.`});
+      }
+    }catch(e){ if(e.name!=='AbortError') showToast('⚠️ No se pudo compartir'); }
+    return;
+  }
+
+  // Para WhatsApp y email: descargar el archivo primero y luego abrir la app
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  if(action === 'whatsapp'){
+    const msg = `⚽ *${name} — Adrenalyn XL 25/26*\n\n📄 Te mando la lista de los *${data.missing.length} cromos que nos faltan*.\n\n💡 Abre el archivo .html en el navegador para verlo bien formateado.\n\n_${data.date}_`;
+    setTimeout(()=> window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'), 400);
+    showToast('📥 Archivo descargado · Abriendo WhatsApp…');
+  } else if(action === 'email'){
+    const subject = encodeURIComponent(`Cromos que faltan — ${data.titulo}`);
+    const body    = encodeURIComponent(`Hola,\n\nTe mando la lista de los ${data.missing.length} cromos que nos faltan de Adrenalyn XL 25/26.\n\nAbre el archivo adjunto (.html) en el navegador para verlo.\n\nFaltan: ${data.missing.length} · Completado: ${data.pct}%\n\n${data.date}`);
+    setTimeout(()=> window.location.href = `mailto:?subject=${subject}&body=${body}`, 400);
+    showToast('📥 Archivo descargado · Abriendo correo…');
+  }
 }
 
 function shareText(){
