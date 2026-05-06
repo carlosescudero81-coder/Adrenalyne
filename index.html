@@ -2775,8 +2775,7 @@ function _buildPdfHtml(){
   const tenemos = allCards.filter(c=>myCards.has(c.id)||theirCards.has(c.id)).length;
   const pct    = Math.round(tenemos/total*100);
 
-  const blockColorMap = {Base:'#1d4ed8',Especiales:'#9333ea','Élite':'#d97706',Plus:'#16a34a',BIS:'#ec4899'};
-  const blockTextMap  = {Base:'#fff',Especiales:'#fff','Élite':'#000',Plus:'#fff',BIS:'#fff'};
+  const blockColorMap = {Base:'#2563eb',Especiales:'#9333ea','Élite':'#d97706',Plus:'#16a34a',BIS:'#ec4899'};
   const groups = new Map();
   for(const c of missing){
     const key = c.block+'|'+c.group;
@@ -2786,15 +2785,22 @@ function _buildPdfHtml(){
 
   let blocksHtml = '';
   for(const [,g] of groups){
-    const bg = blockColorMap[g.block]||'#333';
-    const fg = blockTextMap[g.block]||'#fff';
+    const borderCol = blockColorMap[g.block]||'#374151';
     blocksHtml += `<div class="pb">
-      <div class="pbt" style="background:${bg};color:${fg}">
-        <span>${g.group}</span><span>${g.cards.length}</span>
+      <div class="pbt" style="border-left-color:${borderCol}">
+        <span>${g.group}</span><span class="pbt-count">${g.cards.length}</span>
       </div>
       <div class="pbc">${g.cards.map(c=>`<span class="pc">${c.label}</span>`).join('')}</div>
     </div>`;
   }
+
+  // Barra de progreso SVG (sin color de fondo, solo borde + relleno fino)
+  const barW = 320;
+  const barFill = Math.round(barW * tenemos / total);
+  const progressSvg = `<svg width="${barW}" height="8" viewBox="0 0 ${barW} 8" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="${barW}" height="8" rx="4" fill="none" stroke="#d1d5db" stroke-width="1"/>
+    <rect x="0" y="0" width="${barFill}" height="8" rx="4" fill="#2563eb"/>
+  </svg>`;
 
   return {
     missing, titulo, date, tenemos, total, pct,
@@ -2802,40 +2808,92 @@ function _buildPdfHtml(){
 <meta charset="UTF-8">
 <title>Cromos que faltan — ${titulo}</title>
 <style>
-  @page{size:A5 landscape;margin:9mm 11mm}
+  @page{size:A5 landscape;margin:8mm 10mm}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#000;font-size:9px}
+  body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111;font-size:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .page{width:100%}
-  .hdr{display:flex;align-items:flex-end;justify-content:space-between;
-    border-bottom:2.5px solid #1d4ed8;padding-bottom:5px;margin-bottom:8px}
-  .hdr-l h1{font-size:14px;font-weight:900;color:#1d4ed8;margin-bottom:2px}
-  .hdr-l p{font-size:8px;color:#666;margin-top:1px}
-  .hdr-r{text-align:right;font-size:8px;color:#666}
-  .hdr-r .big{font-size:20px;font-weight:900;color:#dc2626;display:block;line-height:1}
-  .hdr-r .lbl{font-size:8px;color:#888}
-  .cols{column-count:3;column-gap:7mm}
-  .pb{break-inside:avoid;margin-bottom:7px}
-  .pbt{font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;
-    padding:2px 5px;border-radius:2px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
-  .pbc{display:flex;flex-wrap:wrap;gap:2px}
-  .pc{border:1px solid #ddd;border-radius:2px;padding:1px 3px;font-size:7.5px;font-weight:700;background:#f7f7f7;color:#222}
-  .ftr{margin-top:10px;border-top:1px solid #eee;padding-top:4px;font-size:7px;color:#aaa;text-align:center}
+
+  /* ── CABECERA ── */
+  .hdr{display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:6px;margin-bottom:7px;border-bottom:1.5px solid #111}
+  .hdr-logo{font-size:22px;margin-right:6px;line-height:1}
+  .hdr-left{display:flex;align-items:center;gap:4px}
+  .hdr-title{font-size:13px;font-weight:900;color:#111;letter-spacing:-.3px}
+  .hdr-sub{font-size:7px;color:#666;margin-top:2px}
+  .hdr-right{text-align:right}
+  .hdr-num{font-size:28px;font-weight:900;color:#111;line-height:1;display:block}
+  .hdr-num-lbl{font-size:6.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#666}
+
+  /* ── STATS ROW ── */
+  .stats{display:flex;gap:0;margin-bottom:7px;border:1px solid #e5e7eb;border-radius:4px;overflow:hidden}
+  .stat{flex:1;padding:3px 6px;text-align:center;border-right:1px solid #e5e7eb}
+  .stat:last-child{border-right:none}
+  .stat-val{font-size:11px;font-weight:900;color:#111;display:block;line-height:1.2}
+  .stat-lbl{font-size:6px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px}
+  .stat.accent .stat-val{color:#2563eb}
+  .stat.danger .stat-val{color:#dc2626}
+  .stat.success .stat-val{color:#16a34a}
+
+  /* ── PROGRESO ── */
+  .progress-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .progress-label{font-size:6.5px;color:#6b7280;white-space:nowrap}
+  .progress-pct{font-size:6.5px;font-weight:700;color:#2563eb;white-space:nowrap}
+
+  /* ── COLUMNAS / BLOQUES ── */
+  .cols{column-count:3;column-gap:6mm}
+  .pb{break-inside:avoid;margin-bottom:6px}
+  .pbt{font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+    padding:2px 5px 2px 4px;margin-bottom:2.5px;
+    display:flex;justify-content:space-between;align-items:center;
+    border-left:3px solid #111;background:#f9fafb;color:#111}
+  .pbt-count{font-size:8px;font-weight:900;color:#dc2626}
+  .pbc{display:flex;flex-wrap:wrap;gap:2px;padding:0 1px}
+  .pc{border:1px solid #d1d5db;border-radius:3px;padding:1.5px 4px;
+    font-size:7.5px;font-weight:700;color:#111;background:#fff;line-height:1.3}
+
+  /* ── PIE ── */
+  .ftr{margin-top:8px;padding-top:5px;border-top:1px solid #e5e7eb;
+    display:flex;justify-content:space-between;align-items:center}
+  .ftr-left{font-size:6.5px;color:#9ca3af}
+  .ftr-right{font-size:6.5px;color:#9ca3af}
 </style>
 </head><body>
 <div class="page">
+
   <div class="hdr">
-    <div class="hdr-l">
-      <h1>⚽ Adrenalyn XL 25/26 — Faltan</h1>
-      <p>${titulo} · ${date}</p>
-      <p>Tenemos ${tenemos}/${total} (${pct}%) · Faltan <strong style="color:#dc2626">${missing.length}</strong> cromos</p>
+    <div class="hdr-left">
+      <span class="hdr-logo">⚽</span>
+      <div>
+        <div class="hdr-title">Adrenalyn XL 25/26 — Cromos que faltan</div>
+        <div class="hdr-sub">${titulo} &nbsp;·&nbsp; ${date}</div>
+      </div>
     </div>
-    <div class="hdr-r">
-      <span class="big">${missing.length}</span>
-      <span class="lbl">faltan</span>
+    <div class="hdr-right">
+      <span class="hdr-num">${missing.length}</span>
+      <span class="hdr-num-lbl">cromos pendientes</span>
     </div>
   </div>
+
+  <div class="stats">
+    <div class="stat accent"><span class="stat-val">${total}</span><span class="stat-lbl">Total colección</span></div>
+    <div class="stat success"><span class="stat-val">${tenemos}</span><span class="stat-lbl">Tenemos</span></div>
+    <div class="stat danger"><span class="stat-val">${missing.length}</span><span class="stat-lbl">Faltan</span></div>
+    <div class="stat"><span class="stat-val">${pct}%</span><span class="stat-lbl">Completado</span></div>
+  </div>
+
+  <div class="progress-row">
+    <span class="progress-label">Progreso</span>
+    ${progressSvg}
+    <span class="progress-pct">${pct}%</span>
+  </div>
+
   <div class="cols">${blocksHtml}</div>
-  <div class="ftr">Generado el ${date} · Adrenalyn XL La Liga 2025-26</div>
+
+  <div class="ftr">
+    <span class="ftr-left">Adrenalyn XL La Liga 2025-26</span>
+    <span class="ftr-right">Generado el ${date}</span>
+  </div>
+
 </div>
 </body></html>`
   };
