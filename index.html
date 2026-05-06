@@ -1430,10 +1430,8 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
   if('serviceWorker' in navigator){
     const swCode = `
       const CACHE = "${CACHE}";
-      const PAGE = "${PAGE}";
       
       self.addEventListener('install', e => {
-        e.waitUntil(caches.open(CACHE).then(c => c.addAll([PAGE, "./"])));
         self.skipWaiting();
       });
       
@@ -1447,63 +1445,39 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
       self.addEventListener('fetch', e => {
         const url = new URL(e.request.url);
         
-        // Estrategia: Stale-While-Revalidate para la página principal y assets locales
+        // ESTRATEGIA: NETWORK-FIRST para la página principal y archivos locales
         if(e.request.mode === 'navigate' || url.origin === self.location.origin){
           e.respondWith(
-            caches.open(CACHE).then(cache => {
-              return cache.match(e.request).then(cached => {
-                const fetched = fetch(e.request).then(res => {
-                  if(res.status === 200) cache.put(e.request, res.clone());
-                  return res;
-                }).catch(() => null);
-                return cached || fetched;
-              });
-            })
-          );
-        } else {
-          // Estrategia: Cache-First para imágenes externas (escudos) y otros recursos
-          e.respondWith(
-            caches.match(e.request).then(cached => {
-              if(cached) return cached;
-              return fetch(e.request).then(res => {
-                // Solo cachear peticiones exitosas (200 o opaque/cors)
-                if(!res || (res.status !== 200 && res.type !== 'opaque')) return res;
+            fetch(e.request).then(res => {
+              if(res && res.status === 200){
                 const clone = res.clone();
-                caches.open(CACHE).then(cache => cache.put(e.request, clone));
-                return res;
-              }).catch(() => null);
-            })
+                caches.open(CACHE).then(c => c.put(e.request, clone));
+              }
+              return res;
+            }).catch(() => caches.match(e.request))
           );
+          return;
         }
-      });
 
-      // BUG13-FIX: escuchar SKIP_WAITING para que applyUpdate() funcione
-      // cuando hay un SW en espera. Sin este listener, postMessage({type:'SKIP_WAITING'})
-      // se ignoraba y el botón "Actualizar" no hacía nada.
-      self.addEventListener('message', e => {
-        if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+        // Cache-First para el resto (imágenes, escudos, etc)
+        e.respondWith(
+          caches.match(e.request).then(cached => {
+            return cached || fetch(e.request).then(res => {
+              if(res && (res.status === 200 || res.type === 'opaque')){
+                const clone = res.clone();
+                caches.open(CACHE).then(c => c.put(e.request, clone));
+              }
+              return res;
+            }).catch(() => null);
+          })
+        );
       });
     `;
-    // Nota: el blob URL no se revoca (window._swBlobUrl guarda la referencia)
-    // para que Firefox y Safari puedan releer el script si el SW se reactiva tras recarga.
-    try{
-      const b=new Blob([swCode],{type:'text/javascript'});
-      const swUrl=URL.createObjectURL(b);
-      window._swBlobUrl=swUrl;
-      navigator.serviceWorker.register(swUrl,{scope:'./'})
-        .then(reg=>{
-          reg.update();
-          // Revocar el blob URL una vez que el SW está registrado y activo
-          navigator.serviceWorker.ready.then(()=>{
-            if(window._swBlobUrl){ URL.revokeObjectURL(window._swBlobUrl); window._swBlobUrl=null; }
-          });
-          navigator.serviceWorker.addEventListener('message',ev=>{
-            if(ev.data&&ev.data.type==='NEW_VERSION'){
-              showUpdateBanner(ev.data.version);
-            }
-          });
-        }).catch(()=>{});
-    }catch(e){}
+    const b = new Blob([swCode], {type: 'application/javascript'});
+    const u = URL.createObjectURL(b);
+    navigator.serviceWorker.register(u).then(reg => {
+      reg.update();
+    }).catch(() => {});
   }
 })();
 
