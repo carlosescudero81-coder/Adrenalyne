@@ -293,9 +293,27 @@ main{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contai
   padding:8px 12px;font:600 14px var(--font);color:var(--text);background:var(--bg);outline:none;}
 .name-input:focus{border-color:var(--accent)}
 
-/* BOTTOM NAV */
+/* HISTORIAL */
+.history-day{margin-bottom:16px}
+.history-day-hdr{display:flex;align-items:center;gap:8px;padding:6px 4px 8px;
+  font:800 12px var(--font);color:var(--text2);text-transform:uppercase;letter-spacing:.6px;
+  border-bottom:1px solid var(--border);margin-bottom:8px}
+.history-day-hdr .hd-count{margin-left:auto;font:600 11px var(--font);color:var(--text2)}
+.history-day-hdr .hd-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.history-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 2px}
+.history-chip{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;
+  background:var(--surface);border:1px solid var(--border);font:700 12px var(--font);color:var(--text)}
+.history-chip.removed{opacity:.5;text-decoration:line-through;color:var(--text2)}
+.history-chip .hc-num{font:900 13px var(--font)}
+.history-chip .hc-block{font:600 9px var(--font);color:var(--text2);text-transform:uppercase}
+.history-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;gap:12px;color:var(--text2);text-align:center}
+.history-empty .emoji{font-size:48px}
+.history-empty h3{font:800 16px var(--font);color:var(--text)}
+.history-empty p{font:400 13px var(--font)}
+
 nav{background:var(--surface);border-top:1px solid var(--border);
-  display:grid;grid-template-columns:repeat(5,1fr);
+  display:grid;grid-template-columns:repeat(6,1fr);
   padding-bottom:calc(var(--safe-bottom) + 2px);backdrop-filter:blur(10px);}
 .nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;padding:8px 4px;border:none;background:none;cursor:pointer;
@@ -916,6 +934,9 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
   <div class="tab-panel" id="panel-map">
     <div id="mapContent"></div>
   </div>
+  <div class="tab-panel" id="panel-history">
+    <div id="historyContent"></div>
+  </div>
   <div class="tab-panel" id="panel-settings">
 
     <!-- MI PERFIL -->
@@ -1126,6 +1147,10 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
   <button class="nav-btn" data-tab="map">
     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
     Mapa
+  </button>
+  <button class="nav-btn" data-tab="history">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Historial
   </button>
   <button class="nav-btn" data-tab="settings">
     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1673,6 +1698,7 @@ let userProfile = {
 
 const STORE_PROFILE  = 'checklist_v3_profile';
 const STORE_KEY      = 'checklist_v3_mine';
+const LOG_KEY        = 'checklist_v3_log';   // historial de eventos con fecha
 const STORE_THEIR    = 'checklist_v3_theirs';
 const STORE_P2NAME   = 'checklist_v3_p2name';
 const STORE_CUSTOM   = 'checklist_v3_custom';
@@ -1680,6 +1706,7 @@ const DB_NAME        = 'ChecklistV3';
 const DB_STORE       = 'data';
 
 let myCards      = new Set();
+let cardLog      = []; // [{id, ts, action:'add'|'remove'}]
 let theirCards   = new Set();
 let customCards  = []; // [{id, label, block, group}]
 let historyStack = [];
@@ -1733,6 +1760,7 @@ async function saveAll(){
   await dbSet(STORE_KEY,    JSON.stringify([...myCards]));
   await dbSet(STORE_THEIR,  JSON.stringify([...theirCards]));
   await dbSet(STORE_CUSTOM, JSON.stringify(customCards));
+  await dbSet(LOG_KEY,      JSON.stringify(cardLog));
 }
 
 async function saveProfile(){
@@ -1749,6 +1777,8 @@ async function loadAll(){
   const custom = await dbGet(STORE_CUSTOM);
   if(mine)   myCards    = new Set(JSON.parse(mine));
   if(their)  theirCards = new Set(JSON.parse(their));
+  const log = await dbGet(LOG_KEY);
+  if(log){ try{ cardLog = JSON.parse(log); }catch(e){ cardLog=[]; } }
   if(custom){
     try{
       customCards = JSON.parse(custom);
@@ -2145,6 +2175,9 @@ function toggleCard(id, evt){
   if(historyStack.length>HISTORY_LIMIT) historyStack.shift();
   if(wasMine) myCards.delete(id);
   else myCards.add(id);
+  // Registrar en log de historial
+  cardLog.push({id, ts: Date.now(), action: wasMine ? 'remove' : 'add'});
+  if(cardLog.length > 2000) cardLog.splice(0, cardLog.length - 2000);
   saveAll();
 
   // Actualización quirúrgica
@@ -2946,22 +2979,43 @@ async function doPdfAction(action){
     return;
   }
 
-  // Para WhatsApp y email: descargar el archivo primero y luego abrir la app
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = fileName;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
   if(action === 'whatsapp'){
-    const msg = `⚽ *${name} — Adrenalyn XL 25/26*\n\n📄 Te mando la lista de los *${data.missing.length} cromos que nos faltan*.\n\n💡 Abre el archivo .html en el navegador para verlo bien formateado.\n\n_${data.date}_`;
-    setTimeout(()=> window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'), 400);
-    showToast('📥 Archivo descargado · Abriendo WhatsApp…');
+    const waGroups = new Map();
+    for(const c of data.missing){
+      const key=c.block+'|'+c.group;
+      if(!waGroups.has(key)) waGroups.set(key,{block:c.block,group:c.group,cards:[]});
+      waGroups.get(key).cards.push(c);
+    }
+    let msg=`⚽ *${data.titulo} — Adrenalyn XL 25/26*\n`;
+    msg+=`📊 Tenemos ${data.tenemos}/${data.total} (${data.pct}%) · Faltan *${data.missing.length}*\n\n`;
+    for(const [,g] of waGroups){
+      msg+=`📌 *${g.group}* (${g.block}) — ${g.cards.length}\n`;
+      msg+=g.cards.map(c=>c.label).join(', ')+'\n\n';
+    }
+    msg+=`_${data.date}_`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    showToast('📤 Abriendo WhatsApp…');
+
   } else if(action === 'email'){
-    const subject = encodeURIComponent(`Cromos que faltan — ${data.titulo}`);
-    const body    = encodeURIComponent(`Hola,\n\nTe mando la lista de los ${data.missing.length} cromos que nos faltan de Adrenalyn XL 25/26.\n\nAbre el archivo adjunto (.html) en el navegador para verlo.\n\nFaltan: ${data.missing.length} · Completado: ${data.pct}%\n\n${data.date}`);
-    setTimeout(()=> window.location.href = `mailto:?subject=${subject}&body=${body}`, 400);
-    showToast('📥 Archivo descargado · Abriendo correo…');
+    const emGroups = new Map();
+    for(const c of data.missing){
+      const key=c.block+'|'+c.group;
+      if(!emGroups.has(key)) emGroups.set(key,{block:c.block,group:c.group,cards:[]});
+      emGroups.get(key).cards.push(c);
+    }
+    let body=`Hola,\n\nTe mando la lista de los ${data.missing.length} cromos que nos faltan de Adrenalyn XL 25/26.\n\n`;
+    body+=`Tenemos: ${data.tenemos}/${data.total} (${data.pct}% completado)\n`;
+    body+=`Faltan: ${data.missing.length} cromos\n`;
+    body+=`Fecha: ${data.date}\n`;
+    body+=`${'─'.repeat(40)}\n\n`;
+    for(const [,g] of emGroups){
+      body+=`[ ${g.group.toUpperCase()} — ${g.block} ] (${g.cards.length})\n`;
+      body+=g.cards.map(c=>c.label).join('  ')+'\n\n';
+    }
+    body+=`${'─'.repeat(40)}\nGenerado con Checklist Adrenalyn XL 25/26`;
+    const subject=encodeURIComponent(`⚽ Cromos que faltan — ${data.titulo}`);
+    window.location.href=`mailto:?subject=${subject}&body=${encodeURIComponent(body)}`;
+    showToast('📧 Abriendo correo…');
   }
 }
 
@@ -3374,6 +3428,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     document.getElementById('bulkFab').style.display=showFab?'flex':'none';
     if(tab==='stats') renderStats();
     if(tab==='map') renderMap();
+    if(tab==='history') renderHistory();
     if(tab==='settings'){ renderCustomCardsList(); renderBisCardsList(); }
   });
 });
@@ -3458,7 +3513,86 @@ async function init(){
     processSyncFromURL();
   }
 }
-init();
+// ─────────────────────────────────────────────────────────
+//  HISTORIAL
+// ─────────────────────────────────────────────────────────
+function renderHistory(){
+  const el = document.getElementById('historyContent');
+  if(!el) return;
+
+  // Solo entradas 'add' con fecha real (descartar removes para el historial de adquisición)
+  const entries = cardLog.filter(e => e.action === 'add');
+
+  if(!entries.length){
+    el.innerHTML = `<div class="history-empty">
+      <span class="emoji">📅</span>
+      <h3>Sin historial aún</h3>
+      <p>Cada cromo que marques quedará registrado aquí con su fecha.</p>
+    </div>`;
+    return;
+  }
+
+  // Mapa de id → info de carta
+  const cardMap = new Map(allCards.map(c => [c.id, c]));
+
+  // Agrupar por día (más reciente primero)
+  const byDay = new Map();
+  for(const e of entries){
+    const d = new Date(e.ts);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key).push(e);
+  }
+  const sortedDays = [...byDay.keys()].sort((a,b) => b.localeCompare(a));
+
+  const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  let html = '';
+  for(const dayKey of sortedDays){
+    const dayEntries = byDay.get(dayKey);
+    const [y,m,d] = dayKey.split('-').map(Number);
+    const dateObj = new Date(y, m-1, d);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+    dateObj.setHours(0,0,0,0);
+
+    let dayLabel;
+    if(dateObj.getTime() === today.getTime()) dayLabel = 'Hoy';
+    else if(dateObj.getTime() === yesterday.getTime()) dayLabel = 'Ayer';
+    else dayLabel = `${dayNames[dateObj.getDay()]} ${d} de ${monthNames[m-1]} de ${y}`;
+
+    // Contar sólo los que siguen en myCards (no desmarcados después)
+    const stillHave = dayEntries.filter(e => myCards.has(e.id));
+
+    html += `<div class="history-day">
+      <div class="history-day-hdr">
+        <div class="hd-dot"></div>
+        <span>${dayLabel}</span>
+        <span class="hd-count">+${dayEntries.length} cromo${dayEntries.length!==1?'s':''}</span>
+      </div>
+      <div class="history-chips">`;
+
+    // Mostrar más recientes primero dentro del día
+    const sorted = [...dayEntries].sort((a,b) => b.ts - a.ts);
+    for(const e of sorted){
+      const card = cardMap.get(e.id);
+      const still = myCards.has(e.id);
+      const label = card ? card.label : e.id;
+      const block = card ? card.block : '';
+      const displayNum = e.id.endsWith('bis') ? e.id : String(parseInt(e.id,10));
+      html += `<div class="history-chip${still?'':' removed'}" title="${still?'':'Desmarcado después'}">
+        <span class="hc-num">${escapeHTML(label)}</span>
+        ${block ? `<span class="hc-block">${escapeHTML(block)}</span>` : ''}
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+
 
 // ─────────────────────────────────────────────────────────
 //  BULK INPUT (entrada rápida por número)
@@ -3556,6 +3690,10 @@ function confirmBulkInput(){
   historyStack.push({bulkIds: validInCatalog, was: false});
   if(historyStack.length>HISTORY_LIMIT) historyStack.splice(0,historyStack.length-HISTORY_LIMIT);
   for(const id of validInCatalog) myCards.add(id);
+  // Registrar en log
+  const bulkTs = Date.now();
+  for(const id of validInCatalog) cardLog.push({id, ts: bulkTs, action:'add'});
+  if(cardLog.length > 2000) cardLog.splice(0, cardLog.length - 2000);
   saveAll(); renderAll();
   document.getElementById('bulkModalOverlay').classList.remove('open');
   showToast(`✅ ${validInCatalog.length} cromo${validInCatalog.length!==1?'s':''} marcado${validInCatalog.length!==1?'s':''}`);
