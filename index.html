@@ -304,6 +304,8 @@ main{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contai
 .history-chip{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;
   background:var(--surface);border:1px solid var(--border);font:700 12px var(--font);color:var(--text)}
 .history-chip.removed{opacity:.5;text-decoration:line-through;color:var(--text2)}
+.history-chip.from-companion{background:rgba(249,115,22,.08);border-color:rgba(249,115,22,.35)}
+.history-chip.from-companion .hc-who{font:600 8px var(--font);color:var(--p2);text-transform:uppercase;letter-spacing:.4px;display:block;line-height:1}
 .history-chip .hc-num{font:900 13px var(--font)}
 .history-chip .hc-block{font:600 9px var(--font);color:var(--text2);text-transform:uppercase}
 .history-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -311,6 +313,16 @@ main{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contai
 .history-empty .emoji{font-size:48px}
 .history-empty h3{font:800 16px var(--font);color:var(--text)}
 .history-empty p{font:400 13px var(--font)}
+
+/* MODAL PREVISUALIZACIÓN SYNC */
+.sync-preview-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sync-stat-box{background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;border:1.5px solid var(--border)}
+.sync-stat-box .ssb-num{font:900 22px var(--font);display:block;line-height:1}
+.sync-stat-box .ssb-lbl{font:600 10px var(--font);color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.sync-stat-box.new .ssb-num{color:var(--success)}
+.sync-stat-box.removed .ssb-num{color:var(--danger)}
+.sync-stat-box.total .ssb-num{color:var(--p2)}
+.sync-stat-box.same .ssb-num{color:var(--text2)}
 
 nav{background:var(--surface);border-top:1px solid var(--border);
   display:grid;grid-template-columns:repeat(6,1fr);
@@ -1007,6 +1019,10 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
           <span>Importar JSON (alternativa)<span class="sub">Si el enlace falla, importa el archivo</span></span>
         </button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importCompanion(event)">
+        <div class="settings-btn" style="cursor:default" id="lastSyncStatus">
+          <span class="icon">🕐</span>
+          <span>Última sincronización<span class="sub" id="lastSyncLabel">Sin sincronizar todavía</span></span>
+        </div>
         <button class="settings-btn danger" onclick="clearCompanion()">
           <span class="icon">🗑️</span>
           <span>Borrar datos del compañero<span class="sub">Elimina el checklist importado</span></span>
@@ -1230,16 +1246,16 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
   <div class="modal">
     <h3 id="shareModal-title">📲 Enviar mi checklist</h3>
     <div class="share-modal-body">
-      <div class="share-info">
+      <div class="share-info" id="shareModeInfo">
         <strong>✨ Enlace mágico — súper sencillo</strong><br>
-        Se generará un enlace especial y se enviará por WhatsApp. Tu compañero solo tiene que <strong>pulsar el enlace</strong> y la app se abre directamente y suma tus cromos. ¡Sin descargar archivos, sin importar nada!
+        Se generará un enlace especial y se enviará por WhatsApp. Tu compañero solo tiene que <strong>pulsar el enlace</strong> y la app se abre directamente y sincroniza tus cromos.
       </div>
       <p style="font:600 14px var(--font);color:var(--text2)" id="shareStats"></p>
     </div>
     <br>
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-p2" onclick="doShare()">🔗 Enviar enlace mágico</button>
+      <button class="btn btn-p2" id="shareBtn" onclick="doShare()">🔗 Enviar enlace mágico</button>
     </div>
   </div>
 </div>
@@ -1254,11 +1270,11 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
     </div>
     <p style="font:400 13px var(--font);color:var(--text2);margin-bottom:16px" id="importInfo"></p>
     <div class="share-info" style="margin-bottom:16px;font:600 12px var(--font);color:var(--text2);background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;line-height:1.5">
-      ✅ <strong style="color:var(--success)">Modo fusión:</strong> Se suman los cromos nuevos sin borrar los anteriores.
+      🔄 <strong style="color:var(--accent)">Sincronización completa:</strong> Los cromos del compañero se reemplazarán por los de este archivo. Los tuyos propios no se tocan.
     </div>
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
-      <button class="btn btn-p2" onclick="confirmImport()">➕ Sumar al checklist</button>
+      <button class="btn btn-p2" onclick="confirmImport()">🔄 Sincronizar checklist</button>
     </div>
   </div>
 </div>
@@ -1295,6 +1311,43 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
       </button>
     </div>
     <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL PREVISUALIZACIÓN SYNC (enlace mágico) -->
+<div class="modal-overlay" id="syncPreviewModal" role="dialog" aria-modal="true" aria-labelledby="syncPreviewTitle">
+  <div class="modal">
+    <h3 id="syncPreviewTitle">🔄 Sincronización recibida</h3>
+    <div id="syncPreviewFrom" style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div id="syncPreviewAvatar" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"></div>
+      <div>
+        <div id="syncPreviewName" style="font:800 15px var(--font);color:var(--text)"></div>
+        <div id="syncPreviewDate" style="font:600 11px var(--font);color:var(--text2)"></div>
+      </div>
+    </div>
+    <div class="sync-preview-stats">
+      <div class="sync-stat-box new">
+        <span class="ssb-num" id="syncPreviewNew">0</span>
+        <span class="ssb-lbl">Cromos nuevos</span>
+      </div>
+      <div class="sync-stat-box removed">
+        <span class="ssb-num" id="syncPreviewRemoved">0</span>
+        <span class="ssb-lbl">Se desmarcan</span>
+      </div>
+      <div class="sync-stat-box total">
+        <span class="ssb-num" id="syncPreviewTotal">0</span>
+        <span class="ssb-lbl">Total de él/ella</span>
+      </div>
+      <div class="sync-stat-box same">
+        <span class="ssb-num" id="syncPreviewSame">0</span>
+        <span class="ssb-lbl">Sin cambios</span>
+      </div>
+    </div>
+    <div id="syncPreviewInfo" style="font:400 12px var(--font);color:var(--text2);background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:16px;line-height:1.5"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="cancelSyncPreview()">Cancelar</button>
+      <button class="btn btn-p2" id="syncPreviewConfirmBtn" onclick="confirmSyncPreview()">✅ Aplicar sincronización</button>
+    </div>
   </div>
 </div>
 
@@ -1372,8 +1425,6 @@ html.theme-dark .card.has-both{box-shadow:0 0 0 1.5px var(--success),0 4px 20px 
     const lastVer = localStorage.getItem('app_v_sync');
     // Si la versión guardada es distinta a la actual, LIMPIEZA TOTAL
     if (lastVer && lastVer !== APP_VERSION) {
-      console.warn("ACTUALIZACIÓN CRÍTICA: Forzando limpieza de caché...");
-      
       // 1. Desregistrar Service Workers
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(regs => {
@@ -2230,8 +2281,21 @@ function undo(){
 function openShareModal(){
   const link = buildMagicLink();
   const linkLen = link ? link.length : 0;
-  document.getElementById('shareStats').textContent =
-    `Tienes ${myCards.size} cromos · 🔗 Enlace listo (${linkLen} caracteres)`;
+  const isFallback = !link || linkLen > 3800;
+
+  if(isFallback){
+    document.getElementById('shareStats').textContent =
+      `Tienes ${myCards.size} cromos · ⚠️ Lista muy grande — se enviará como archivo JSON`;
+    document.getElementById('shareModeInfo').innerHTML =
+      `<strong>📎 Modo archivo JSON</strong><br>Tu lista tiene demasiados datos para un enlace. Se descargará un archivo <strong>.json</strong> que tu compañero deberá importar desde Ajustes → "Importar JSON".`;
+    document.getElementById('shareBtn').textContent = '📎 Enviar como archivo';
+  } else {
+    document.getElementById('shareStats').textContent =
+      `Tienes ${myCards.size} cromos · 🔗 Enlace listo (${linkLen} caracteres)`;
+    document.getElementById('shareModeInfo').innerHTML =
+      `<strong>✨ Enlace mágico — súper sencillo</strong><br>Se generará un enlace especial y se enviará por WhatsApp. Tu compañero solo tiene que <strong>pulsar el enlace</strong> y la app se abre directamente y sincroniza tus cromos.`;
+    document.getElementById('shareBtn').textContent = '🔗 Enviar enlace mágico';
+  }
   document.getElementById('shareModal').classList.add('open');
 }
 
@@ -2286,7 +2350,10 @@ function decodeSyncData(encoded){
         emoji: data[3],
         color: data[4],
         ids: data[5],
-        cc: (data[6]||[]).map(c => ({id:c[0], label:c[1], block:c[2], group:c[3], collected:!!c[4]}))
+        cc: (data[6]||[]).map(c => ({id:c[0], label:c[1], block:c[2], group:c[3], collected:!!c[4]})),
+        ts: data[7] || null,
+        // log compacto: array de [id, ts] → expandir a formato {id, ts, action:'add'}
+        log: (data[8]||[]).map(e => Array.isArray(e) ? {id:e[0], ts:e[1], action:'add'} : e)
       };
     }
     return data;
@@ -2351,13 +2418,19 @@ function decompressIds(compressedStr){
 
 function buildMagicLink(){
   const name = userProfile.name || 'Jugador';
-  // Las cartas personalizadas conseguidas (myCards ∩ custom) no caben en el bitfield,
-  // así que se marcan con un flag 'collected:true' dentro del array de customCards
   const ccPayload = customCards.map(c => {
     const entry = [c.id, c.label, c.block, c.group||''];
-    if(myCards.has(c.id)) entry.push(1); // índice 4: está conseguida
+    if(myCards.has(c.id)) entry.push(1);
     return entry;
   });
+  // Log compacto: solo entradas 'add' propias (sin from) de los últimos 90 días, máx 500
+  const cutoff = Date.now() - 90 * 24 * 3600 * 1000;
+  const logPayload = cardLog
+    .filter(e => e.action === 'add' && e.ts >= cutoff && !e.from)
+    .sort((a,b) => b.ts - a.ts)
+    .slice(0, 500)
+    .map(e => [e.id, e.ts]); // formato compacto [id, timestamp]
+
   const payload = [
     6, // version
     's', // type (sync)
@@ -2365,9 +2438,10 @@ function buildMagicLink(){
     userProfile.emoji,
     userProfile.color,
     compressIds(myCards),
-    ccPayload
+    ccPayload,
+    Date.now(), // timestamp
+    logPayload  // historial compacto
   ];
-  // Añadir checksum al final
   payload.push(calculateChecksum(payload));
   const encoded = encodeSyncData(payload);
   if(!encoded) return null;
@@ -2411,11 +2485,10 @@ function checkSyncFromURL(){
 function processSyncFromURL(){
   const data = window._pendingSyncFromURL;
   if(!data) return;
-  window._pendingSyncFromURL = null;
+  // No limpiamos _pendingSyncFromURL aquí — lo necesita confirmSyncPreview
 
   const fromName  = data.from  || 'Compañero';
   const fromEmoji = data.emoji || '🎉';
-  // Validar que el color sea un hex CSS válido — evita inyección de CSS arbitrario
   const _rawColor = data.color || '';
   const fromColor = /^#[0-9a-fA-F]{3,6}$/.test(_rawColor) ? _rawColor : '#f97316';
 
@@ -2424,45 +2497,105 @@ function processSyncFromURL(){
   for(const cc of customCardsData) if(cc.id) validIds.add(cc.id);
   const ids = (data.ids||[]).filter(id=>typeof id==='string' && validIds.has(id));
 
-  const newIds = ids.filter(id => !theirCards.has(id));
-  for(const id of ids) theirCards.add(id);
+  // Calcular diferencias SIN aplicar todavía
+  const newIds      = ids.filter(id => !theirCards.has(id));
+  const removedIds  = [...theirCards].filter(id => !ids.includes(id));
+  const sameCount   = ids.filter(id => theirCards.has(id)).length;
+
+  // Timestamp del enlace
+  const linkTs = data.ts || null;
+  let dateLabel = '';
+  if(linkTs){
+    const diffMs = Date.now() - linkTs;
+    const diffMin = Math.round(diffMs / 60000);
+    if(diffMin < 2)        dateLabel = 'hace un momento';
+    else if(diffMin < 60)  dateLabel = `hace ${diffMin} min`;
+    else if(diffMin < 1440){ const h=Math.round(diffMin/60); dateLabel=`hace ${h} hora${h!==1?'s':''}`; }
+    else { const d=new Date(linkTs); dateLabel=d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
+  }
+
+  // Rellenar modal
+  const avatar = document.getElementById('syncPreviewAvatar');
+  avatar.textContent = fromEmoji;
+  avatar.style.background = fromColor + '22';
+  document.getElementById('syncPreviewName').textContent = fromName;
+  document.getElementById('syncPreviewDate').textContent = dateLabel ? `Datos de ${dateLabel}` : 'Datos recibidos';
+  document.getElementById('syncPreviewNew').textContent     = newIds.length;
+  document.getElementById('syncPreviewRemoved').textContent = removedIds.length;
+  document.getElementById('syncPreviewTotal').textContent   = ids.length;
+  document.getElementById('syncPreviewSame').textContent    = sameCount;
+
+  let infoText = '';
+  if(newIds.length)    infoText += `✅ Se añadirán ${newIds.length} cromo${newIds.length!==1?'s':''} nuevos de ${fromName}. `;
+  if(removedIds.length) infoText += `⚠️ ${removedIds.length} cromo${removedIds.length!==1?'s':''} que tenías registrados de ${fromName} se desmarcarán porque él/ella los ha quitado. `;
+  if(!newIds.length && !removedIds.length) infoText = `Sin cambios respecto a la última sincronización con ${fromName}.`;
+  infoText += ' Tus propios cromos no se modifican.';
+  document.getElementById('syncPreviewInfo').textContent = infoText;
+
+  const overlay = document.getElementById('syncOverlay');
+  if(overlay) overlay.style.display = 'none';
+
+  document.getElementById('syncPreviewModal').classList.add('open');
+}
+
+function cancelSyncPreview(){
+  window._pendingSyncFromURL = null;
+  document.getElementById('syncPreviewModal').classList.remove('open');
+  showToast('Sincronización cancelada');
+}
+
+function confirmSyncPreview(){
+  const data = window._pendingSyncFromURL;
+  if(!data){ document.getElementById('syncPreviewModal').classList.remove('open'); return; }
+  window._pendingSyncFromURL = null;
+  document.getElementById('syncPreviewModal').classList.remove('open');
+
+  const fromName  = data.from  || 'Compañero';
+  const fromEmoji = data.emoji || '🎉';
+  const _rawColor = data.color || '';
+  const fromColor = /^#[0-9a-fA-F]{3,6}$/.test(_rawColor) ? _rawColor : '#f97316';
+  const linkTs    = data.ts || null;
+
+  const validIds = new Set(allCards.map(c=>c.id));
+  const customCardsData = Array.isArray(data.cc) ? data.cc : [];
+  for(const cc of customCardsData) if(cc.id) validIds.add(cc.id);
+  const ids = (data.ids||[]).filter(id=>typeof id==='string' && validIds.has(id));
+
+  const prevTheirCards = new Set(theirCards);
+  theirCards = new Set(ids);
+  for(const cc of customCardsData){ if(cc.collected && cc.id) theirCards.add(cc.id); }
+
+  const newIds     = ids.filter(id => !prevTheirCards.has(id));
+  const removedCount = [...prevTheirCards].filter(id => !theirCards.has(id)).length;
+
+  // Merge historial del compañero
+  const incomingLog = Array.isArray(data.log) ? data.log : [];
+  _mergeCompanionLog(incomingLog, fromName);
 
   if(data.from){
     const inp = document.getElementById('p2NameInput');
-    if(!inp.value){
-      inp.value = data.from;
-      updateP2Name(data.from);
-      dbSet(STORE_P2NAME, data.from);
-    }
+    inp.value = data.from;
+    updateP2Name(data.from);
+    dbSet(STORE_P2NAME, data.from);
   }
 
   const newCustomCards = [];
   const existingIds = new Set(customCards.map(c=>c.id));
   for(const cc of customCardsData){
     if(!existingIds.has(cc.id) && cc.id && cc.label && cc.block){
-      customCards.push(cc);
-      newCustomCards.push(cc);
+      customCards.push(cc); newCustomCards.push(cc);
     }
-    // Si el compañero tiene esa carta custom conseguida, añadirla a theirCards
-    if(cc.collected && cc.id) theirCards.add(cc.id);
   }
   if(newCustomCards.length > 0){
-    injectCustomCards();
-    mapExpanded.clear();
-    renderCustomCardsList();
-    renderBisCardsList();
-    syncBisFilterVisibility();
+    injectCustomCards(); mapExpanded.clear();
+    renderCustomCardsList(); renderBisCardsList(); syncBisFilterVisibility();
   }
 
-  saveAll();
-  renderAll();
-  vibrate([50,30,50]);
+  dbSet('last_sync_ts', String(Date.now()));
+  dbSet('last_sync_from', fromName);
 
-  setTimeout(()=>{
-    showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards);
-    const overlay = document.getElementById('syncOverlay');
-    if(overlay) overlay.style.display = 'none';
-  }, 500)
+  saveAll(); renderAll(); vibrate([50,30,50]);
+  setTimeout(()=>showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards, removedCount, linkTs), 300);
 }
 
 
@@ -2498,12 +2631,18 @@ function doShare(){
 
 function _doShareFallbackJSON(name){
   // Fallback cuando hay demasiados datos para la URL
+  const cutoffJson = Date.now() - 90 * 24 * 3600 * 1000;
+  const logForJson = cardLog
+    .filter(e => e.action === 'add' && e.ts >= cutoffJson && !e.from)
+    .sort((a,b) => b.ts - a.ts)
+    .slice(0, 500);
   const payload={
     version:3, type:'companion-checklist',
     from: name, emoji: userProfile.emoji, color: userProfile.color,
     date:new Date().toISOString(),
     collected:[...myCards],
-    customCards: customCards
+    customCards: customCards,
+    cardLog: logForJson
   };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -2545,7 +2684,7 @@ function importCompanion(evt){
       // Filtrar IDs recibidos — descartar los que no existen en esta colección
       ids=ids.filter(id=>validIds.has(id));
       const _impColor = data.color||'';
-      pendingImport={ids, customCards: data.customCards||[], fromName: data.from||'', fromEmoji: data.emoji||'🎉', fromColor: /^#[0-9a-fA-F]{3,6}$/.test(_impColor)?_impColor:'#f97316'};
+      pendingImport={ids, customCards: data.customCards||[], cardLog: data.cardLog||[], fromName: data.from||'', fromEmoji: data.emoji||'🎉', fromColor: /^#[0-9a-fA-F]{3,6}$/.test(_impColor)?_impColor:'#f97316'};
       const fromName=data.from||document.getElementById('p2NameInput').value||'Compañero';
       const nuevos=ids.filter(id=>!theirCards.has(id)).length;
       const yaTenia=ids.filter(id=>theirCards.has(id)).length;
@@ -2569,9 +2708,13 @@ function importCompanion(evt){
 function confirmImport(){
   if(!pendingImport) return;
 
-  // Capture exactly which IDs are truly new (not already in theirCards)
-  const newIds = pendingImport.ids.filter(id => !theirCards.has(id));
-  for(const id of pendingImport.ids) theirCards.add(id);
+  // Sincronización COMPLETA: reemplazar theirCards por lo que trae el archivo
+  const prevTheirCards = new Set(theirCards);
+  theirCards = new Set(pendingImport.ids);
+
+  // Calcular novedades y desmarcados
+  const newIds = pendingImport.ids.filter(id => !prevTheirCards.has(id));
+  const removedCount = [...prevTheirCards].filter(id => !theirCards.has(id)).length;
 
   // Merge companion's custom cards
   const newCustomCards = [];
@@ -2597,18 +2740,34 @@ function confirmImport(){
   const fromName = pendingImport.fromName || document.getElementById('p2NameInput').value || 'Compañero';
   const fromEmoji = pendingImport.fromEmoji || '🎉';
   const fromColor = pendingImport.fromColor || '#f97316';
+
+  // Merge historial del compañero
+  _mergeCompanionLog(pendingImport.cardLog || [], fromName);
+
+  // Mejora 4: actualizar nombre del compañero siempre
+  if(pendingImport.fromName){
+    const inp = document.getElementById('p2NameInput');
+    inp.value = pendingImport.fromName;
+    updateP2Name(pendingImport.fromName);
+    dbSet(STORE_P2NAME, pendingImport.fromName);
+  }
+
+  // Guardar timestamp de última sync
+  dbSet('last_sync_ts', String(Date.now()));
+  dbSet('last_sync_from', fromName);
+
   pendingImport=null;
   saveAll();renderAll();closeModals();
 
-  // Show celebration popup
-  showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards);
+  // Show celebration popup (sin timestamp de enlace — viene de archivo)
+  showCelebrate(fromName, fromEmoji, fromColor, newIds, newCustomCards, removedCount, null);
 }
 
 // ─────────────────────────────────────────────────────────
 //  POPUP CELEBRACIÓN
 // ─────────────────────────────────────────────────────────
 // Muestra el popup de celebración con confeti y lista de cartas recibidas
-function showCelebrate(name, emoji, color, newIds, newCustom){
+function showCelebrate(name, emoji, color, newIds, newCustom, removedCount, linkTs){
   // Guardar quién envió para el botón de respuesta
   const overlay = document.getElementById('celebrateOverlay');
   overlay.dataset.replyName = name;
@@ -2620,14 +2779,35 @@ function showCelebrate(name, emoji, color, newIds, newCustom){
   const total = newIds.length + newCustom.length;
   const msgEl = document.getElementById('celebrateMsg');
   
-  if(total === 0){
-    msgEl.innerHTML = `¡Ya tenías todos los cromos de <b>${escapeHTML(name)}</b>! 👌`;
-  } else {
-    msgEl.innerHTML = `¡Has recibido <b>${total}</b> cromos nuevos de <b>${escapeHTML(name)}</b>! ✨`;
+  // Línea de antigüedad del enlace
+  let tsLine = '';
+  if(linkTs){
+    const diffMs = Date.now() - linkTs;
+    const diffMin = Math.round(diffMs / 60000);
+    let tsLabel;
+    if(diffMin < 2)       tsLabel = 'hace un momento';
+    else if(diffMin < 60) tsLabel = `hace ${diffMin} min`;
+    else if(diffMin < 1440){
+      const h = Math.round(diffMin/60);
+      tsLabel = `hace ${h} hora${h!==1?'s':''}`;
+    } else {
+      const d = new Date(linkTs);
+      tsLabel = d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    }
+    tsLine = `<div style="font-size:.75em;color:var(--text2);margin-top:6px">📅 Datos de ${escapeHTML(name)} — ${tsLabel}</div>`;
   }
 
-  // Si quieres mostrar la lista detallada de lo que ha llegado:
-  // (Opcional: podrías añadir un contenedor div#celebrateBody en el HTML si quieres listar los IDs)
+  if(total === 0 && !removedCount){
+    msgEl.innerHTML = `¡Ya tenías todos los cromos de <b>${escapeHTML(name)}</b>! 👌${tsLine}`;
+  } else {
+    let html = '';
+    if(total > 0) html += `¡Has recibido <b>${total}</b> cromo${total!==1?'s':''} nuevo${total!==1?'s':''} de <b>${escapeHTML(name)}</b>! ✨`;
+    if(removedCount > 0){
+      if(html) html += '<br>';
+      html += `<span style="font-size:.85em;color:var(--text2)">🔄 ${removedCount} cromo${removedCount!==1?'s':''} desmarcado${removedCount!==1?'s':''} (actualizado desde su lista)</span>`;
+    }
+    msgEl.innerHTML = (html || `Lista de <b>${escapeHTML(name)}</b> sincronizada 👌`) + tsLine;
+  }
 
   // Mostrar overlay — usamos clase .open (consistente con .modal-overlay CSS)
   // para que closeModals() también lo cierre al pulsar fuera.
@@ -3225,8 +3405,60 @@ document.getElementById('customCardLabel').addEventListener('keydown', e=>{
 });
 
 // ─────────────────────────────────────────────────────────
-//  RESET
+//  ESTADO DE ÚLTIMA SINCRONIZACIÓN
 // ─────────────────────────────────────────────────────────
+async function renderLastSyncStatus(){
+  const el = document.getElementById('lastSyncLabel');
+  if(!el) return;
+
+  const ts   = await dbGet('last_sync_ts');
+  const from = await dbGet('last_sync_from');
+  const theirCount = theirCards.size;
+
+  if(!ts || !theirCount){
+    el.textContent = 'Sin sincronizar todavía';
+    return;
+  }
+
+  const diffMs  = Date.now() - parseInt(ts, 10);
+  const diffMin = Math.round(diffMs / 60000);
+  let cuando;
+  if(diffMin < 2)        cuando = 'hace un momento';
+  else if(diffMin < 60)  cuando = `hace ${diffMin} min`;
+  else if(diffMin < 1440){
+    const h = Math.round(diffMin / 60);
+    cuando = `hace ${h} hora${h!==1?'s':''}`;
+  } else {
+    const dias = Math.round(diffMin / 1440);
+    cuando = dias === 1 ? 'ayer' : `hace ${dias} días`;
+  }
+
+  const quien = from ? ` · ${from}` : '';
+  el.textContent = `${cuando}${quien} · ${theirCount} cromos`;
+}
+// ─────────────────────────────────────────────────────────
+//  MERGE DE HISTORIAL DEL COMPAÑERO
+// ─────────────────────────────────────────────────────────
+function _mergeCompanionLog(incomingLog, fromName){
+  if(!Array.isArray(incomingLog) || !incomingLog.length) return;
+  // Clave única por entrada: id + ts (evita duplicar si se sincroniza dos veces)
+  const existingKeys = new Set(cardLog.map(e => `${e.id}|${e.ts}`));
+  for(const e of incomingLog){
+    if(!e.id || !e.ts || e.action !== 'add') continue;
+    const key = `${e.id}|${e.ts}`;
+    if(!existingKeys.has(key)){
+      cardLog.push({ id: e.id, ts: e.ts, action: 'add', from: fromName });
+      existingKeys.add(key);
+    }
+  }
+  // Mantener límite de 2000 entradas ordenadas por fecha desc
+  if(cardLog.length > 2000){
+    cardLog.sort((a,b) => b.ts - a.ts);
+    cardLog.splice(2000);
+  }
+  dbSet(LOG_KEY, JSON.stringify(cardLog));
+}
+
 function showResetModal(){document.getElementById('resetModal').classList.add('open');}
 function closeModals(){
   document.querySelectorAll('.modal-overlay, .bulk-modal-overlay').forEach(m=>m.classList.remove('open'));
@@ -3416,7 +3648,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(tab==='stats') renderStats();
     if(tab==='map') renderMap();
     if(tab==='history') renderHistory();
-    if(tab==='settings'){ renderCustomCardsList(); renderBisCardsList(); }
+    if(tab==='settings'){ renderCustomCardsList(); renderBisCardsList(); renderLastSyncStatus(); }
   });
 });
 
@@ -3495,6 +3727,7 @@ async function init(){
     renderCustomCardsList();
     renderBisCardsList();
     syncBisFilterVisibility();
+    renderLastSyncStatus();
     document.getElementById('bulkFab').style.display='flex';
     // Procesar sync desde URL solo cuando la app ya está visible
     processSyncFromURL();
@@ -3510,7 +3743,7 @@ function renderHistory(){
   const el = document.getElementById('historyContent');
   if(!el) return;
 
-  // Solo entradas 'add' con fecha real (descartar removes para el historial de adquisición)
+  // Entradas 'add' — propias y del compañero
   const entries = cardLog.filter(e => e.action === 'add');
 
   if(!entries.length){
@@ -3522,10 +3755,10 @@ function renderHistory(){
     return;
   }
 
-  // Mapa de id → info de carta
   const cardMap = new Map(allCards.map(c => [c.id, c]));
+  const p2name = document.getElementById('p2NameInput').value || 'Compañero';
 
-  // Agrupar por día (más reciente primero)
+  // Agrupar por día
   const byDay = new Map();
   for(const e of entries){
     const d = new Date(e.ts);
@@ -3538,7 +3771,17 @@ function renderHistory(){
   const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-  let html = '';
+  // Leyenda solo si hay entradas del compañero
+  const hasCompanionEntries = entries.some(e => e.from);
+  let legendHtml = '';
+  if(hasCompanionEntries){
+    legendHtml = `<div style="display:flex;gap:10px;flex-wrap:wrap;padding:4px 4px 10px;font:600 10px var(--font);color:var(--text2)">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--p1);display:inline-block"></span>Tuyos</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--p2);display:inline-block"></span>${escapeHTML(p2name)}</span>
+    </div>`;
+  }
+
+  let html = legendHtml;
   for(const dayKey of sortedDays){
     const dayEntries = byDay.get(dayKey);
     const [y,m,d] = dayKey.split('-').map(Number);
@@ -3552,26 +3795,29 @@ function renderHistory(){
     else if(dateObj.getTime() === yesterday.getTime()) dayLabel = 'Ayer';
     else dayLabel = `${dayNames[dateObj.getDay()]} ${d} de ${monthNames[m-1]} de ${y}`;
 
-    // Contar sólo los que siguen en myCards (no desmarcados después)
-    const stillHave = dayEntries.filter(e => myCards.has(e.id));
+    const myCount       = dayEntries.filter(e => !e.from).length;
+    const companionCount = dayEntries.filter(e => e.from).length;
+    let countLabel = `+${myCount}`;
+    if(companionCount) countLabel += ` <span style="color:var(--p2)">+${companionCount} ${escapeHTML(p2name)}</span>`;
 
     html += `<div class="history-day">
       <div class="history-day-hdr">
         <div class="hd-dot"></div>
         <span>${dayLabel}</span>
-        <span class="hd-count">+${dayEntries.length} cromo${dayEntries.length!==1?'s':''}</span>
+        <span class="hd-count">${countLabel}</span>
       </div>
       <div class="history-chips">`;
 
-    // Mostrar más recientes primero dentro del día
     const sorted = [...dayEntries].sort((a,b) => b.ts - a.ts);
     for(const e of sorted){
-      const card = cardMap.get(e.id);
-      const still = myCards.has(e.id);
+      const card  = cardMap.get(e.id);
+      const isCompanion = !!e.from;
+      const still = isCompanion ? theirCards.has(e.id) : myCards.has(e.id);
       const label = card ? card.label : e.id;
       const block = card ? card.block : '';
-      const displayNum = e.id.endsWith('bis') ? e.id : String(parseInt(e.id,10));
-      html += `<div class="history-chip${still?'':' removed'}" title="${still?'':'Desmarcado después'}">
+      const whoName = isCompanion ? (e.from || p2name) : null;
+      html += `<div class="history-chip${still?'':' removed'}${isCompanion?' from-companion':''}" title="${still?'':'Desmarcado después'}">
+        ${whoName ? `<span class="hc-who">${escapeHTML(whoName)}</span>` : ''}
         <span class="hc-num">${escapeHTML(label)}</span>
         ${block ? `<span class="hc-block">${escapeHTML(block)}</span>` : ''}
       </div>`;
